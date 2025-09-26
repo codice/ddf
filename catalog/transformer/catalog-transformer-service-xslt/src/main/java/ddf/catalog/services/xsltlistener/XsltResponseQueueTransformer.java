@@ -201,9 +201,13 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
             metacardElement.appendChild(documentElement);
             resultsElement.appendChild(metacardElement);
 
-            Node importedNode =
-                doc.importNode(new XPathHelper(metadata).getDocument().getFirstChild(), true);
-            documentElement.appendChild(importedNode);
+            try {
+              Node importedNode =
+                  doc.importNode(new XPathHelper(metadata).getDocument().getFirstChild(), true);
+              documentElement.appendChild(importedNode);
+            } catch (Exception e) {
+              LOGGER.debug("failed to parse metadata", e);
+            }
           } else {
             LOGGER.debug("Null content/document returned to XSLT ResponseQueueTransformer");
           }

@@ -19,7 +19,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
@@ -318,7 +317,7 @@ public final class ContextualEvaluator {
           }
         }
       }
-    } catch (XPathExpressionException e1) {
+    } catch (Exception e1) {
       LOGGER.debug("Unable to evaluate XPath", e1);
     }
 

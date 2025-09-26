@@ -162,7 +162,7 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
-        <commons-codec.version>1.15</commons-codec.version>
+        <commons-codec.version>1.17.0</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-collections4.version>4.1</commons-collections4.version>
         <commons-configuration.version>1.10</commons-configuration.version>
@@ -180,7 +180,7 @@
         <commons-text.version>1.13.0</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-        <countryconverter.version>0.2.1</countryconverter.version>
+        <countryconverter.version>0.2.3-SNAPSHOT</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
         <cxf.version>3.6.7</cxf.version>
         <decanter.version>2.9.0</decanter.version>
@@ -223,7 +223,7 @@
         <jcodec.version>0.2.0_1</jcodec.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
-        <jetty.version>9.4.57.v20241219</jetty.version>
+        <jetty.version>9.4.58.v20250814</jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
@@ -299,7 +299,7 @@
         <solr.httpclient.version>4.5.14</solr.httpclient.version>
         <solr.httpcore.version>4.4.16</solr.httpcore.version>
         <solr.httpmime.version>4.5.14</solr.httpmime.version>
-        <solr.jetty.version>10.0.22</solr.jetty.version>
+        <solr.jetty.version>10.0.26</solr.jetty.version>
         <solr.zookeeper.version>3.8.4</solr.zookeeper.version>
         <solr.spatial4j.version>0.8</solr.spatial4j.version>
         <solr.javax.ws.rs.version>3.1.0</solr.javax.ws.rs.version>

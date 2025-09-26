@@ -175,7 +175,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
-                  <excludes>**/WFS*.xml,**/sfRoad*.xml</excludes>
+                  <excludes>**/WFS*.xml,**/sfRoad*.xml,src/main/resources/tika/**</excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -242,7 +242,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>6.2_MB</maxArtifactSize>
+                                    <maxArtifactSize>7.7_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

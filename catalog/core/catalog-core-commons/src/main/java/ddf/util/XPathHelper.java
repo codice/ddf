@@ -72,7 +72,7 @@ public class XPathHelper {
   }
 
   /** @param document - To parse */
-  public XPathHelper(Document document) {
+  public XPathHelper(Document document) throws Exception {
     // Hugh Rodgers - 6/7/2011
     // This code seemed to work except it was not reliable for namespace aware
     // xpath expressions. The String constructor always worked, hence the new code
@@ -96,7 +96,7 @@ public class XPathHelper {
   }
 
   /** @param xmlText */
-  public XPathHelper(String xmlText) {
+  public XPathHelper(String xmlText) throws Exception {
     this();
 
     InputSource is = new InputSource(new StringReader(xmlText));
@@ -121,6 +121,7 @@ public class XPathHelper {
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       LOGGER.debug(e.getMessage(), e);
+      throw new Exception(e);
     }
   }
 

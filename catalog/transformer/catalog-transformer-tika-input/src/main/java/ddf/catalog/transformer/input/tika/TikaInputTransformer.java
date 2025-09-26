@@ -59,7 +59,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
@@ -368,7 +367,7 @@ public class TikaInputTransformer implements InputTransformer {
       try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource().openStream()) {
         extractor = new TikaMetadataExtractor(inputStreamCopy, previewMaxLength, metadataMaxLength);
 
-      } catch (TikaException | RuntimeException t) {
+      } catch (Throwable t) {
         LOGGER.debug("Unable to extract tika metadata", t);
       }
 

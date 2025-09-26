@@ -125,34 +125,40 @@ public class SearchCommand extends CqlCommands {
       String modifiedDate = "";
 
       if (searchPhrase != null && metacard.getMetadata() != null) {
-        XPathHelper helper = new XPathHelper(metacard.getMetadata());
-        String indexedText = helper.getDocument().getDocumentElement().getTextContent();
-        indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
+        try {
+          XPathHelper helper = new XPathHelper(metacard.getMetadata());
+          String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+          indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
 
-        String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
+          String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
 
-        int index = -1;
+          int index = -1;
 
-        if (caseSensitive) {
-          index = indexedText.indexOf(normalizedSearchPhrase);
-        } else {
-          index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
-        }
+          if (caseSensitive) {
+            index = indexedText.indexOf(normalizedSearchPhrase);
+          } else {
+            index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+          }
 
-        if (index != -1) {
-          int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-          excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
-          excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-          excerpt = excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
-          excerpt = excerpt + Ansi.ansi().reset().toString();
-          excerpt =
-              excerpt
-                  + indexedText.substring(
-                      index + normalizedSearchPhrase.length(),
-                      Math.min(
-                          indexedText.length(),
-                          index + normalizedSearchPhrase.length() + contextLength))
-                  + "...";
+          if (index != -1) {
+            int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+            excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
+            excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
+            excerpt =
+                excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
+            excerpt = excerpt + Ansi.ansi().reset().toString();
+            excerpt =
+                excerpt
+                    + indexedText.substring(
+                        index + normalizedSearchPhrase.length(),
+                        Math.min(
+                            indexedText.length(),
+                            index + normalizedSearchPhrase.length() + contextLength))
+                    + "...";
+          }
+        } catch (Exception e) {
+          // excerpt remains N/A
+          LOGGER.debug("failed to parse excerpt", e);
         }
       }
 

@@ -39,7 +39,76 @@
     <overrideBundleDependency/>
 
     <!-- A list of bundle URI replacements that allows changing external feature definitions -->
-    <bundleReplacements/>
+    <bundleReplacements>
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-client/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.http2/http2-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-common/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.http2/http2-common/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-hpack/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.http2/http2-hpack/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-http-client-transport/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.http2/http2-http-client-transport/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-server/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.http2/http2-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-client/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-java-client/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-java-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-java-server/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-java-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-openjdk8-client/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-openjdk8-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-opendjk8-server/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-openjdk8-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-server/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-client/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-continuation/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-continuation/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-http/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-http/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-io/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-io/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-jaas/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-jaas/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-jmx/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-jmx/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-openid/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-openid/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-proxy/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-proxy/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-rewrite/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-rewrite/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-security/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-security/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-server/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-servlet/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-servlet/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-servlets/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-servlets/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-util/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-util/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-util-ajax/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-util-ajax/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-xml/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty/jetty-xml/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/javax-websocket-client-impl/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/javax-websocket-client-impl/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/javax-websocket-server-impl/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/javax-websocket-server-impl/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-api/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-api/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-client/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-common/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-common/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-server/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-servlet/9.4.57.v20241219"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-servlet/${jetty.version}" />
+    </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->
     <featureReplacements/>

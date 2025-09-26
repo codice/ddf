@@ -201,7 +201,7 @@ public class TikaMetadataExtractor {
                   LOGGER.warn("tika failed", e);
                   throw e;
                 } finally {
-                  Thread.currentThread().setContextClassLoader(tccl);
+                  //                  Thread.currentThread().setContextClassLoader(tccl);
                 }
                 return null;
               });

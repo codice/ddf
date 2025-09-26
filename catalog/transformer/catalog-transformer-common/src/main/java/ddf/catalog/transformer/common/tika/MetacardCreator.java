@@ -370,7 +370,13 @@ public class MetacardCreator {
     if (StringUtils.isBlank(dateStr)) {
       return null;
     }
-    Date date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
+    Date date;
+    try {
+      date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
+    } catch (Throwable throwable) {
+      LOGGER.debug("failed to parse tika date", throwable);
+      return null;
+    }
 
     // Tika will return epoch dates when they are missing/null in the source metadata
     if (date.equals(UNIX_EPOCH_DATE) || date.equals(EXCEL_EPOCH_DATE)) {

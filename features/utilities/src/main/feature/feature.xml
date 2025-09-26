@@ -255,8 +255,10 @@
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
         <!-- need to be on the tika classloader -->
-<!--        <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>-->
+        <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
+        <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
+        <bundle>mvn:org.apache.pdfbox/pdfbox-io/${pdfbox.version}</bundle>
+        <bundle>wrap:mvn:org.apache.pdfbox/pdfbox-tools/${pdfbox.version}</bundle>
         <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
 <!--        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>-->
         <bundle>wrap:mvn:org.apache.poi/poi/${poi.version}</bundle>
