@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBase;
@@ -80,8 +81,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
       // Handle Multiple Map Frames
       if (lgiDictObject instanceof COSArray) {
         for (int i = 0; i < ((COSArray) lgiDictObject).size(); i++) {
-          COSDictionary lgidict =
-              (COSDictionary) cosObject.getObjectFromPath(LGIDICT + "/" + i + "");
+          COSDictionary lgidict = (COSDictionary) cosObject.getObjectFromPath(LGIDICT + "/" + i);
 
           COSDictionary projectionArray = (COSDictionary) lgidict.getDictionaryObject(PROJECTION);
           if (projectionArray != null) {
@@ -188,28 +188,32 @@ public class GeoPdfParserImpl implements GeoPdfParser {
    */
   private Optional<String> getWktFromNeatLine(COSDictionary lgidict, COSArray neatLineArray)
       throws IOException {
-    ToDoubleVisitor toDoubleVisitor;
     List<Double> neatline = new LinkedList<>();
     List<String> coordinateList = new LinkedList<>();
     String firstCoordinate = null;
 
     double[] points = new double[CTM_SIZE];
     for (int i = 0; i < CTM_SIZE; i++) {
-      toDoubleVisitor = new ToDoubleVisitor();
-      lgidict.getObjectFromPath(CTM + "/" + i + "").accept(toDoubleVisitor);
+      ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
+      lgidict.getObjectFromPath(CTM + "/" + i).accept(toDoubleVisitor);
       Double doub = toDoubleVisitor.getLastValue();
       if (doub != null) {
         points[i] = doub;
       } else {
-        return Optional.empty();
+        return returnAndLog();
       }
     }
     AffineTransform affineTransform = new AffineTransform(points);
 
     for (int i = 0; i < neatLineArray.size(); i++) {
-      toDoubleVisitor = new ToDoubleVisitor();
+      ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
       neatLineArray.get(i).accept(toDoubleVisitor);
-      neatline.add(toDoubleVisitor.getLastValue());
+      Double doub = toDoubleVisitor.getLastValue();
+      if (doub != null) {
+        neatline.add(doub);
+      } else {
+        return returnAndLog();
+      }
     }
 
     for (int i = 0; i < neatline.size(); i += 2) {
@@ -233,11 +237,25 @@ public class GeoPdfParserImpl implements GeoPdfParser {
     return Optional.of(wktString);
   }
 
+  private static Optional<String> returnAndLog() {
+    LOGGER.trace("Invalid point, returning empty");
+    return Optional.empty();
+  }
+
   /** This visitor class converts parsable COS Objects into {@link Double}s */
   private static class ToDoubleVisitor implements ICOSVisitor {
 
     private Double doubleValue;
 
+    private void setAndcheckForExistingValue(double newValue) {
+      if (doubleValue != null) {
+        throw new IllegalArgumentException(
+            "Existing value found, this class should not be reused!");
+      }
+      doubleValue = newValue;
+    }
+
+    @Nullable
     public Double getLastValue() {
       return doubleValue;
     }
@@ -256,13 +274,12 @@ public class GeoPdfParserImpl implements GeoPdfParser {
 
     @Override
     public void visitFromFloat(COSFloat cosFloat) throws IOException {
-      // do we care about precision here?
-      doubleValue = (double) cosFloat.floatValue();
+      setAndcheckForExistingValue(cosFloat.floatValue());
     }
 
     @Override
     public void visitFromInt(COSInteger cosInteger) throws IOException {
-      doubleValue = (double) cosInteger.longValue();
+      setAndcheckForExistingValue(cosInteger.longValue());
     }
 
     @Override
@@ -276,7 +293,11 @@ public class GeoPdfParserImpl implements GeoPdfParser {
 
     @Override
     public void visitFromString(COSString cosString) throws IOException {
-      doubleValue = Double.valueOf(cosString.getString());
+      try {
+        setAndcheckForExistingValue(Double.parseDouble(cosString.getString()));
+      } catch (NullPointerException | NumberFormatException e) {
+        LOGGER.warn("Failed to parse double from input string {}", cosString.getString(), e);
+      }
     }
   }
 }

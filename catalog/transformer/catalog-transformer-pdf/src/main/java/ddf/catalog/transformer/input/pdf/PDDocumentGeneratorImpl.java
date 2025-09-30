@@ -22,6 +22,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 public class PDDocumentGeneratorImpl implements PDDocumentGenerator {
   @Override
   public PDDocument apply(InputStream inputStream) throws IOException {
-    return new PDDocument(Loader.loadPDF(new RandomAccessReadBuffer(inputStream)).getDocument());
+    RandomAccessReadBuffer randomAccessRead = new RandomAccessReadBuffer(inputStream);
+    PDDocument pdDocument = Loader.loadPDF(randomAccessRead);
+    return new PDDocument(pdDocument.getDocument());
   }
 }

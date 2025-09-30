@@ -45,8 +45,9 @@
                 <exclude>system/**/*kibana*</exclude>
                 <exclude>**/jetty/**/9.4.6.v20170531/*</exclude>
                 <exclude>**/jetty/**/8.1.14.v20131031/*</exclude>
-                <exclude>**/jetty/**/9.4.57.v20241219/*</exclude>
-                <exclude>**/jetty/**/9.4.57.v20241219</exclude>
+                <!-- need to upgrade jetty for CVE-2025-5115 -->
+                <exclude>**/jetty/**/${karaf.jetty.version}/*</exclude>
+                <exclude>**/jetty/**/${karaf.jetty.version}</exclude>
                 <exclude>**/pax/web/**/7.0.0/*</exclude>
                 <!--
                 Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
@@ -359,6 +360,7 @@
                 </include>
             </includes>
         </dependencySet>
+        <!-- need to upgrade jetty for CVE-2025-5115 -->
         <dependencySet>
             <outputDirectory>
                 system/org/eclipse/jetty/http2/http2-client/${jetty.version}

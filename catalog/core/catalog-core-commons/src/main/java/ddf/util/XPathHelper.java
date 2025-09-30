@@ -72,7 +72,8 @@ public class XPathHelper {
   }
 
   /** @param document - To parse */
-  public XPathHelper(Document document) throws Exception {
+  public XPathHelper(Document document)
+      throws ParserConfigurationException, IOException, SAXException {
     // Hugh Rodgers - 6/7/2011
     // This code seemed to work except it was not reliable for namespace aware
     // xpath expressions. The String constructor always worked, hence the new code
@@ -96,7 +97,8 @@ public class XPathHelper {
   }
 
   /** @param xmlText */
-  public XPathHelper(String xmlText) throws Exception {
+  public XPathHelper(String xmlText)
+      throws ParserConfigurationException, IOException, SAXException {
     this();
 
     InputSource is = new InputSource(new StringReader(xmlText));
@@ -105,24 +107,20 @@ public class XPathHelper {
 
     DocumentBuilder builder;
     org.w3c.dom.Document doc = null;
-    try {
-      Thread thread = Thread.currentThread();
-      ClassLoader loader = thread.getContextClassLoader();
-      thread.setContextClassLoader(XPathHelper.class.getClassLoader());
+    Thread thread = Thread.currentThread();
+    ClassLoader loader = thread.getContextClassLoader();
+    thread.setContextClassLoader(XPathHelper.class.getClassLoader());
 
-      try {
-        builder = dbf.newDocumentBuilder();
-        builder.setErrorHandler(null);
-        doc = builder.parse(is);
-        doc.getDocumentElement().normalize();
-        this.document = doc;
-      } finally {
-        thread.setContextClassLoader(loader);
-      }
-    } catch (ParserConfigurationException | SAXException | IOException e) {
-      LOGGER.debug(e.getMessage(), e);
-      throw new Exception(e);
+    try {
+      builder = dbf.newDocumentBuilder();
+      builder.setErrorHandler(null);
+      doc = builder.parse(is);
+      doc.getDocumentElement().normalize();
+      this.document = doc;
+    } finally {
+      thread.setContextClassLoader(loader);
     }
+    // do not catch the exceptions, as they leave this helper in an invalid state
   }
 
   /**

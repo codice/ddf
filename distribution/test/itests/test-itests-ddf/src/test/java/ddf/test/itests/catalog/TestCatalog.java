@@ -206,6 +206,65 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  public void testTikaParse() throws IOException {
+    List<String> files =
+        List.of(
+            "AutoDetectParser.class",
+            "complex.mbox",
+            "Test1.txt.tsd",
+            "test-documents-enc.rar",
+            "testATOM.atom",
+            "testCADKEY.prt",
+            "testDOCX_Thumbnail.docx",
+            "testEPUB.epub",
+            "testEXCEL_poi.xlsx",
+            "testGIF.gif",
+            "testJPEG_commented.jpg",
+            "testKMZ.kmz",
+            "testMP4.m4a",
+            "testOCTET_header.dbase3",
+            "testPages.pages",
+            "testPDF.pdf",
+            "testPPTX_Thumbnail.pptx",
+            "testTIFF_multipage.tif",
+            "testTrueType3.ttf",
+            "testWACZ.wacz",
+            "testXML.xml");
+    for (String fileName : files) {
+      LOGGER.info("ingesting {}", fileName);
+      File tmpFile =
+          createTemporaryFile(
+              fileName,
+              AbstractIntegrationTest.class
+                  .getClassLoader()
+                  .getResourceAsStream("/tika/" + fileName));
+      String id =
+          given()
+              .multiPart(tmpFile)
+              .expect()
+              .log()
+              .headers()
+              .statusCode(201)
+              .when()
+              .post(REST_PATH.getUrl())
+              .getHeader("id");
+
+      String url = REST_PATH.getUrl() + id;
+
+      when()
+          .get(url)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .body(allOf(containsString(fileName.toLowerCase()), not(containsString("EmptyParser"))));
+
+      delete(id);
+      deleteTemporaryFile(fileName);
+    }
+  }
+
+  @Test
   public void testReadStorage() throws IOException {
     String fileName = testName.getMethodName() + ".jpg";
     File tmpFile =

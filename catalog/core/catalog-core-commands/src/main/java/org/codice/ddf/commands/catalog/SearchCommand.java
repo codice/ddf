@@ -24,7 +24,9 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.util.XPathHelper;
+import java.io.IOException;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
@@ -34,6 +36,7 @@ import org.geotools.api.filter.Filter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 @Service
 @Command(
@@ -156,7 +159,7 @@ public class SearchCommand extends CqlCommands {
                             index + normalizedSearchPhrase.length() + contextLength))
                     + "...";
           }
-        } catch (Exception e) {
+        } catch (ParserConfigurationException | IOException | SAXException e) {
           // excerpt remains N/A
           LOGGER.debug("failed to parse excerpt", e);
         }

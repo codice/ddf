@@ -374,7 +374,7 @@ public class MetacardCreator {
     try {
       date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
     } catch (Throwable throwable) {
-      LOGGER.debug("failed to parse tika date", throwable);
+      LOGGER.debug("failed to parse tika date from string {}", dateStr, throwable);
       return null;
     }
 

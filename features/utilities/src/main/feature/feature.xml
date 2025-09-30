@@ -90,7 +90,6 @@
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
-<!--        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>-->
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csw
         </configfile>
@@ -194,38 +193,6 @@
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
         <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
         <bundle>mvn:ddf.thirdparty/tika/${project.version}</bundle>
-<!--        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parsers-standard-package/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-pdf-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-text-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-microsoft-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-html-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-miscoffice-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-xmp-commons/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-zip-commons/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-mail-commons/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-image-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-xml-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-apple-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-code-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-audiovideo-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-crypto-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-cad-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-news-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-font-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-webarchive-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-mail-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-ocr-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.apache.tika/tika-parser-pkg-module/${tika.version}</bundle>-->
-<!--        <bundle>mvn:org.gagravarr/vorbis-java-tika/0.8</bundle>-->
-<!--        <bundle>mvn:org.apache.pdfbox/pdfbox/3.0.5</bundle>-->
-<!--        <bundle>mvn:org.apache.pdfbox/pdfbox-io/3.0.5</bundle>-->
-<!--        <bundle>wrap:mvn:org.apache.pdfbox/pdfbox-tools/3.0.5</bundle>-->
-<!--        <bundle>mvn:org.apache.pdfbox/jempbox/1.8.17</bundle>-->
-<!--        <bundle>mvn:org.apache.commons/commons-compress/1.28.0</bundle>-->
-<!--        <bundle>mvn:org.apache.pdfbox/fontbox/3.0.5</bundle>-->
-<!--        <bundle>mvn:com.googlecode.plist/dd-plist/1.28</bundle>-->
-<!--        <bundle>wrap:mvn:org.apache.poi/poi-ooxml/5.4.1</bundle>-->
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">
@@ -254,13 +221,11 @@
         <bundle>wrap:mvn:xml-apis/xml-apis-ext/1.3.04</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
-        <!-- need to be on the tika classloader -->
         <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/pdfbox-io/${pdfbox.version}</bundle>
         <bundle>wrap:mvn:org.apache.pdfbox/pdfbox-tools/${pdfbox.version}</bundle>
         <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
-<!--        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>-->
         <bundle>wrap:mvn:org.apache.poi/poi/${poi.version}</bundle>
         <bundle>wrap:mvn:org.apache.poi/poi-ooxml/${poi.version}</bundle>
         <bundle>wrap:mvn:org.apache.poi/poi-scratchpad/${poi.version}</bundle>

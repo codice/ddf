@@ -82,6 +82,7 @@
                         </Embed-Dependency>
                         <Export-Package />
                         <Import-Package>
+                            !org.tukaani.xz,
                             com.sun.tools.apt;resolution:=optional,
                             com.sun.tools.javac;resolution:=optional,
                             com.sun.tools.javah;resolution:=optional,

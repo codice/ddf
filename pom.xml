@@ -224,6 +224,8 @@
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
         <jetty.version>9.4.58.v20250814</jetty.version>
+        <!-- need to upgrade jetty for CVE-2025-5115 -->
+        <karaf.jetty.version>9.4.57.v20241219</karaf.jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>

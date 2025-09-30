@@ -19,8 +19,9 @@
             <outputDirectory>./</outputDirectory>
             <excludes>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
-                <exclude>**/jetty/**/9.4.57.v20241219/*</exclude>
-                <exclude>**/jetty/**/9.4.57.v20241219</exclude>
+                <!-- need to upgrade jetty for CVE-2025-5115 -->
+                <exclude>**/jetty/**/${karaf.jetty.version}/*</exclude>
+                <exclude>**/jetty/**/${karaf.jetty.version}</exclude>
             </excludes>
         </fileSet>
         <fileSet>
@@ -31,6 +32,7 @@
     </fileSets>
 
     <dependencySets>
+        <!-- need to upgrade jetty for CVE-2025-5115 -->
         <dependencySet>
             <outputDirectory>
                 system/org/eclipse/jetty/http2/http2-client/${jetty.version}

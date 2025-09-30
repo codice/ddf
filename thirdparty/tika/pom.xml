@@ -101,27 +101,6 @@
             <artifactId>tika-parser-miscoffice-module</artifactId>
             <version>${tika.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tika</groupId>-->
-<!--            <artifactId>tika-parser-xmp-commons</artifactId>-->
-<!--            <version>${tika.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tika</groupId>-->
-<!--            <artifactId>tika-parser-zip-commons</artifactId>-->
-<!--            <version>${tika.version}</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>commons-compress</artifactId>-->
-<!--                    <groupId>org.apache.commons</groupId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tika</groupId>-->
-<!--            <artifactId>tika-parser-mail-commons</artifactId>-->
-<!--            <version>${tika.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parser-image-module</artifactId>
@@ -162,6 +141,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- excluded because of conflicts with office parsers -->
 <!--        <dependency>-->
 <!--            <groupId>org.apache.tika</groupId>-->
 <!--            <artifactId>tika-parser-cad-module</artifactId>-->
@@ -208,112 +188,11 @@
             <artifactId>vorbis-java-tika</artifactId>
             <version>0.8</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.pdfbox</groupId>-->
-<!--            <artifactId>pdfbox</artifactId>-->
-<!--            <version>${pdfbox.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.pdfbox</groupId>-->
-<!--            <artifactId>pdfbox-io</artifactId>-->
-<!--            <version>${pdfbox.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.pdfbox</groupId>-->
-<!--            <artifactId>pdfbox-tools</artifactId>-->
-<!--            <version>${pdfbox.version}</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.apache.pdfbox</groupId>-->
-<!--                    <artifactId>pdfbox-debugger</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.pdfbox</groupId>-->
-<!--            <artifactId>jempbox</artifactId>-->
-<!--            <version>1.8.17</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>${commons-compress.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.pdfbox</groupId>-->
-<!--            <artifactId>fontbox</artifactId>-->
-<!--            <version>${pdfbox.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.googlecode.plist</groupId>-->
-<!--            <artifactId>dd-plist</artifactId>-->
-<!--            <version>1.28</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.poi</groupId>-->
-<!--            <artifactId>poi</artifactId>-->
-<!--            <version>${poi.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.poi</groupId>-->
-<!--            <artifactId>poi-ooxml</artifactId>-->
-<!--            <version>${poi.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.drewnoakes</groupId>-->
-<!--            <artifactId>metadata-extractor</artifactId>-->
-<!--            <version>2.19.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.adobe.xmp</groupId>-->
-<!--            <artifactId>xmpcore</artifactId>-->
-<!--            <version>6.1.11</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.healthmarketscience.jackcess</groupId>-->
-<!--            <artifactId>jackcess</artifactId>-->
-<!--            <version>4.0.8</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.pff</groupId>-->
-<!--            <artifactId>java-libpst</artifactId>-->
-<!--            <version>0.9.3</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.jsoup</groupId>-->
-<!--            <artifactId>jsoup</artifactId>-->
-<!--            <version>1.21.2</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.epam</groupId>-->
-<!--            <artifactId>parso</artifactId>-->
-<!--            <version>2.0.14</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.rometools</groupId>-->
-<!--            <artifactId>rome</artifactId>-->
-<!--            <version>2.1.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.netpreserve</groupId>-->
-<!--            <artifactId>jwarc</artifactId>-->
-<!--            <version>0.32.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.github.junrar</groupId>-->
-<!--            <artifactId>junrar</artifactId>-->
-<!--            <version>7.5.5</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.gagravarr</groupId>-->
-<!--            <artifactId>vorbis-java-core</artifactId>-->
-<!--            <version>0.8</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.github.albfernandez</groupId>-->
-<!--            <artifactId>juniversalchardet</artifactId>-->
-<!--            <version>2.5.0</version>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -349,55 +228,10 @@
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>
-<!--                            tika-core,-->
-<!--                            tika-parsers-standard-package,-->
-<!--                            tika-parser-pdf-module,-->
-<!--                            tika-parser-text-module,-->
-<!--                            tika-parser-microsoft-module,-->
-<!--                            tika-parser-html-module,-->
-<!--                            tika-parser-miscoffice-module,-->
-<!--                            tika-parser-xmp-commons,-->
-<!--                            tika-parser-zip-commons,-->
-<!--                            tika-parser-mail-commons,-->
-<!--                            tika-parser-image-module,-->
-<!--                            tika-parser-xml-module,-->
-<!--                            tika-parser-apple-module,-->
-<!--                            tika-parser-code-module,-->
-<!--                            tika-parser-audiovideo-module,-->
-<!--                            tika-parser-crypto-module,-->
-<!--                            tika-parser-cad-module,-->
-<!--                            tika-parser-news-module,-->
-<!--                            tika-parser-font-module,-->
-<!--                            tika-parser-webarchive-module,-->
-<!--                            tika-parser-mail-module,-->
-<!--                            tika-parser-ocr-module,-->
-<!--                            tika-parser-pkg-module,-->
-<!--                            vorbis-java-tika,-->
                             *;scope=!test
-<!--                            pdfbox,-->
-<!--                            pdfbox-io,-->
-<!--                            pdfbox-tools,-->
-<!--                            jempbox,-->
-<!--                            commons-compress,-->
-<!--                            fontbox,-->
-<!--                            dd-plist,-->
-<!--                            poi,-->
-<!--                            poi-ooxml,-->
-<!--                            metadata-extractor,-->
-<!--                            xmpcore,-->
-<!--                            jackcess,-->
-<!--                            java-libpst,-->
-<!--                            jsoup,-->
-<!--                            parso,-->
-<!--                            rome,-->
-<!--                            jwarc,-->
-<!--                            junrar,-->
-<!--                            vorbis-java-core,-->
-<!--                            juniversalchardet-->
                         </Embed-Dependency>
                         <Export-Package>
                             org.apache.tika*;version=${tika.version},
-<!--                            *-->
                         </Export-Package>
                         <Import-Package>
                             !org.apache.xmlbeans*,
@@ -407,7 +241,6 @@
                             javax*;resolution:=optional,
                             org.w3c*;resolution:=optional,
                             org.xml.sax*;resolution:=optional,
-<!--                            *;resolution:=optional-->
                         </Import-Package>
                     </instructions>
                 </configuration>

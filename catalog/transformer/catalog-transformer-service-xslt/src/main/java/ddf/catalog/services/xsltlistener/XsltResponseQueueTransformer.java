@@ -49,6 +49,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.SAXException;
 
 public class XsltResponseQueueTransformer extends AbstractXsltTransformer
     implements QueryResponseTransformer {
@@ -205,7 +206,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
               Node importedNode =
                   doc.importNode(new XPathHelper(metadata).getDocument().getFirstChild(), true);
               documentElement.appendChild(importedNode);
-            } catch (Exception e) {
+            } catch (IOException | SAXException e) {
               LOGGER.debug("failed to parse metadata", e);
             }
           } else {
