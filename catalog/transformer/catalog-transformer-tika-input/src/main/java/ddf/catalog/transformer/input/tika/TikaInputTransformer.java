@@ -367,8 +367,8 @@ public class TikaInputTransformer implements InputTransformer {
       try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource().openStream()) {
         extractor = new TikaMetadataExtractor(inputStreamCopy, previewMaxLength, metadataMaxLength);
 
-      } catch (Throwable t) {
-        LOGGER.debug("Unable to extract tika metadata", t);
+      } catch (Exception e) {
+        LOGGER.debug("Unable to extract tika metadata", e);
       }
 
       if (extractor != null) {

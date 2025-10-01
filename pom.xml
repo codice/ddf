@@ -180,7 +180,7 @@
         <commons-text.version>1.13.0</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-        <countryconverter.version>0.2.3-SNAPSHOT</countryconverter.version>
+        <countryconverter.version>0.2.3</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
         <cxf.version>3.6.7</cxf.version>
         <decanter.version>2.9.0</decanter.version>
