@@ -56,6 +56,12 @@ pipeline {
 
         // The incremental build will be triggered only for PRs. It will build the differences between the PR and the target branch
         stage('Incremental Build') {
+            when {
+                allOf {
+                    expression { env.CHANGE_ID != null }
+                    expression { env.CHANGE_TARGET != null }
+                }
+            }
             options {
                 timeout(time: 3, unit: 'HOURS')
             }
@@ -83,13 +89,6 @@ pipeline {
         }
 
         stage('DDF Core Tests Only Build') {
-            // temporary change to test this stage in a PR
-            when {
-                allOf {
-                    expression { env.CHANGE_ID != null }
-                    expression { env.CHANGE_TARGET != null }
-                }
-            }
             options {
                 timeout(time: 1, unit: 'HOURS')
             }
