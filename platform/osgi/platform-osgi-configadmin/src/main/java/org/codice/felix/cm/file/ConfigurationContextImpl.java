@@ -82,6 +82,8 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   private final String factoryPid;
 
+  private final String factoryServiceName;
+
   private final File configFile;
 
   private final Dictionary<String, Object> originalProperties;
@@ -94,11 +96,11 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   private final int propertyCount;
 
-  ConfigurationContextImpl(Configuration config) {
+  public ConfigurationContextImpl(Configuration config) {
     this(config.getPid(), config.getProperties());
   }
 
-  ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
+  public ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
     this.originalProperties = props;
 
     Dictionary<String, Object> propsCopy = copyDictionary(props);
@@ -114,7 +116,10 @@ public class ConfigurationContextImpl implements ConfigurationContext {
     propsCopy.remove(PROPERTY_REVISION);
 
     this.servicePid = pid;
-    this.factoryPid = parseFactoryPid(pid);
+    final var parsedFactory = FactoryPidParser.parseFactoryParts(pid);
+    this.factoryPid = parsedFactory.map(FactoryPidParser.ParsedFactoryPid::factoryPid).orElse(null);
+    this.factoryServiceName =
+        parsedFactory.map(FactoryPidParser.ParsedFactoryPid::serviceName).orElse(null);
     this.configFile = createFileFromFelixProp(propsCopy.remove(FELIX_FILENAME));
 
     this.configIsNew = propsCopy.remove(FELIX_NEW_CONFIG);
@@ -132,6 +137,11 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   @Override
   public String getFactoryPid() {
     return factoryPid;
+  }
+
+  @Override
+  public String getFactoryServiceName() {
+    return factoryServiceName;
   }
 
   @Override
@@ -179,18 +189,6 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   @Override
   public int hashCode() {
     return Objects.hash(servicePid);
-  }
-
-  // Config files in etc may delimit on the '-' but in memory it's always last '.'
-  private static String parseFactoryPid(String pid) {
-    if (pid != null && pid.contains("-")) {
-      if (pid.contains(".")) {
-        return pid.substring(0, pid.lastIndexOf('.'));
-      } else {
-        return pid;
-      }
-    }
-    return null;
   }
 
   /**
