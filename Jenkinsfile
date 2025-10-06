@@ -94,8 +94,12 @@ pipeline {
             }
             steps {
                 withMaven(maven: 'maven-latest', jdk: 'jdk21', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
+                    // the itests module and its children need to be built to run the core tests, since
+                    // that module is skipped in the full build and the core tests depend on those
+                    // artifacts
                     sh '''
                         unset JAVA_TOOL_OPTIONS
+                        mvn install -B -pl $ITESTS -amd -DskipTests $DISABLE_DOWNLOAD_PROGRESS_OPTS
                         mvn install -B -pl $ITCORE -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS
                     '''
                 }
