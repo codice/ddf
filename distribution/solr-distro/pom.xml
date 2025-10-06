@@ -72,6 +72,8 @@
                         </goals>
                         <configuration>
                             <url>${solr.download.url}/solr/solr/${solr.version}/solr-${solr.version}.tgz</url>
+                            <!-- default 3000 -->
+                            <readTimeOut>60000</readTimeOut>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
                             <sha512>7b93dab3f0fd09c820a45574c4ef60dff0e8245b8b3a8913bc5874b6e12595ebbd3bb9c856a213ba1643673e461041e95e7e85031523dfb208686c41c366825d</sha512>
