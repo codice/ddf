@@ -82,8 +82,6 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   private final String factoryPid;
 
-  private final String factoryServiceName;
-
   private final File configFile;
 
   private final Dictionary<String, Object> originalProperties;
@@ -105,10 +103,8 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
     Dictionary<String, Object> propsCopy = copyDictionary(props);
 
-    // No guarantee these are in the props dictionary so do not assign from the removal, just parse
-    // from the pid argument
     propsCopy.remove(SERVICE_PID);
-    propsCopy.remove(SERVICE_FACTORYPID);
+    this.factoryPid = (String) propsCopy.remove(SERVICE_FACTORYPID);
 
     // Props we don't need to keep around for any particular reason, but don't want in the sanitized
     // data
@@ -116,10 +112,6 @@ public class ConfigurationContextImpl implements ConfigurationContext {
     propsCopy.remove(PROPERTY_REVISION);
 
     this.servicePid = pid;
-    final var parsedFactory = FactoryPidParser.parseFactoryParts(pid);
-    this.factoryPid = parsedFactory.map(FactoryPidParser.ParsedFactoryPid::factoryPid).orElse(null);
-    this.factoryServiceName =
-        parsedFactory.map(FactoryPidParser.ParsedFactoryPid::serviceName).orElse(null);
     this.configFile = createFileFromFelixProp(propsCopy.remove(FELIX_FILENAME));
 
     this.configIsNew = propsCopy.remove(FELIX_NEW_CONFIG);
@@ -137,11 +129,6 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   @Override
   public String getFactoryPid() {
     return factoryPid;
-  }
-
-  @Override
-  public String getFactoryServiceName() {
-    return factoryServiceName;
   }
 
   @Override

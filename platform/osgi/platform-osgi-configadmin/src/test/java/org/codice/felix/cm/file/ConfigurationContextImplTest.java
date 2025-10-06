@@ -13,7 +13,6 @@
  */
 package org.codice.felix.cm.file;
 
-import static java.lang.String.format;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_NEW_CONFIG;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.PROPERTY_REVISION;
@@ -32,7 +31,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.UUID;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,10 +46,6 @@ public class ConfigurationContextImplTest {
   private static final String TEST_PID = "org.codice.test.ServiceFactory";
 
   private static final String TEST_PID_2 = "org.codice.test.separate.Service";
-
-  private static final String TEST_MSF_PID_UUID = UUID.randomUUID().toString();
-
-  private static final String TEST_MSF_PID = format("%s.%s", TEST_PID, TEST_MSF_PID_UUID);
 
   private static final String TEST_REVISION = "5";
 
@@ -219,7 +214,7 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testGetFactoryPid() {
+  public void testGetFactoryPidForSingletonService() {
     context = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
     assertThat(
         "Factory PIDs for singleton services should be null, since they are the same",
@@ -228,23 +223,14 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
-  public void testGetFactoryPidFactoryServiceUuidFormat() {
-    context = new ConfigurationContextImpl(TEST_MSF_PID, new Hashtable<>());
+  public void testGetFactoryPidForFactoryService() {
+    context =
+        new ConfigurationContextImpl(
+            TEST_PID, new Hashtable<>(Map.of(SERVICE_FACTORYPID, "org.codice.Factory")));
     assertThat(
-        "Factory PIDs for factory services should be regular PIDs without a UUID",
+        "Factory PIDs for factory services should be obtained from the passed-in properties",
         context.getFactoryPid(),
-        is(TEST_PID));
-    assertThat(context.getFactoryServiceName(), is(TEST_MSF_PID_UUID));
-  }
-
-  @Test
-  public void testGetFactoryPidFactoryServiceNameFormat() {
-    context = new ConfigurationContextImpl(TEST_PID + "~" + "foobar", new Hashtable<>());
-    assertThat(
-        "Factory PIDs for factory services should be regular PIDs without a UUID",
-        context.getFactoryPid(),
-        is(TEST_PID));
-    assertThat(context.getFactoryServiceName(), is("foobar"));
+        is("org.codice.Factory"));
   }
 
   @Test
