@@ -210,6 +210,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     List<String> files =
         List.of(
             "AutoDetectParser.class",
+            "Book3.xls",
             "complex.mbox",
             "Test1.txt.tsd",
             "test-documents-enc.rar",
