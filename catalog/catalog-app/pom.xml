@@ -281,6 +281,16 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>tika-input-transformer</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcjmail-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -401,6 +411,12 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-pptx</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.security</groupId>
@@ -699,11 +715,6 @@
             <groupId>ddf.catalog.rest</groupId>
             <artifactId>catalog-rest-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.poi</artifactId>
-            <version>${servicemix.bundles.poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>

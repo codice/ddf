@@ -24,7 +24,7 @@
     <packaging>pom</packaging>
     <name>DDF Catalog</name>
     <properties>
-        <ant.version>1.9.7</ant.version>
+        <ant.version>1.10.9</ant.version>
         <commons-weaver-privilizer-api.version>1.1</commons-weaver-privilizer-api.version>
         <cglib.version>3.2.0</cglib.version>
         <logkit.version>1.0.1</logkit.version>

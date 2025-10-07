@@ -86,10 +86,10 @@
         <feature>common-system</feature>
         <feature>slf4j</feature>
         <feature>platform-util</feature>
+        <feature dependency="true">tika</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csw
         </configfile>
@@ -111,6 +111,7 @@
              description="Tika MIME Resolver">
         <feature>mime-core-api</feature>
         <feature>slf4j</feature>
+        <feature>tika</feature>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
@@ -191,8 +192,7 @@
         <feature>jackson</feature>
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
         <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-bundle-standard/${tika.version}</bundle>
+        <bundle>mvn:ddf.thirdparty/tika/${project.version}</bundle>
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">
@@ -210,6 +210,7 @@
 
     <feature name="poi" version="${project.version}">
         <feature dependency="true">apache-commons</feature>
+        <feature dependency="true">tika</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/9.9.1-6_1</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${xmlbeans.version}_1</bundle>
@@ -222,8 +223,12 @@
         <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
         <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
+        <bundle>mvn:org.apache.pdfbox/pdfbox-io/${pdfbox.version}</bundle>
+        <bundle>wrap:mvn:org.apache.pdfbox/pdfbox-tools/${pdfbox.version}</bundle>
         <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-ooxml/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-scratchpad/${poi.version}</bundle>
     </feature>
 
     <feature name="jts" version="${project.version}">

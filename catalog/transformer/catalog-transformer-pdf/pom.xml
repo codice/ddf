@@ -39,6 +39,20 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-common</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcjmail-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcmail-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--External dependencies-->
@@ -92,6 +106,14 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
             <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <!-- bug between new tika and old compress from karaf -->
+            <!-- https://issues.apache.org/jira/si/jira.issueviews:issue-html/TIKA-4469/TIKA-4469.html -->
+            <version>${commons-compress.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -145,6 +145,7 @@
                         <Import-Package>
                             org.osgi.framework;version="[1.5,2)",
                             !javax.activation,
+                            !org.tukaani.xz,
                             com.sun.tools.apt;resolution:=optional,
                             com.sun.tools.javac;resolution:=optional,
                             com.sun.tools.javah;resolution:=optional,
