@@ -282,7 +282,7 @@
         <pac4j.version>6.1.2</pac4j.version>
         <pdfbox.version>3.0.5</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <xlsx.transformer.poi.version>5.2.2</xlsx.transformer.poi.version>
+        <xmlbeans.version>5.3.0</xmlbeans.version>
         <protobuf.version>4.28.2</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
@@ -290,6 +290,7 @@
         <hazelcast.version>5.3.5</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
+        <servicemix.bundles.xmlbeans.version>${xmlbeans.version}_1</servicemix.bundles.xmlbeans.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_3</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.specs.jaxb.version>2.9.0</servicemix.specs.jaxb.version>
@@ -323,7 +324,6 @@
         <xerces.version>2.12.2</xerces.version>
         <xerces.bundle.version>2.12.2_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <xmlbeans.version>5.0.3</xmlbeans.version>
         <xmlsec.version>2.3.1</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.bundle.version>1.4.20_1</xstream.bundle.version>
