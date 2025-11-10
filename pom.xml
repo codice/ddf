@@ -289,8 +289,6 @@
         <sardine.version>5.7</sardine.version>
         <hazelcast.version>5.3.5</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
-        <servicemix.bundles.poi.version>${poi.version}_1</servicemix.bundles.poi.version>
-        <servicemix.bundles.xmlbeans.version>${xmlbeans.version}_1</servicemix.bundles.xmlbeans.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_3</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.specs.jaxb.version>2.9.0</servicemix.specs.jaxb.version>
@@ -345,7 +343,7 @@
         <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->
-        <solr.download.url>https://dlcdn.apache.org</solr.download.url>
+        <solr.download.url>https://archive.apache.org/dist</solr.download.url>
 
         <!-- SonarQube Properties -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/${project.report.output.directory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>

@@ -213,7 +213,6 @@
         <feature dependency="true">tika</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/9.9.1-6_1</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${servicemix.bundles.xmlbeans.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>
@@ -221,6 +220,7 @@
         <bundle>wrap:mvn:xml-apis/xml-apis-ext/1.3.04</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
+        <bundle>wrap:mvn:org.apache.xmlbeans/xmlbeans/${xmlbeans.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/pdfbox-io/${pdfbox.version}</bundle>
@@ -228,6 +228,7 @@
         <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
         <bundle>wrap:mvn:org.apache.poi/poi/${poi.version}</bundle>
         <bundle>wrap:mvn:org.apache.poi/poi-ooxml/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-ooxml-full/${poi.version}</bundle>
         <bundle>wrap:mvn:org.apache.poi/poi-scratchpad/${poi.version}</bundle>
     </feature>
 
