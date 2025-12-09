@@ -227,10 +227,11 @@
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                 </artifactItem>
                                 <!-- Can't use servicemix bundle because of https://issues.apache.org/jira/browse/SM-4352 -->
+                                <!-- Using javax.activation instead of jakarta.activation for CXF 3.6.x compatibility -->
                                 <artifactItem>
-                                    <groupId>jakarta.activation</groupId>
-                                    <artifactId>jakarta.activation-api</artifactId>
-                                    <version>${jakarta.activation.version}</version>
+                                    <groupId>com.sun.activation</groupId>
+                                    <artifactId>javax.activation</artifactId>
+                                    <version>1.2.0</version>
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                 </artifactItem>
                             </artifactItems>

@@ -197,11 +197,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <version>${jakarta.activation.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jaxb-api-2.2</artifactId>
             <version>${servicemix.specs.jaxb.version}</version>
