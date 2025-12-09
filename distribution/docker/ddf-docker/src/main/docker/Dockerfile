@@ -18,6 +18,7 @@ LABEL maintainer=codice
 ENV APP_HOME=/app
 ENV APP_NAME=/ddf
 ENV APP_LOG=$APP_HOME/data/log/$APP_NAME.log
+ENV INSTALL_FEATURES=profile-standard
 
 COPY --from=prep /prep/ddf $APP_HOME
 
