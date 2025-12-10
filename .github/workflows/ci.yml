@@ -225,6 +225,12 @@ jobs:
               "password": "${{ secrets.MAVEN_PASSWORD }}"
             }]
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Deploy
         run: |
           mvn deploy $MAVEN_CLI_OPTS \
