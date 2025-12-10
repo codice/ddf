@@ -1,0 +1,291 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - '[0-9]+.[0-9]+.x'  # Patch branches like 2.10.x, 2.9.x
+  pull_request:
+    branches:
+      - master
+      - '[0-9]+.[0-9]+.x'
+  schedule:
+    # Nightly build on master (same as Jenkins: H H(17-19) * * *)
+    - cron: '0 18 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAVEN_OPTS: '-Xmx4G -Xms1G -XX:+ClassUnloadingWithConcurrentMark -Djava.security.egd=file:/dev/./urandom'
+  MAVEN_CLI_OPTS: '-B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
+
+jobs:
+  # Notify build started (for PRs)
+  notify-start:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🚀 Build started! [View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            })
+
+  # Incremental build for PRs
+  incremental-build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest-8-cores
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for incremental build
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Quick install (skip tests)
+        run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
+
+      - name: Incremental build
+        run: |
+          mvn clean install $MAVEN_CLI_OPTS \
+            -P !itests \
+            -Dgib.enabled=true \
+            -Dgib.referenceBranch=refs/remotes/origin/${{ github.base_ref }}
+
+  # Full build for master/patch branches
+  full-build:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest-8-cores
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Full build (excluding itests)
+        run: mvn clean install $MAVEN_CLI_OPTS -P !itests
+
+  # DDF Core integration tests
+  integration-tests:
+    needs: [incremental-build, full-build]
+    # Run if either build succeeded (one will be skipped based on event type)
+    if: always() && (needs.incremental-build.result == 'success' || needs.full-build.result == 'success')
+    runs-on: ubuntu-latest-8-cores
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run DDF Core integration tests
+        run: |
+          unset JAVA_TOOL_OPTIONS
+          mvn install $MAVEN_CLI_OPTS \
+            -pl distribution/test/itests/test-itests-ddf-core \
+            -nsu
+
+  # OWASP Dependency Check
+  dependency-check:
+    needs: [incremental-build, full-build]
+    if: always() && (needs.incremental-build.result == 'success' || needs.full-build.result == 'success')
+    runs-on: ubuntu-latest-8-cores
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: OWASP Dependency Check
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            # Full scan with distribution for non-PR builds
+            mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories \
+              dependency-check:aggregate $MAVEN_CLI_OPTS \
+              -q -pl '!distribution/docs' \
+              -P '!itests,owasp-dist'
+          else
+            # Incremental scan for PRs
+            mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories \
+              dependency-check:aggregate $MAVEN_CLI_OPTS \
+              -q -pl '!distribution/docs' \
+              -P '!itests'
+          fi
+
+      - name: Upload dependency check report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: target/dependency-check-report.html
+          retention-days: 30
+
+  # SonarCloud analysis (master only)
+  sonarcloud:
+    needs: full-build
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest-8-cores
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarCloud
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn $MAVEN_CLI_OPTS -q \
+            -DskipITs \
+            -Dcheckstyle.skip=true \
+            org.jacoco:jacoco-maven-plugin:prepare-agent \
+            sonar:sonar \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.organization=codice \
+            -Dsonar.projectKey=ddf \
+            -Dsonar.exclusions='**/test/**/*,**/itests/**/*,**/*Test*,**/sdk/**/*,**/*.js,**/node_modules/**/*,**/jaxb/**/*,**/wsdl/**/*,**/nces/sws/**/*,**/*.adoc,**/*.txt,**/*.xml' \
+            -pl '!distribution/docs' \
+            -P '!itests'
+        continue-on-error: true  # Don't fail build if SonarCloud upload fails
+
+  # Deploy artifacts (master and patch branches only, in production)
+  deploy:
+    needs: [integration-tests, dependency-check]
+    if: |
+      always() &&
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/master' || contains(github.ref, '.x')) &&
+      needs.integration-tests.result == 'success' &&
+      needs.dependency-check.result == 'success'
+    runs-on: ubuntu-latest-8-cores
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Configure Maven settings
+        uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [{
+              "id": "releases",
+              "username": "${{ secrets.MAVEN_USERNAME }}",
+              "password": "${{ secrets.MAVEN_PASSWORD }}"
+            },
+            {
+              "id": "snapshots",
+              "username": "${{ secrets.MAVEN_USERNAME }}",
+              "password": "${{ secrets.MAVEN_PASSWORD }}"
+            }]
+
+      - name: Deploy
+        run: |
+          mvn deploy $MAVEN_CLI_OPTS \
+            -DskipStatic=true \
+            -DskipTests=true \
+            -DretryFailedDeploymentCount=10
+
+  # Final status notification
+  notify-result:
+    needs: [incremental-build, full-build, integration-tests, dependency-check]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine build result
+        id: result
+        run: |
+          if [[ "${{ needs.incremental-build.result }}" == "failure" ]] || \
+             [[ "${{ needs.full-build.result }}" == "failure" ]] || \
+             [[ "${{ needs.integration-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.dependency-check.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post PR comment with result
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.result.outputs.status }}';
+            const emoji = status === 'success' ? '✅' : '❌';
+            const message = status === 'success' ? 'Build succeeded!' : 'Build failed.';
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `${emoji} ${message} [View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            })
+
+      - name: Slack notification
+        if: github.event_name != 'pull_request'
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": "${{ steps.result.outputs.status == 'success' && 'SUCCESS' || 'FAILURE' }}: ${{ github.repository }} - ${{ github.ref_name }} #${{ github.run_number }}",
+              "attachments": [
+                {
+                  "color": "${{ steps.result.outputs.status == 'success' && 'good' || 'danger' }}",
+                  "fields": [
+                    {
+                      "title": "Workflow",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        continue-on-error: true  # Don't fail if Slack is not configured
