@@ -16,7 +16,7 @@
     <parent>
         <artifactId>distribution</artifactId>
         <groupId>ddf</groupId>
-        <version>2.29.28-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Distribution :: Solr Distro</name>
@@ -76,7 +76,7 @@
                             <readTimeOut>60000</readTimeOut>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha512>7b93dab3f0fd09c820a45574c4ef60dff0e8245b8b3a8913bc5874b6e12595ebbd3bb9c856a213ba1643673e461041e95e7e85031523dfb208686c41c366825d</sha512>
+                            <sha512>f97153ce12a1b88134b54c4a5a74f6eedd67e06092b6caa3cc9ddaff7b65fa3d4816e7702fb07a54cc0e83724eb9ceab78af77100b688cd68323b5a988e031be</sha512>
                           <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>
