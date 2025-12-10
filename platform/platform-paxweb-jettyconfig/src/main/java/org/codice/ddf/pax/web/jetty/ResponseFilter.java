@@ -47,11 +47,16 @@ public class ResponseFilter implements HttpFilter {
   // Arbitrarily chose one week as a reasonable default. 604800 is one week in seconds.
   public static final String DEFAULT_CACHE_CONTROL_VALUE = "private, max-age=604800, immutable";
 
+  public static final String STRICT_TRANSPORT_SECURITY = "Strict-Transport-Security";
+  public static final String STRICT_TRANSPORT_SECURITY_VALUE =
+      "max-age=31536000 ; includeSubDomains";
+
   private List<String> headers =
       Arrays.asList(
           X_XSS_PROTECTION + "=" + DEFAULT_XSS_PROTECTION_VALUE,
           X_FRAME_OPTIONS + "=" + DEFAULT_X_FRAME_OPTIONS_VALUE,
           X_CONTENT_SECURITY_POLICY + "=" + DEFAULT_CONTENT_SECURITY_POLICY,
+          STRICT_TRANSPORT_SECURITY + "=" + STRICT_TRANSPORT_SECURITY_VALUE,
           CACHE_CONTROL + "=" + DEFAULT_CACHE_CONTROL_VALUE);
 
   // Index paths (such as /search/catalog/ or /admin/) should never be cached

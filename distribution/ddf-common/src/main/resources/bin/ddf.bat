@@ -9,6 +9,9 @@ POPD
 
 SET GET_PROPERTY=%DIRNAME%get_property.bat
 
+REM Java garbage collection logging options
+SET EXTRA_JAVA_OPTS=-Xlog:gc*=info:file=\"%DDF_HOME%/data/log/gc.log\":time,uptime,level,tags:filecount=9,filesize=20m %EXTRA_JAVA_OPTS%
+
 REM Exit if JAVA_HOME or JRE_HOME is not set
 IF "%JAVA_HOME%" == "" IF "%JRE_HOME%" == ""  (
     ECHO JAVA_HOME nor JRE_HOME is set. Set JAVA_HOME or JRE_HOME to proceed - exiting.

@@ -23,7 +23,8 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.shiro.authc.AuthenticationException;
-import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.ProfileHelper;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.jwt.JwtClaims;
@@ -44,29 +45,33 @@ public class CustomOidcProfileCreator extends OidcProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(OidcCredentials credentials, WebContext context) {
+  public Optional<UserProfile> create(CallContext callContext, Credentials cred) {
     init();
-
+    OidcCredentials credentials = (OidcCredentials) cred;
     final OidcProfile profile = (OidcProfile) getProfileDefinition().newProfile();
 
-    final AccessToken accessToken = credentials.getAccessToken();
+    final AccessToken accessToken = credentials.toAccessToken();
     if (accessToken != null && !accessToken.getValue().isEmpty()) {
       profile.setAccessToken(accessToken);
     }
 
-    final RefreshToken refreshToken = credentials.getRefreshToken();
+    final RefreshToken refreshToken = credentials.toRefreshToken();
     if (refreshToken != null && !refreshToken.getValue().isEmpty()) {
       profile.setRefreshToken(refreshToken);
       LOGGER.debug("Found refresh token");
     }
 
-    final JWT idToken = credentials.getIdToken();
-    profile.setIdTokenString(idToken.getParsedString());
+    final JWT idToken = credentials.toIdToken();
+    if (idToken.getParsedString() != null) {
+      profile.setIdTokenString(idToken.getParsedString());
+    } else {
+      profile.setIdTokenString(idToken.serialize());
+    }
 
     try {
       JWTClaimsSet claimsSet = idToken.getJWTClaimsSet();
       assertNotNull("claimsSet", claimsSet);
-      profile.setId(ProfileHelper.sanitizeIdentifier(profile, claimsSet.getSubject()));
+      profile.setId(ProfileHelper.sanitizeIdentifier(claimsSet.getSubject()));
 
       for (final Map.Entry<String, Object> entry : claimsSet.getClaims().entrySet()) {
         if (!JwtClaims.SUBJECT.equals(entry.getKey())

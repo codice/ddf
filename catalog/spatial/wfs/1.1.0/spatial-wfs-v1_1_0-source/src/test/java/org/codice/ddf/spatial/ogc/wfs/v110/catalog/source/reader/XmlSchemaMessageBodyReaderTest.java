@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import javax.ws.rs.WebApplicationException;
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

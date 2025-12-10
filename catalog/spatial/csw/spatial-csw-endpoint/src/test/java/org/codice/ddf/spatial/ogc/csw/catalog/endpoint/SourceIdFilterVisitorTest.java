@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.SourceIdFilterVisitor;
+import org.geotools.api.filter.Filter;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class SourceIdFilterVisitorTest {
   private static final List<String> SOURCE_IDS =

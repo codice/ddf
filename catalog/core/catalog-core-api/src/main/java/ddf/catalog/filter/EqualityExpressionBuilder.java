@@ -14,11 +14,11 @@
 package ddf.catalog.filter;
 
 import java.util.Date;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
- * Completes the fluent API to create a {@link org.opengis.filter.PropertyIsEqualTo} {@link Filter}
- * .
+ * Completes the fluent API to create a {@link org.geotools.api.filter.PropertyIsEqualTo} {@link
+ * Filter} .
  *
  * @author Michael Menousek
  */

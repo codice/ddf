@@ -13,8 +13,8 @@
  */
 package ddf.catalog.operation;
 
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 
 /**
  * A {@link Query} contains the basic aspects of executing a search. A {@link Query} extends {@link

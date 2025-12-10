@@ -28,6 +28,14 @@ public interface UuidGenerator {
   String generateUuid();
 
   /**
+   * @param metacardTag tag of metacard to generate ID for
+   * @param userId user the metacard is being created for
+   * @param additionalInput any additional properties
+   * @return UUID
+   */
+  String generateKnownId(String metacardTag, String userId, String... additionalInput);
+
+  /**
    * Returns true if the UUID format is correct
    *
    * @param uuid - the given UUID

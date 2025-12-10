@@ -42,14 +42,15 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.Validate;
-import org.opengis.filter.sort.SortOrder;
+import org.apache.shiro.util.ThreadContext;
+import org.geotools.api.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a {@link ddf.catalog.federation.FederationStrategy} based on sorting {@link
  * ddf.catalog.data.Metacard}s. The sorting is based on the {@link ddf.catalog.operation.Query}'s
- * {@link org.opengis.filter.sort.SortBy} propertyName. The possible sorting values are
+ * {@link org.geotools.api.filter.sort.SortBy} propertyName. The possible sorting values are
  *
  * <ul>
  *   <li>{@link ddf.catalog.data.Metacard#EFFECTIVE}
@@ -58,19 +59,19 @@ import org.slf4j.LoggerFactory;
  *   <li>{@link ddf.catalog.data.Result#RELEVANCE}
  * </ul>
  *
- * The supported ordering includes {@link org.opengis.filter.sort.SortOrder#DESCENDING} and {@link
- * org.opengis.filter.sort.SortOrder#ASCENDING}. For this class to function properly a sort value
- * and sort order must be provided.
+ * The supported ordering includes {@link org.geotools.api.filter.sort.SortOrder#DESCENDING} and
+ * {@link org.geotools.api.filter.sort.SortOrder#ASCENDING}. For this class to function properly a
+ * sort value and sort order must be provided.
  *
  * @see ddf.catalog.data.Metacard
  * @see ddf.catalog.operation.Query
- * @see org.opengis.filter.sort.SortBy
+ * @see org.geotools.api.filter.sort.SortBy
  */
 public class SortedFederationStrategy implements FederationStrategy {
 
   /**
    * The default comparator for sorting by {@link ddf.catalog.data.Result#RELEVANCE}, {@link
-   * org.opengis.filter.sort.SortOrder#DESCENDING}
+   * org.geotools.api.filter.sort.SortOrder#DESCENDING}
    */
   protected static final Comparator<Result> DEFAULT_COMPARATOR =
       new RelevanceResultComparator(SortOrder.DESCENDING);
@@ -195,8 +196,12 @@ public class SortedFederationStrategy implements FederationStrategy {
         }
 
         QueryRequest finalSourceQueryRequest = sourceQueryRequest;
+        Map<Object, Object> originalThreadResources = ThreadContext.getResources();
         futures.put(
-            queryCompletion.submit(() -> new TimedSource(source).query(finalSourceQueryRequest)),
+            queryCompletion.submit(
+                () ->
+                    new TimedSource(source, originalThreadResources)
+                        .query(finalSourceQueryRequest)),
             sourceQueryRequest);
       }
     }

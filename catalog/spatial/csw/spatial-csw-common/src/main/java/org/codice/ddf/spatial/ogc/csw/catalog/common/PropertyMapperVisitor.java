@@ -15,8 +15,8 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
-import org.opengis.filter.expression.PropertyName;
 
 /**
  * This Visitor creates a new Filter with the PropertyNames remapped as defined in the passed in

@@ -34,20 +34,20 @@ import org.codice.ddf.opensearch.endpoint.KeywordFilterGenerator;
 import org.codice.ddf.opensearch.endpoint.KeywordTextParser;
 import org.codice.ddf.opensearch.endpoint.query.filter.BBoxSpatialFilter;
 import org.codice.ddf.opensearch.endpoint.query.filter.PolygonSpatialFilter;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.FilterVisitor;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
+import org.geotools.api.temporal.Instant;
+import org.geotools.api.temporal.Period;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.opengis.temporal.Instant;
-import org.opengis.temporal.Period;
 import org.parboiled.Parboiled;
 import org.parboiled.buffers.InputBuffer;
 import org.parboiled.errors.InvalidInputError;
@@ -64,7 +64,7 @@ public class OpenSearchQuery implements Query {
   public static final String CARET = "^";
 
   // TODO remove this and only use filterbuilder
-  private static final FilterFactory2 FILTER_FACTORY = new FilterFactoryImpl();
+  private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
   private static final Pattern SELECTOR_PATTERN =
       Pattern.compile(OpenSearchConstants.SELECTORS_DELIMITER);

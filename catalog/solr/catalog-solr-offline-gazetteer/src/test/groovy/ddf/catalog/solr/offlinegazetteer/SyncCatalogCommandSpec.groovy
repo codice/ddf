@@ -27,10 +27,10 @@ import ddf.catalog.source.UnsupportedQueryException
 import ddf.catalog.util.impl.CatalogQueryException
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.SolrClient
+import org.geotools.api.filter.Filter
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import spock.lang.Specification
-import org.opengis.filter.Filter
 import spock.lang.Unroll
 
 @RunWith(JUnitPlatform.class)

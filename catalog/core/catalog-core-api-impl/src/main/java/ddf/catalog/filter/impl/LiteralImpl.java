@@ -13,8 +13,8 @@
  */
 package ddf.catalog.filter.impl;
 
-import org.opengis.filter.expression.ExpressionVisitor;
-import org.opengis.filter.expression.Literal;
+import org.geotools.api.filter.expression.ExpressionVisitor;
+import org.geotools.api.filter.expression.Literal;
 
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use {@link

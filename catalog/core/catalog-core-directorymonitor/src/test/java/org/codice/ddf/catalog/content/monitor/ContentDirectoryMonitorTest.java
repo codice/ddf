@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 
 import ddf.catalog.data.AttributeRegistry;
+import ddf.security.audit.SecurityLogger;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import java.io.File;
@@ -100,7 +101,7 @@ public class ContentDirectoryMonitorTest extends ExchangeTestSupport {
 
   @After
   public void destroy() throws Exception {
-    monitor.destroy(0);
+    monitor.destroy(1);
     camelContext.stop();
   }
 
@@ -401,11 +402,12 @@ public class ContentDirectoryMonitorTest extends ExchangeTestSupport {
   }
 
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
+    Security security = new Security();
+    security.setSecurityLogger(mock(SecurityLogger.class));
     ContentDirectoryMonitor monitor =
         new ContentDirectoryMonitor(
-            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run, new Security());
+            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run, security);
 
-    monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
     monitor.setReadLockIntervalMilliseconds(1000);
     return monitor;

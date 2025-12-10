@@ -34,10 +34,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.temporal.Instant;
+import org.geotools.api.temporal.Period;
+import org.geotools.api.temporal.PeriodDuration;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.FunctionImpl;
-import org.geotools.geometry.GeometryBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
@@ -47,29 +52,16 @@ import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.temporal.Instant;
-import org.opengis.temporal.Period;
-import org.opengis.temporal.PeriodDuration;
 
 public class FilterAdapterTest {
 
   private static final double DISTANCE_10 = 10.0;
-
-  private static final double DISTANCE_001 = .001;
 
   private static final double DISTANCE_0000001 = .0000001;
 
   private static final String TEST_PROPERTY_VALUE = "Test";
 
   private static final String FOO_LITERAL_VALUE = "foo";
-
-  private static final String MULTIPOLYGON_WKT =
-      "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20)))";
 
   private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
 
@@ -80,9 +72,6 @@ public class FilterAdapterTest {
   private static final PropertyName TEST_PROPERTY = FF.property(TEST_PROPERTY_VALUE);
 
   private static final Literal FOO_LITERAL = FF.literal(FOO_LITERAL_VALUE);
-
-  private static final GeometryBuilder GEO_BUILDER =
-      new GeometryBuilder(DefaultGeographicCRS.WGS84);
 
   private static final WKTReader WKT_READER = new WKTReader();
 
@@ -133,7 +122,7 @@ public class FilterAdapterTest {
     Filter filter3 = FF.equals(FF.property("Test3"), FF.literal("baz"));
 
     assertFilterEquals("Test1=foo", FF.and(Arrays.asList(filter1)));
-    assertFilterEquals("Test1=foo", FF.and(Arrays.asList((Filter) FF.and(Arrays.asList(filter1)))));
+    assertFilterEquals("Test1=foo", FF.and(Arrays.asList(FF.and(Arrays.asList(filter1)))));
     assertFilterEquals("and(Test1=foo,Test2=bar)", FF.and(filter1, filter2));
     assertFilterEquals(
         "and(Test1=foo,and(Test2=bar,Test3=baz))", FF.and(filter1, FF.and(filter2, filter3)));
@@ -144,10 +133,9 @@ public class FilterAdapterTest {
     // and(filter1)
     assertFilterEquals("Test1=foo", FF.and(Arrays.asList(filter1)));
     // and(and(filter1))
-    assertFilterEquals("Test1=foo", FF.and(Arrays.asList((Filter) FF.and(Arrays.asList(filter1)))));
+    assertFilterEquals("Test1=foo", FF.and(Arrays.asList(FF.and(Arrays.asList(filter1)))));
     // and(and(filter1,filter2))
-    assertFilterEquals(
-        "and(Test1=foo,Test2=bar)", FF.and(Arrays.asList((Filter) FF.and(filter1, filter2))));
+    assertFilterEquals("and(Test1=foo,Test2=bar)", FF.and(Arrays.asList(FF.and(filter1, filter2))));
   }
 
   @Test
@@ -172,11 +160,10 @@ public class FilterAdapterTest {
   @Test
   public void testPropertyIsEqualTo() {
     assertFilterEquals("Test=foo", FF.equals(TEST_PROPERTY, FOO_LITERAL));
-    assertFilterEquals("Test=" + EPOCH.toString(), FF.equals(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test=" + EPOCH, FF.equals(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test=" + EPOCH, FF.equals(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
     assertFilterEquals(
-        "Test=" + EPOCH.toString(), FF.equals(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
-    assertFilterEquals(
-        "Test=" + EPOCH.toString() + " to " + EPOCH_PLUS_DAY.toString(),
+        "Test=" + EPOCH + " to " + EPOCH_PLUS_DAY,
         FF.equals(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     assertFilterEquals("Test=5i", FF.equals(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
     assertFilterEquals("Test=5s", FF.equals(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
@@ -217,11 +204,10 @@ public class FilterAdapterTest {
   @Test
   public void testPropertyIsNotEqualTo() {
     assertFilterEquals("Test!=foo", FF.notEqual(TEST_PROPERTY, FOO_LITERAL));
-    assertFilterEquals("Test!=" + EPOCH.toString(), FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test!=" + EPOCH, FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test!=" + EPOCH, FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
     assertFilterEquals(
-        "Test!=" + EPOCH.toString(), FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
-    assertFilterEquals(
-        "Test!=" + EPOCH.toString() + " to " + EPOCH_PLUS_DAY.toString(),
+        "Test!=" + EPOCH + " to " + EPOCH_PLUS_DAY,
         FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     assertFilterEquals("Test!=5i", FF.notEqual(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
     assertFilterEquals(
@@ -239,7 +225,7 @@ public class FilterAdapterTest {
   @Test
   public void testPropertyIsGreaterThan() {
     assertFilterEquals("Test>foo", FF.greater(TEST_PROPERTY, FOO_LITERAL));
-    assertFilterEquals("Test>" + EPOCH.toString(), FF.greater(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test>" + EPOCH, FF.greater(TEST_PROPERTY, FF.literal(EPOCH)));
     assertFilterEquals("Test>5i", FF.greater(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
     assertFilterEquals("Test>5s", FF.greater(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
     assertFilterEquals("Test>5l", FF.greater(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
@@ -253,8 +239,7 @@ public class FilterAdapterTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualTo() {
     assertFilterEquals("Test>=foo", FF.greaterOrEqual(TEST_PROPERTY, FOO_LITERAL));
-    assertFilterEquals(
-        "Test>=" + EPOCH.toString(), FF.greaterOrEqual(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test>=" + EPOCH, FF.greaterOrEqual(TEST_PROPERTY, FF.literal(EPOCH)));
     assertFilterEquals(
         "Test>=5i", FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
     assertFilterEquals(
@@ -272,7 +257,7 @@ public class FilterAdapterTest {
   @Test
   public void testPropertyIsLessThan() {
     assertFilterEquals("Test<foo", FF.less(TEST_PROPERTY, FOO_LITERAL));
-    assertFilterEquals("Test<" + EPOCH.toString(), FF.less(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test<" + EPOCH, FF.less(TEST_PROPERTY, FF.literal(EPOCH)));
     assertFilterEquals("Test<5i", FF.less(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
     assertFilterEquals("Test<5s", FF.less(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
     assertFilterEquals("Test<5l", FF.less(TEST_PROPERTY, FF.literal(Long.valueOf(5))));
@@ -286,8 +271,7 @@ public class FilterAdapterTest {
   @Test
   public void testPropertyIsLessThanOrEqualTo() {
     assertFilterEquals("Test<=foo", FF.lessOrEqual(TEST_PROPERTY, FOO_LITERAL));
-    assertFilterEquals(
-        "Test<=" + EPOCH.toString(), FF.lessOrEqual(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("Test<=" + EPOCH, FF.lessOrEqual(TEST_PROPERTY, FF.literal(EPOCH)));
     assertFilterEquals("Test<=5i", FF.lessOrEqual(TEST_PROPERTY, FF.literal(Integer.valueOf(5))));
     assertFilterEquals(
         "Test<=5s", FF.lessOrEqual(TEST_PROPERTY, FF.literal(Short.valueOf((short) 5))));
@@ -303,10 +287,10 @@ public class FilterAdapterTest {
   public void testPropertyIsBetween() {
     assertFilterEquals("foo<=Test<=bar", FF.between(TEST_PROPERTY, FOO_LITERAL, FF.literal("bar")));
     assertFilterEquals(
-        EPOCH.toString() + "<=Test<=" + EPOCH_PLUS_DAY.toString(),
+        EPOCH + "<=Test<=" + EPOCH_PLUS_DAY,
         FF.between(TEST_PROPERTY, FF.literal(EPOCH), FF.literal(EPOCH_PLUS_DAY)));
     assertFilterEquals(
-        EPOCH.toString() + "<=Test<=" + EPOCH_PLUS_DAY.toString(),
+        EPOCH + "<=Test<=" + EPOCH_PLUS_DAY.toString(),
         FF.between(TEST_PROPERTY, FF.literal(EPOCH_INSTANT), FF.literal(EPOCH_PLUS_DAY_INSTANT)));
     assertFilterEquals(
         "1i<=Test<=5i",
@@ -364,8 +348,7 @@ public class FilterAdapterTest {
     assertFilterEquals(
         "fuzzy(Test,foo)",
         FF.like(
-            new FuzzyFunction(Arrays.asList((Expression) (TEST_PROPERTY)), FF.literal("")),
-            FOO_LITERAL_VALUE));
+            new FuzzyFunction(Arrays.asList(TEST_PROPERTY), FF.literal("")), FOO_LITERAL_VALUE));
     // TODO test failure if wildcard characters are sent
 
     String xpath = "//ns:name";
@@ -378,20 +361,18 @@ public class FilterAdapterTest {
     // Verify if search phrase ends with an escape character that the
     // escape character is stripped from the phrase
     assertFilterEquals("xpath(" + xpath + ",foo*?)", FF.like(FF.property(xpath), "foo*?\\"));
-    // Verify can override widlcard, escape character, and single character defaults
+    // Verify can override wildcard, escape character, and single character defaults
     assertFilterEquals(
         "xpath(" + xpath + ",foo*?)", FF.like(FF.property(xpath), "foo!@#", "!", "@", "#"));
 
     // xpath is fuzzy
     assertFilterEquals(
         "xpath(" + xpath + ",fuzzy(foo*?))",
-        FF.like(
-            new FuzzyFunction(Arrays.asList((Expression) (FF.property(xpath))), FF.literal("")),
-            "foo*?\\"));
+        FF.like(new FuzzyFunction(Arrays.asList(FF.property(xpath)), FF.literal("")), "foo*?\\"));
     assertFilterEquals(
         "xpath(" + xpath + ",fuzzy(foo*?))",
         FF.like(
-            new FuzzyFunction(Arrays.asList((Expression) (FF.property(xpath))), FF.literal("")),
+            new FuzzyFunction(Arrays.asList(FF.property(xpath)), FF.literal("")),
             "foo!@#",
             "!",
             "@",
@@ -509,7 +490,7 @@ public class FilterAdapterTest {
   }
 
   @Test
-  public void testSspatialCrossesFilter() {
+  public void testSpatialCrossesFilter() {
     Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
     assertFilterEquals(
         "crosses(Test,wkt(" + POLYGON_WKT + "))",
@@ -566,37 +547,33 @@ public class FilterAdapterTest {
   @Test
   public void testTemporalAfterFilter() {
     // date
-    assertFilterEquals(
-        "after(Test," + EPOCH.toString() + ")", FF.after(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("after(Test," + EPOCH + ")", FF.after(TEST_PROPERTY, FF.literal(EPOCH)));
     // instant
     assertFilterEquals(
-        "after(Test," + EPOCH.toString() + ")", FF.after(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
+        "after(Test," + EPOCH + ")", FF.after(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
     // period
     assertFilterEquals(
-        "after(Test," + EPOCH_PLUS_DAY.toString() + ")",
+        "after(Test," + EPOCH_PLUS_DAY + ")",
         FF.after(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
   }
 
   @Test
   public void testTemporalBeforeFilter() {
     // date
-    assertFilterEquals(
-        "before(Test," + EPOCH.toString() + ")", FF.before(TEST_PROPERTY, FF.literal(EPOCH)));
+    assertFilterEquals("before(Test," + EPOCH + ")", FF.before(TEST_PROPERTY, FF.literal(EPOCH)));
     // instant
     assertFilterEquals(
-        "before(Test," + EPOCH.toString() + ")",
-        FF.before(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
+        "before(Test," + EPOCH + ")", FF.before(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
     // period
     assertFilterEquals(
-        "before(Test," + EPOCH.toString() + ")",
-        FF.before(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
+        "before(Test," + EPOCH + ")", FF.before(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
   }
 
   @Test
   public void testTemporalDuringFilter() {
     // Absolute
     assertFilterEquals(
-        "during(Test," + EPOCH.toString() + "," + EPOCH_PLUS_DAY.toString() + ")",
+        "during(Test," + EPOCH + "," + EPOCH_PLUS_DAY + ")",
         FF.during(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
 
     // Relative
@@ -620,7 +597,7 @@ public class FilterAdapterTest {
 
     // Use fake delegate to return fake result to verify operation
     // This will only return the expected result if the relative temporal path is followed
-    FilterDelegate mockFilterDelegate = mock(FilterDelegate.class);
+    FilterDelegate<?> mockFilterDelegate = mock(FilterDelegate.class);
     doReturn(Boolean.TRUE)
         .when(mockFilterDelegate)
         .propertyIsBetween(any(), any(Date.class), any(Date.class));

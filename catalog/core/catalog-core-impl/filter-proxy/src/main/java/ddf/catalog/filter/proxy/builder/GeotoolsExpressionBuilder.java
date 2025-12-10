@@ -22,7 +22,7 @@ import ddf.catalog.filter.NumericalRangeExpressionBuilder;
 import ddf.catalog.filter.SpatialExpressionBuilder;
 import ddf.catalog.filter.TemporalInstantExpressionBuilder;
 import ddf.catalog.filter.TemporalRangeExpressionBuilder;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class GeotoolsExpressionBuilder extends GeotoolsEqualityExpressionBuilder
     implements ExpressionBuilder {

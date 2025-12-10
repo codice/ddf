@@ -18,11 +18,13 @@ package-lock.json
 atlassian-ide-plugin.xml
 *.sonar-ide.properties
 **/webapp/css/styles.css
+ddf-deplist.out
 platform/solr/**/overlays
 distribution/docs/src/main/resources/content/**/.asciidoctor
 distribution/docs/src/main/resources/content/**/*.png
 **/bin
 *.factorypath
+*.dylib
 # JMeter Related files to ignore
 jmeter.log
 *.jmx.log
@@ -40,3 +42,5 @@ buildNumber.properties
 .mvn/timing.properties
 coverage/
 .nyc_output
+**/.java-version
+.m2

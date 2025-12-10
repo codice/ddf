@@ -18,10 +18,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
+import static org.codice.ddf.test.common.configurators.KarafOptions.overridePaxExamJUnitHamcrest;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.composite;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -61,6 +61,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -714,9 +715,13 @@ public abstract class AbstractIntegrationTest {
   protected Option[] configureStartScript() {
     // add test dependencies to the test-dependencies-app instead of here
     return options(
+        // The version of the xalan bundle is an old version. This is the only way we could get
+        // some itests to work. It seems to be a classloader problem that only occurs in a
+        // pax-exam setup.
         mavenBundle(
-            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
-        junitBundles(),
+            "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan", "2.7.2_1"),
+        mavenBundle("commons-lang", "commons-lang", "2.6"),
+        overridePaxExamJUnitHamcrest(),
         features(
             maven()
                 .groupId(DDF_ITESTS_GROUP_ID)
@@ -884,7 +889,7 @@ public abstract class AbstractIntegrationTest {
     "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
   })
   public static String getFileContent(
-      String filePath, ImmutableMap<String, String> params, Class classRelativeToResource) {
+      String filePath, Map<String, String> params, Class classRelativeToResource) {
 
     StrSubstitutor strSubstitutor = new StrSubstitutor(params);
 
@@ -905,14 +910,14 @@ public abstract class AbstractIntegrationTest {
 
   /**
    * Variables to be replaced in a resource file should be in the format: $variableName$ The
-   * variable to replace in the file should also also match the parameter names of the method
-   * calling getFileContent. Resource is relative to AbstractIntegrationTest class
+   * variable to replace in the file should also match the parameter names of the method calling
+   * getFileContent. Resource is relative to AbstractIntegrationTest class
    *
    * @param filePath
    * @param params
    * @return
    */
-  public static String getFileContent(String filePath, ImmutableMap<String, String> params) {
+  public static String getFileContent(String filePath, Map<String, String> params) {
     return getFileContent(filePath, params, AbstractIntegrationTest.class);
   }
 

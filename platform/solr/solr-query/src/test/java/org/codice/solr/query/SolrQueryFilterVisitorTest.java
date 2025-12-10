@@ -27,14 +27,14 @@ import java.util.Collections;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.util.NamedList;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.Or;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opengis.filter.Filter;
-import org.opengis.filter.Or;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryFilterVisitorTest {
@@ -117,12 +117,6 @@ public class SolrQueryFilterVisitorTest {
     solrVisitor.visit(or, null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testOrWithInvalidQuery() throws Exception {
-    Filter filter = ECQL.toFilter("property = 'val' OR otherProp LIKE 'val2'");
-    filter.accept(solrVisitor, null);
-  }
-
   @Test
   public void testInSingleParam() throws Exception {
     // this is effectively an or with a single param which is allowed
@@ -135,7 +129,7 @@ public class SolrQueryFilterVisitorTest {
   public void testUnsupportedQuery() throws Exception {
     Filter filter = ECQL.toFilter("property LIKE 'val*'");
     SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
-    assertThat(solrQuery, equalTo(null));
+    assertThat(solrQuery.getQuery().trim(), equalTo("property_txt_tokenized:val*"));
   }
 
   @Test

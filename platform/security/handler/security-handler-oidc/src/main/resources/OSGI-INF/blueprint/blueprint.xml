@@ -50,6 +50,7 @@
             <cm:property name="readTimeout">
                 <value type="java.lang.Integer">5000</value>
             </cm:property>
+            <cm:property name="clientAuthMethod" value="client_secret_basic"/>
         </cm:default-properties>
     </cm:property-placeholder>
 

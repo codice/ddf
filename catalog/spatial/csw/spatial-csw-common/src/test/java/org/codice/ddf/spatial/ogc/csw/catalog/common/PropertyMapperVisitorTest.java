@@ -20,10 +20,10 @@ import static org.hamcrest.Matchers.equalTo;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import java.util.HashMap;
 import java.util.Map;
+import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Test;
-import org.opengis.filter.expression.PropertyName;
 
 public class PropertyMapperVisitorTest {
 

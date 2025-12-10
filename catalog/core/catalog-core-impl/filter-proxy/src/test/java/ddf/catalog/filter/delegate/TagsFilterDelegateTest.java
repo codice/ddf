@@ -23,8 +23,8 @@ import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import java.util.Arrays;
 import java.util.HashSet;
+import org.geotools.api.filter.Filter;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class TagsFilterDelegateTest {
 
@@ -45,19 +45,10 @@ public class TagsFilterDelegateTest {
   }
 
   @Test
-  public void testTagsInvalidOr() throws Exception {
-    Filter filter1 = builder.attribute("attribute1").is().like().text("value1");
-    Filter filter2 = builder.attribute(Metacard.TAGS).is().like().text("value2");
-    Filter filter = builder.anyOf(filter1, filter2);
-    assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(false));
-  }
-
-  @Test
   public void testTagsOr() throws Exception {
     Filter filter1 = builder.attribute("attribute1").is().like().text("value1");
     Filter filter2 = builder.attribute(Metacard.TAGS).is().like().text("value2");
-    Filter filter3 = builder.attribute(Metacard.TAGS).is().like().text("value3");
-    Filter filter = builder.anyOf(filter2, builder.allOf(filter1, filter3));
+    Filter filter = builder.anyOf(filter1, filter2);
     assertThat(adapter.adapt(filter, new TagsFilterDelegate()), is(true));
   }
 

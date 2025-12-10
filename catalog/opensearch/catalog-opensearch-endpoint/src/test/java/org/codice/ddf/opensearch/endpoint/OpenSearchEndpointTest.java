@@ -42,9 +42,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.opensearch.endpoint.query.OpenSearchQuery;
+import org.geotools.api.filter.Filter;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class OpenSearchEndpointTest {
 

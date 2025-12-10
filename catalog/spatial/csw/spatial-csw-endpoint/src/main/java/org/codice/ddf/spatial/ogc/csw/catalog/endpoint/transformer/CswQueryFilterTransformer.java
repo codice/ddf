@@ -22,8 +22,8 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.QueryFilterTransformer;
 import java.io.Serializable;
 import java.util.Map;
+import org.geotools.api.filter.Filter;
 import org.geotools.filter.FilterFactoryImpl;
-import org.opengis.filter.Filter;
 
 public class CswQueryFilterTransformer implements QueryFilterTransformer {
 

@@ -14,7 +14,7 @@
 package ddf.catalog.filter;
 
 import java.util.Date;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
  * Finishes the fluent API to create a Temporal Range {@link Filter}

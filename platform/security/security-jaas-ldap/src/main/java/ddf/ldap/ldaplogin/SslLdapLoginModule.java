@@ -171,6 +171,13 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       tmpPassword = new char[0];
     }
 
+    if (tmpPassword.length == 0 || StringUtils.isBlank(new String(tmpPassword))) {
+      LOGGER.info(
+          "No password supplied for LDAP login for user {}. Unauthenticated LDAP bind not allowed",
+          user);
+      return false;
+    }
+
     // ---------------------------------------------------------------------
     // RESET OBJECT STATE AND DECLARE LOCAL VARS
     principals = new HashSet<>();
@@ -413,6 +420,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       isLoggedIn = doLogin();
       if (!isLoggedIn) {
         securityLogger.audit("Username [" + user + "] failed LDAP authentication.");
+      } else {
+        securityLogger.audit("LDAP authentication successful for username [" + user + "].");
       }
       return isLoggedIn;
     } catch (InvalidCharactersException e) {

@@ -38,6 +38,7 @@ import org.apache.karaf.features.internal.service.FeaturesServiceImpl;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.codice.ddf.security.Security;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -67,6 +68,8 @@ public class ProfileInstallCommandTest {
   @Before
   public void setUp() throws Exception {
     ddfHome.newFolder("etc", "profiles");
+    System.setProperty(
+        "ddf.etc", Paths.get(ddfHome.getRoot().toString(), "etc").toAbsolutePath().toString());
     profilePath = Paths.get(ddfHome.getRoot().toString(), "etc", "profiles");
     Files.copy(
         this.getClass().getResourceAsStream("/profiles/devProfile.json"),
@@ -98,6 +101,11 @@ public class ProfileInstallCommandTest {
     when(featuresService.getFeature(anyString()))
         .thenAnswer(invocation -> createMockFeature(invocation.getArguments()[0].toString()));
     when(bundleService.getBundle(anyString())).thenReturn(mock(Bundle.class));
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.etc");
   }
 
   @Test

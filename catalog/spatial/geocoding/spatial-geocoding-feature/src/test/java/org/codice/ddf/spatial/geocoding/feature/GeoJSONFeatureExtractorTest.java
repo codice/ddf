@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.mockito.ArgumentCaptor;
-import org.opengis.feature.simple.SimpleFeature;
 
 public class GeoJSONFeatureExtractorTest {
   private static final String JAMAICA_GEOJSON_PATH =

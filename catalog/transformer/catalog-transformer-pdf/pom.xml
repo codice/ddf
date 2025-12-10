@@ -15,7 +15,7 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.29.28-SNAPSHOT</version>
     </parent>
 
     <name>DDF :: Catalog :: Transformer :: PDF</name>
@@ -39,6 +39,20 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-common</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcjmail-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcmail-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--External dependencies-->
@@ -67,17 +81,17 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15on</artifactId>
+            <artifactId>bcmail-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
@@ -91,6 +105,15 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <!-- bug between new tika and old compress from karaf -->
+            <!-- https://issues.apache.org/jira/si/jira.issueviews:issue-html/TIKA-4469/TIKA-4469.html -->
+            <version>${commons-compress.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -109,6 +132,8 @@
                             !com.ibm.icu.text,
                             !org.apache.pdfbox.debugger.*,
                             sun.java2d.cmm.kcms;resolution:=optional,
+                            picocli;resolution:=optional,
+                            sun.print;resolution:=optional,
                             *
                         </Import-Package>
                         <Embed-Dependency>

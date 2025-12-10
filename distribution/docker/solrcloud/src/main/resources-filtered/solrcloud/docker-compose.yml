@@ -1,4 +1,4 @@
-# a docker-compose.yml to start a simple cluster with one ZooKeeper node and two Solr nodes.
+# a docker compose.yml to start a simple cluster with one ZooKeeper node and two Solr nodes.
 #
 version: '3.7'
 

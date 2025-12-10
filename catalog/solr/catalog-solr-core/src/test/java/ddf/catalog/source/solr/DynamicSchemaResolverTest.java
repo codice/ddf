@@ -183,6 +183,19 @@ public class DynamicSchemaResolverTest {
         .containsExactly("metadata_txt", "title_txt", "description_txt", "ext.extracted.text_txt");
   }
 
+  @Test
+  public void testAnyGeoFieldPropertyParsing() throws Exception {
+    // Set
+    System.setProperty("solr.query.anygeo.fields", "location");
+
+    // Setup
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+
+    // Perform Test
+    List<String> fields = resolver.anyGeoFields().collect(Collectors.toList());
+    Truth.assertThat(fields).containsExactly("location");
+  }
+
   /**
    * Verify that when the metadata size limit is set to a non-numeric value that it is not added to
    * the metacard
@@ -277,10 +290,6 @@ public class DynamicSchemaResolverTest {
         dynamicSchemaResolver.getField(
             "unknown", AttributeFormat.FLOAT, true, Collections.emptyMap()),
         is("unknown_flt"));
-    assertThat(
-        dynamicSchemaResolver.getField(
-            "anyGeo", AttributeFormat.BINARY, true, Collections.emptyMap()),
-        is("location_geo_index"));
     assertThat(
         dynamicSchemaResolver.getField(
             "unknown", AttributeFormat.STRING, true, Collections.emptyMap()),

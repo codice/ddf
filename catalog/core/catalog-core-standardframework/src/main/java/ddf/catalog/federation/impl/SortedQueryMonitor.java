@@ -54,9 +54,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
+import org.apache.shiro.util.ThreadContext;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,12 +81,16 @@ class SortedQueryMonitor implements Runnable {
 
   private final long deadline;
 
+  private Map<Object, Object> originalThreadResources;
+
   public SortedQueryMonitor(
+      Map<Object, Object> originalThreadResources,
       CompletionService<SourceResponse> completionService,
       Map<Future<SourceResponse>, QueryRequest> futures,
       QueryResponseImpl returnResults,
       QueryRequest request,
       List<PostFederatedQueryPlugin> postQuery) {
+    this.originalThreadResources = originalThreadResources;
     this.completionService = completionService;
     this.returnResults = returnResults;
     this.request = request;
@@ -97,135 +102,146 @@ class SortedQueryMonitor implements Runnable {
 
   @Override
   public void run() {
-    List<SortBy> sortBys = new ArrayList<>();
-    SortBy sortBy = query.getSortBy();
-    if (sortBy != null && sortBy.getPropertyName() != null) {
-      sortBys.add(sortBy);
-    }
-    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORT_BYS);
-    if (sortBySer instanceof SortBy[]) {
-      SortBy[] extSortBys = (SortBy[]) sortBySer;
-      if (extSortBys.length > 0) {
-        sortBys.addAll(Arrays.asList(extSortBys));
+    try {
+      if (originalThreadResources != null) {
+        ThreadContext.remove();
+        ThreadContext.setResources(originalThreadResources);
+      } else {
+        LOGGER.warn("SortedQueryMonitor executing without a security thread context");
       }
-    }
 
-    // Prepare the Comparators that we will use
-    CollectionResultComparator resultComparator = new CollectionResultComparator();
-    if (!sortBys.isEmpty()) {
-      for (SortBy sort : sortBys) {
-        Comparator<Result> comparator = null;
-
-        PropertyName sortingProp = sort.getPropertyName();
-        String sortType = sortingProp.getPropertyName();
-        SortOrder sortOrder =
-            (sort.getSortOrder() == null) ? SortOrder.DESCENDING : sort.getSortOrder();
-        LOGGER.debug("Sorting type: {}", sortType);
-        LOGGER.debug("Sorting order: {}", sortOrder);
-
-        // Temporal searches are currently sorted by the effective time
-        if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
-          comparator = new TemporalResultComparator(sortOrder);
-        } else if (Result.DISTANCE.equals(sortType)) {
-          comparator = new DistanceResultComparator(sortOrder);
-        } else if (Result.RELEVANCE.equals(sortType)) {
-          comparator = new RelevanceResultComparator(sortOrder);
-        } else {
-          Comparator<Result> fallback =
-              Comparator.comparing(
-                  r -> getAttributeValue((Result) r, sortType),
-                  ((sortOrder == SortOrder.ASCENDING)
-                      ? Comparator.nullsLast(Comparator.<Comparable>naturalOrder())
-                      : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
-          comparator = new CaseInsensitiveIfStringComparator(sortOrder, sortType, fallback);
+      List<SortBy> sortBys = new ArrayList<>();
+      SortBy sortBy = query.getSortBy();
+      if (sortBy != null && sortBy.getPropertyName() != null) {
+        sortBys.add(sortBy);
+      }
+      Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORT_BYS);
+      if (sortBySer instanceof SortBy[]) {
+        SortBy[] extSortBys = (SortBy[]) sortBySer;
+        if (extSortBys.length > 0) {
+          sortBys.addAll(Arrays.asList(extSortBys));
         }
-        resultComparator.addComparator(comparator);
       }
-    } else {
-      Comparator<Result> coreComparator = SortedFederationStrategy.DEFAULT_COMPARATOR;
-      resultComparator.addComparator(coreComparator);
-    }
 
-    List<Result> resultList = new ArrayList<>();
-    long totalHits = 0;
-    Set<ProcessingDetails> detailsOfReturnResults = returnResults.getProcessingDetails();
+      // Prepare the Comparators that we will use
+      CollectionResultComparator resultComparator = new CollectionResultComparator();
+      if (!sortBys.isEmpty()) {
+        for (SortBy sort : sortBys) {
+          Comparator<Result> comparator = null;
 
-    Map<String, Map<String, Serializable>> sourceProperties = new HashMap<>();
+          PropertyName sortingProp = sort.getPropertyName();
+          String sortType = sortingProp.getPropertyName();
+          SortOrder sortOrder =
+              (sort.getSortOrder() == null) ? SortOrder.DESCENDING : sort.getSortOrder();
+          LOGGER.debug("Sorting type: {}", sortType);
+          LOGGER.debug("Sorting order: {}", sortOrder);
 
-    Map<String, Serializable> returnProperties = returnResults.getProperties();
-    HashMap<String, Long> hitsPerSource = new HashMap<>();
-
-    for (int i = futures.size(); i > 0; i--) {
-      String sourceId = "Unknown Source";
-      QueryRequest queryRequest = null;
-      SourceResponse sourceResponse = null;
-      try {
-        Future<SourceResponse> future;
-        if (query.getTimeoutMillis() < 1) {
-          future = completionService.take();
-        } else {
-          future = completionService.poll(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
-          if (future == null) {
-            timeoutRemainingSources(detailsOfReturnResults);
-            break;
+          // Temporal searches are currently sorted by the effective time
+          if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
+            comparator = new TemporalResultComparator(sortOrder);
+          } else if (Result.DISTANCE.equals(sortType)) {
+            comparator = new DistanceResultComparator(sortOrder);
+          } else if (Result.RELEVANCE.equals(sortType)) {
+            comparator = new RelevanceResultComparator(sortOrder);
+          } else {
+            Comparator<Result> fallback =
+                Comparator.comparing(
+                    r -> getAttributeValue((Result) r, sortType),
+                    ((sortOrder == SortOrder.ASCENDING)
+                        ? Comparator.nullsLast(Comparator.<Comparable>naturalOrder())
+                        : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
+            comparator = new CaseInsensitiveIfStringComparator(sortOrder, sortType, fallback);
           }
+          resultComparator.addComparator(comparator);
         }
+      } else {
+        Comparator<Result> coreComparator = SortedFederationStrategy.DEFAULT_COMPARATOR;
+        resultComparator.addComparator(coreComparator);
+      }
 
-        queryRequest = futures.remove(future);
-        if (queryRequest == null) {
-          LOGGER.debug("Couldn't get completed federated query. Skipping {}", sourceId);
-          continue;
-        }
-        sourceId = getSourceIdFromRequest(queryRequest);
+      List<Result> resultList = new ArrayList<>();
+      long totalHits = 0;
+      Set<ProcessingDetails> detailsOfReturnResults = returnResults.getProcessingDetails();
 
-        sourceResponse = future.get();
-        if (sourceResponse == null) {
-          LOGGER.debug("Source {} returned null response", sourceId);
-          sourceResponse =
-              executePostFederationQueryPluginsWithSourceError(
-                  queryRequest, sourceId, new NullPointerException());
-        } else {
-          sourceResponse =
-              executePostFederationQueryPlugins(sourceResponse, queryRequest, sourceId);
-        }
-      } catch (InterruptedException e) {
-        if (queryRequest != null) {
-          // First, add interrupted processing detail for this source
-          LOGGER.debug("Search interrupted for {}", sourceId);
+      Map<String, Map<String, Serializable>> sourceProperties = new HashMap<>();
+
+      Map<String, Serializable> returnProperties = returnResults.getProperties();
+      HashMap<String, Long> hitsPerSource = new HashMap<>();
+
+      for (int i = futures.size(); i > 0; i--) {
+        String sourceId = "Unknown Source";
+        QueryRequest queryRequest = null;
+        SourceResponse sourceResponse = null;
+        try {
+          Future<SourceResponse> future;
+          if (query.getTimeoutMillis() < 1) {
+            future = completionService.take();
+          } else {
+            future = completionService.poll(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+            if (future == null) {
+              timeoutRemainingSources(detailsOfReturnResults);
+              break;
+            }
+          }
+
+          queryRequest = futures.remove(future);
+          if (queryRequest == null) {
+            LOGGER.debug("Couldn't get completed federated query. Skipping {}", sourceId);
+            continue;
+          }
+          sourceId = getSourceIdFromRequest(queryRequest);
+
+          sourceResponse = future.get();
+          if (sourceResponse == null) {
+            LOGGER.debug("Source {} returned null response", sourceId);
+            sourceResponse =
+                executePostFederationQueryPluginsWithSourceError(
+                    queryRequest, sourceId, new NullPointerException());
+          } else {
+            sourceResponse =
+                executePostFederationQueryPlugins(sourceResponse, queryRequest, sourceId);
+          }
+        } catch (InterruptedException e) {
+          if (queryRequest != null) {
+            // First, add interrupted processing detail for this source
+            LOGGER.debug("Search interrupted for {}", sourceId);
+            sourceResponse =
+                executePostFederationQueryPluginsWithSourceError(queryRequest, sourceId, e);
+          }
+
+          // Then add the interrupted exception for the remaining sources
+          interruptRemainingSources(detailsOfReturnResults, e);
+          Thread.currentThread().interrupt();
+          break;
+        } catch (ExecutionException e) {
+          LOGGER.info(
+              "Couldn't get results from completed federated query for sourceId = {}", sourceId, e);
           sourceResponse =
               executePostFederationQueryPluginsWithSourceError(queryRequest, sourceId, e);
         }
+        resultList.addAll(sourceResponse.getResults());
+        long hits = sourceResponse.getHits();
+        totalHits += hits;
+        hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
 
-        // Then add the interrupted exception for the remaining sources
-        interruptRemainingSources(detailsOfReturnResults, e);
-        Thread.currentThread().interrupt();
-        break;
-      } catch (ExecutionException e) {
-        LOGGER.info(
-            "Couldn't get results from completed federated query for sourceId = {}", sourceId, e);
-        sourceResponse =
-            executePostFederationQueryPluginsWithSourceError(queryRequest, sourceId, e);
+        Map<String, Serializable> properties = sourceResponse.getProperties();
+        sourceProperties.put(sourceId, properties);
+
+        returnProperties.putAll(properties);
+        detailsOfReturnResults.addAll(
+            sourceProcessingDetailsToProcessingDetails(sourceId, sourceResponse));
       }
-      resultList.addAll(sourceResponse.getResults());
-      long hits = sourceResponse.getHits();
-      totalHits += hits;
-      hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
 
-      Map<String, Serializable> properties = sourceResponse.getProperties();
-      sourceProperties.put(sourceId, properties);
+      returnProperties.put("hitsPerSource", hitsPerSource);
+      returnProperties.put(
+          ORIGINAL_SOURCE_PROPERTIES, (Serializable) Collections.unmodifiableMap(sourceProperties));
+      LOGGER.debug("All sources finished returning results: {}", resultList.size());
 
-      returnProperties.putAll(properties);
-      detailsOfReturnResults.addAll(
-          sourceProcessingDetailsToProcessingDetails(sourceId, sourceResponse));
+      returnResults.setHits(totalHits);
+      returnResults.addResults(sortedResults(resultList, resultComparator), true);
+    } finally {
+      ThreadContext.remove();
     }
-
-    returnProperties.put("hitsPerSource", hitsPerSource);
-    returnProperties.put(
-        ORIGINAL_SOURCE_PROPERTIES, (Serializable) Collections.unmodifiableMap(sourceProperties));
-    LOGGER.debug("All sources finished returning results: {}", resultList.size());
-
-    returnResults.setHits(totalHits);
-    returnResults.addResults(sortedResults(resultList, resultComparator), true);
   }
 
   private Set<ProcessingDetails> sourceProcessingDetailsToProcessingDetails(

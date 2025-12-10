@@ -18,15 +18,17 @@ import static org.pac4j.oidc.config.OidcConfiguration.IMPLICIT_FLOWS;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.exception.TechnicalException;
-import org.pac4j.oidc.client.AzureAdClient;
+import org.pac4j.oidc.client.AzureAd2Client;
 import org.pac4j.oidc.client.GoogleOidcClient;
 import org.pac4j.oidc.client.KeycloakOidcClient;
 import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.AzureAdOidcConfiguration;
+import org.pac4j.oidc.config.AzureAd2OidcConfiguration;
 import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
@@ -56,6 +58,7 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   public static final String LOGOUT_URI_KEY = "logoutUri";
   public static final String CONNECT_TIMEOUT_KEY = "connectTimeout";
   public static final String READ_TIMEOUT_KEY = "readTimeout";
+  public static final String CLIENT_AUTH_METHOD = "clientAuthMethod";
 
   private String idpType;
   private String clientId;
@@ -70,6 +73,7 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   private String logoutUri;
   private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
   private int readTimeout = DEFAULT_READ_TIMEOUT;
+  private String clientAuthMethod;
 
   private OidcConfiguration oidcConfiguration;
 
@@ -92,6 +96,11 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     logoutUri = (String) properties.getOrDefault(LOGOUT_URI_KEY, logoutUri);
     connectTimeout = (int) properties.getOrDefault(CONNECT_TIMEOUT_KEY, connectTimeout);
     readTimeout = (int) properties.getOrDefault(READ_TIMEOUT_KEY, readTimeout);
+    clientAuthMethod = (String) properties.getOrDefault(CLIENT_AUTH_METHOD, clientAuthMethod);
+
+    if (StringUtils.isBlank(clientAuthMethod)) {
+      clientAuthMethod = ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue();
+    }
 
     // TODO - Remove if fragment response_mode is supported
     if (IMPLICIT_FLOWS.contains(new ResponseType(responseType))) {
@@ -111,6 +120,7 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     oidcConfiguration.setWithState(true);
     oidcConfiguration.setConnectTimeout(connectTimeout);
     oidcConfiguration.setReadTimeout(readTimeout);
+    oidcConfiguration.setClientAuthenticationMethodAsString(clientAuthMethod);
 
     try {
       testConnection();
@@ -181,9 +191,9 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
       keycloakOidcConfiguration.setBaseUri(baseUri);
       configuration = keycloakOidcConfiguration;
     } else if ("Azure".equals(idpType)) {
-      AzureAdOidcConfiguration azureAdOidcConfiguration = new AzureAdOidcConfiguration();
-      azureAdOidcConfiguration.setTenant(realm);
-      configuration = azureAdOidcConfiguration;
+      AzureAd2OidcConfiguration azureAd2OidcConfiguration = new AzureAd2OidcConfiguration();
+      azureAd2OidcConfiguration.setTenant(realm);
+      configuration = azureAd2OidcConfiguration;
     } else {
       configuration = new OidcConfiguration();
     }
@@ -199,11 +209,11 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     if ("Keycloak".equals(idpType)) {
       oidcClient = new KeycloakOidcClient((KeycloakOidcConfiguration) oidcConfiguration);
     } else if ("Azure".equals(idpType)) {
-      oidcClient = new AzureAdClient((AzureAdOidcConfiguration) oidcConfiguration);
+      oidcClient = new AzureAd2Client((AzureAd2OidcConfiguration) oidcConfiguration);
     } else if ("Google".equals(idpType)) {
       oidcClient = new GoogleOidcClient(oidcConfiguration);
     } else {
-      oidcClient = new OidcClient<>(oidcConfiguration);
+      oidcClient = new OidcClient(oidcConfiguration);
     }
 
     oidcClient.setName(oidcConfiguration.getClientId());

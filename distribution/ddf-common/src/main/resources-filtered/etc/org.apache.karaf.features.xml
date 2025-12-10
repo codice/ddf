@@ -23,7 +23,7 @@
 
     <!-- A list of blacklisted feature identifiers that can't be installed in Karaf and are not part of the distribution -->
     <blacklistedFeatures>
-        <feature>pax-jetty-http2</feature>
+        <feature>pax-web-jetty-http2</feature>
         <feature>decanter-appender-cassandra</feature>
         <feature>decanter-appender-cassandra-core</feature>
         <feature>cxf-http-undertow</feature>
@@ -39,7 +39,77 @@
     <overrideBundleDependency/>
 
     <!-- A list of bundle URI replacements that allows changing external feature definitions -->
-    <bundleReplacements/>
+    <bundleReplacements>
+        <!-- need to upgrade jetty for CVE-2025-5115 -->
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-client/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.http2/http2-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-common/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.http2/http2-common/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-hpack/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.http2/http2-hpack/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-http-client-transport/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.http2/http2-http-client-transport/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.http2/http2-server/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.http2/http2-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-client/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-java-client/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-java-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-java-server/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-java-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-openjdk8-client/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-openjdk8-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-opendjk8-server/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-openjdk8-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-alpn-server/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-alpn-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-client/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-continuation/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-continuation/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-http/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-http/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-io/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-io/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-jaas/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-jaas/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-jmx/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-jmx/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-openid/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-openid/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-proxy/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-proxy/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-rewrite/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-rewrite/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-security/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-security/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-server/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-servlet/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-servlet/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-servlets/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-servlets/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-util/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-util/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-util-ajax/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-util-ajax/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty/jetty-xml/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty/jetty-xml/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/javax-websocket-client-impl/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/javax-websocket-client-impl/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/javax-websocket-server-impl/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/javax-websocket-server-impl/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-api/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-api/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-client/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-client/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-common/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-common/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-server/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-server/${jetty.version}" />
+        <bundle originalUri="mvn:org.eclipse.jetty.websocket/websocket-servlet/${karaf.jetty.version}"
+                replacement="mvn:org.eclipse.jetty.websocket/websocket-servlet/${jetty.version}" />
+    </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->
     <featureReplacements/>

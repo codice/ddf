@@ -15,7 +15,7 @@ package ddf.catalog.filter.proxy.builder;
 
 import ddf.catalog.filter.TemporalRangeExpressionBuilder;
 import java.util.Date;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public final class GeotoolsTemporalRangeExpressionBuilder extends GeotoolsBuilder
     implements TemporalRangeExpressionBuilder {

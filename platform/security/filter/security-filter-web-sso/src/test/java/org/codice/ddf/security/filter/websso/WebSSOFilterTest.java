@@ -26,8 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.common.PrincipalHolder;
 import java.io.IOException;
@@ -49,7 +47,6 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.LoggerFactory;
 
 public class WebSSOFilterTest {
 
@@ -59,9 +56,6 @@ public class WebSSOFilterTest {
 
   @Test
   public void testInit() {
-    final Logger logger = (Logger) LoggerFactory.getLogger(WebSSOFilter.class);
-    logger.setLevel(Level.DEBUG);
-
     AuthenticationHandler handlerMock = mock(AuthenticationHandler.class);
     when(handlerMock.getAuthenticationType()).thenReturn("basic");
 
@@ -72,8 +66,6 @@ public class WebSSOFilterTest {
     webSSOFilter.setHandlerList(Collections.singletonList(handlerMock));
     webSSOFilter.setContextPolicyManager(policyManager);
     webSSOFilter.init();
-
-    logger.setLevel(Level.OFF);
   }
 
   @Test

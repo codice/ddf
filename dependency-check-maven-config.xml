@@ -203,4 +203,190 @@
         <cve>CVE-2007-1652</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            These CVEs are from XStream and have been mitigated by using the XStream Security
+            Framework wherever DDF creates an XStream object.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/io\.github\.x\-stream/mxparser@.*$</packageUrl>
+        <cve>CVE-2013-7285</cve>
+        <cve>CVE-2021-21342</cve>
+        <cve>CVE-2021-21344</cve>
+        <cve>CVE-2021-21345</cve>
+        <cve>CVE-2021-21346</cve>
+        <cve>CVE-2021-21347</cve>
+        <cve>CVE-2021-21350</cve>
+        <cve>CVE-2021-21351</cve>
+        <cve>CVE-2016-3674</cve>
+        <cve>CVE-2017-7957</cve>
+        <cve>CVE-2020-26217</cve>
+        <cve>CVE-2020-26258</cve>
+        <cve>CVE-2021-21341</cve>
+        <cve>CVE-2021-21343</cve>
+        <cve>CVE-2021-21348</cve>
+        <cve>CVE-2021-21349</cve>
+        <cve>CVE-2021-29505</cve>
+        <cve>CVE-2021-39139</cve>
+        <cve>CVE-2021-39141</cve>
+        <cve>CVE-2021-39144</cve>
+        <cve>CVE-2021-39145</cve>
+        <cve>CVE-2021-39146</cve>
+        <cve>CVE-2021-39147</cve>
+        <cve>CVE-2021-39148</cve>
+        <cve>CVE-2021-39149</cve>
+        <cve>CVE-2021-39150</cve>
+        <cve>CVE-2021-39151</cve>
+        <cve>CVE-2021-39152</cve>
+        <cve>CVE-2021-39153</cve>
+        <cve>CVE-2021-39154</cve>
+        <cve>CVE-2021-43859</cve>
+        <cve>CVE-2022-40151</cve>
+        <cve>CVE-2022-40152</cve>
+        <cve>CVE-2022-41966</cve>
+        <cve>CVE-2020-26259</cve>
+        <cve>CVE-2021-39140</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            This CVE applies to the parent library of several contrib artifacts, and the project
+            is using a version that resolves the CVE. These artifacts are false positives
+            because they use a similar naming convention, but a different versioning convention.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback\.contrib/.*@0.1.5$</packageUrl>
+        <cve>CVE-2017-5929</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            This CVE is a false positive. The siv-mode artifact is incorrectly included in other
+            org.cryptomator artifacts.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.cryptomator/siv\-mode@1\.5\.2</packageUrl>
+        <cve>CVE-2022-25366</cve>
+        <cve>CVE-2023-37907</cve>
+        <cve>CVE-2023-39520</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            These CVEs are a false positive. They apply to the greater Spring Framework library.
+            This artifact uses a similar naming convention, but different versioning. It is not
+            included in the greater library.
+        </notes>
+        <packageUrl regex="true">pkg:maven/org\.springframework\.ldap/spring\-ldap\-core@3\.2\.11</packageUrl>
+        <cve>CVE-2015-3192</cve>
+        <cve>CVE-2015-5211</cve>
+        <cve>CVE-2016-1000027</cve>
+        <cve>CVE-2016-5007</cve>
+        <cve>CVE-2018-11039</cve>
+        <cve>CVE-2018-11040</cve>
+        <cve>CVE-2018-1257</cve>
+        <cve>CVE-2020-5421</cve>
+        <cve>CVE-2022-22950</cve>
+        <cve>CVE-2022-22965</cve>
+        <cve>CVE-2022-22968</cve>
+        <cve>CVE-2022-22970</cve>
+        <cve>CVE-2023-20861</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            This CVE is a false positive. It is related to PASV FTP requests. However, DDF does not use
+            FTP.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sling/org\.apache\.sling\.commons\.johnzon@1\.2\.16$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are false positives. It is related to Apache Sling, which DDF does not use. It is
+            being reported because Apache Karaf pulls in an Apache Johnzon (JSON parsing) artifact that
+            registers a service provider. Also, the code is related to the karaf configs and only admins
+            can access the configs. Others have also reported this as a false positive under very
+            similar conditions: https://github.com/anchore/grype/issues/1269
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sling/org\.apache\.sling\.commons\.johnzon@1\.2\.16$</packageUrl>
+        <cve>CVE-2022-45064</cve>
+        <cve>CVE-2022-47937</cve>
+        <cve>CVE-2023-33008</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are a false positive. They apply to the json-smart and accessors-smart libraries.
+            However, the CVEs are caused via a transitive dependency in OIDC libraries, which reference an
+            outdated version of these smart libraries. We have assured that a newer version of the smart libraries
+            are imported to prevent these vulnerabilities.
+        </notes>
+        <packageUrl regex="true">pkg:maven/net\.minidev/.*@.*$</packageUrl>
+        <cve>CVE-2021-27568</cve>
+        <cve>CVE-2021-31684</cve>
+        <cve>CVE-2023-1370</cve>
+        <cve>CVE-2024-57699</cve>
+        <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are a false positive. They apply to transitive dependencies for tika-bundle-standard 2.4.0.
+            However, these transitive dependencies are not actually imported into the system. In addition, the maven
+            webpage for this version of tika-bundle-standard does not list any CVEs.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tika/tika\-bundle\-standard@2\.4\.0.*$</packageUrl>
+        <cve>CVE-2021-38542</cve>
+        <cve>CVE-2021-40110</cve>
+        <cve>CVE-2021-40111</cve>
+        <cve>CVE-2021-40525</cve>
+        <cve>CVE-2022-28220</cve>
+        <cve>CVE-2022-45787</cve>
+        <cve>CVE-2022-45935</cve>
+        <cve>CVE-2023-26269</cve>
+        <cve>CVE-2024-21742</cve>
+        <cve>CVE-2021-37533</cve>
+        <cve>CVE-2024-47554</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are a false positive. The CVEs apply to previous versions of mime4j libraries, but
+            not the version used in this project.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.james/apache\-mime4j\-(core|dom)@0\.8\.12$</packageUrl>
+        <cve>CVE-2021-38542</cve>
+        <cve>CVE-2021-40110</cve>
+        <cve>CVE-2021-40111</cve>
+        <cve>CVE-2021-40525</cve>
+        <cve>CVE-2022-28220</cve>
+        <cve>CVE-2022-45935</cve>
+        <cve>CVE-2023-26269</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            This CVE concerns the possibility of users injecting executable data. However,
+            only the admin can specify the command to be executed via platform-scheduler.
+            Also, the CVE notes that experts do not agree if a user could inject data to
+            reach the code location where injection must occur.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz.*@2\.3\.2$</packageUrl>
+        <cpe>cpe:/a:softwareag:quartz</cpe>
+        <cve>CVE-2023-39017</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            These CVEs are for spring framework, but as a transitive dependency of Apache CXF. The CVEs
+            require untrusted user data reaching the spring expression library. However, there is no way
+            in DDF for a user to inject user data via CXF.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-(tx|aop|jcl|beans|core|expression|context)@5\.3\.27$</packageUrl>
+        <cve>CVE-2016-1000027</cve>
+        <cve>CVE-2024-38808</cve>
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            The CVE is for Apache soap, but is being reported against cxf-rt-bindings-soap,
+            which is a different library. Confirmation https://github.com/dependency-check/DependencyCheck/issues/5543
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
+        <cpe>cpe:/a:apache:soap</cpe>
+        <cve>CVE-2016-10750</cve>
+    </suppress>
 </suppressions>

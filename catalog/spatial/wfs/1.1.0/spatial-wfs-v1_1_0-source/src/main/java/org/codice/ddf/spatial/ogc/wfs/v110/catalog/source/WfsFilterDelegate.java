@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
+import ddf.util.Antimeridian;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -1072,40 +1073,52 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
       String operation, String propertyName, String wkt, Double distance) {
-
+    String adjustedWkt = Antimeridian.normalizeWkt(wkt);
     switch (SPATIAL_OPERATORS.valueOf(operation)) {
       case BBOX:
-        return buildBBoxType(propertyName, wkt);
+        return buildBBoxType(propertyName, adjustedWkt);
       case CONTAINS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createContains(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createContains(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case CROSSES:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createCrosses(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createCrosses(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case DISJOINT:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createDisjoint(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createDisjoint(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case INTERSECTS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createIntersects(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createIntersects(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case EQUALS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createEquals(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createEquals(new BinarySpatialOpType()), propertyName, adjustedWkt);
       case OVERLAPS:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createOverlaps(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createOverlaps(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case TOUCHES:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createTouches(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createTouches(new BinarySpatialOpType()),
+            propertyName,
+            adjustedWkt);
       case WITHIN:
         return buildBinarySpatialOpType(
-            filterObjectFactory.createWithin(new BinarySpatialOpType()), propertyName, wkt);
+            filterObjectFactory.createWithin(new BinarySpatialOpType()), propertyName, adjustedWkt);
       case BEYOND:
         if (distance != null) {
           return buildDistanceBufferType(
               filterObjectFactory.createBeyond(new DistanceBufferType()),
               propertyName,
-              wkt,
+              adjustedWkt,
               distance);
         }
         throw new UnsupportedOperationException(
@@ -1117,7 +1130,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           return buildDistanceBufferType(
               filterObjectFactory.createDWithin(new DistanceBufferType()),
               propertyName,
-              wkt,
+              adjustedWkt,
               distance);
         }
         throw new UnsupportedOperationException(

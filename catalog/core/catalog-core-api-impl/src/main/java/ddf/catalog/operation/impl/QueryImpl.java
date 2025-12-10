@@ -16,9 +16,9 @@ package ddf.catalog.operation.impl;
 import ddf.catalog.Constants;
 import ddf.catalog.operation.Query;
 import java.util.Map;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterVisitor;
+import org.geotools.api.filter.sort.SortBy;
 
 public class QueryImpl implements Query {
 

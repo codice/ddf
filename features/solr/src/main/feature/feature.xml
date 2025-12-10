@@ -19,12 +19,17 @@
     <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="solr-dependencies" version="${project.version}" >
-        <feature>pax-jetty</feature>
-        <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-hpack/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-common/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-client/${jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-http-client-transport/${jetty.version}</bundle>
+        <feature>pax-web-jetty-extras</feature>
+        <bundle>mvn:org.eclipse.jetty/jetty-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-alpn-java-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-http/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-io/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty/jetty-util/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-hpack/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-common/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-client/${solr.jetty.version}</bundle>
+        <bundle>mvn:org.eclipse.jetty.http2/http2-http-client-transport/${solr.jetty.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${solr.httpcore.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${solr.httpclient.version}</bundle>
         <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
@@ -41,7 +46,7 @@
              description="Solr factory">
         <feature>security-core-services</feature>
         <feature>common-system</feature>
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>solr-factory-api</feature>
         <feature>platform-util</feature>
         <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
@@ -85,6 +90,7 @@
         <feature>jts</feature>
         <feature>geotools</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/preferences-api/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
 
         <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
@@ -98,6 +104,12 @@
         <feature>solr-core</feature>
         <feature>persistence-core-api</feature>
         <feature>persistence-core</feature>
+    </feature>
+
+    <feature name="solr-all" version="${project.version}"
+             description="All DDF Solr features">
+        <feature>platform-solr-app</feature>
+        <feature>solr-decanter-appender</feature>
     </feature>
 
 </features>

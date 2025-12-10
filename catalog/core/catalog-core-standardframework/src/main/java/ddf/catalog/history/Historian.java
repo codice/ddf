@@ -16,6 +16,7 @@ package ddf.catalog.history;
 import static ddf.catalog.core.versioning.MetacardVersion.SKIP_VERSIONING;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
@@ -28,6 +29,7 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
+import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
@@ -39,6 +41,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
+import ddf.catalog.operation.Response;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
@@ -67,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -78,7 +82,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.Security;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -97,10 +101,26 @@ public class Historian {
 
   private boolean historyEnabled = true;
 
+  private boolean useKnownIdForDeletes = true;
+
   private final Predicate<Metacard> isNotVersionNorDeleted =
       ((Predicate<Metacard>) MetacardVersionImpl::isVersion)
           .or(DeletedMetacardImpl::isDeleted)
           .negate();
+
+  public static final String SKIP_UPDATE_PROPERTY =
+      "org.codice.ddf.history.update.blacklist.metacardTypes";
+
+  public static final String SKIP_DELETE_PROPERTY =
+      "org.codice.ddf.history.deletes.blacklist.metacardTypes";
+
+  private final Set<String> skipUpdateMetacardTypes =
+      Sets.newHashSet(
+          System.getProperty(SKIP_UPDATE_PROPERTY, "").replaceAll("\\s+", "").split(","));
+
+  private final Set<String> skipDeleteMetacardTypes =
+      Sets.newHashSet(
+          System.getProperty(SKIP_DELETE_PROPERTY, "").replaceAll("\\s+", "").split(","));
 
   private List<StorageProvider> storageProviders;
 
@@ -160,6 +180,7 @@ public class Historian {
         updateResponse.getUpdatedMetacards().stream()
             .map(Update::getOldMetacard)
             .filter(isNotVersionNorDeleted)
+            .filter(this::isNotBlackListedUpdate)
             .collect(Collectors.toList());
 
     if (inputMetacards.isEmpty()) {
@@ -220,6 +241,7 @@ public class Historian {
             .map(ContentItem::getMetacard)
             .filter(Objects::nonNull)
             .filter(isNotVersionNorDeleted)
+            .filter(this::isNotBlackListedUpdate)
             .collect(Collectors.toList());
 
     if (updatedMetacards.isEmpty()) {
@@ -284,6 +306,14 @@ public class Historian {
     return updateStorageResponse;
   }
 
+  private boolean isNotBlackListedUpdate(Metacard metacard) {
+    return !skipUpdateMetacardTypes.contains(metacard.getMetacardType().getName());
+  }
+
+  private boolean isNotBlackListedDelete(Metacard metacard) {
+    return !skipDeleteMetacardTypes.contains(metacard.getMetacardType().getName());
+  }
+
   /**
    * Versions deleted {@link Metacard}s.
    *
@@ -303,6 +333,7 @@ public class Historian {
     List<Metacard> originalMetacards =
         deleteResponse.getDeletedMetacards().stream()
             .filter(isNotVersionNorDeleted)
+            .filter(this::isNotBlackListedDelete)
             .collect(Collectors.toList());
 
     if (originalMetacards.isEmpty()) {
@@ -392,7 +423,7 @@ public class Historian {
             .map(
                 s ->
                     new DeletedMetacardImpl(
-                        uuidGenerator.generateUuid(),
+                        generateDeletedMetacardId(s.getKey()),
                         s.getKey(),
                         userid,
                         s.getValue().getId(),
@@ -422,6 +453,10 @@ public class Historian {
 
   public void setHistoryEnabled(boolean historyEnabled) {
     this.historyEnabled = historyEnabled;
+  }
+
+  public void setUseKnownIdForDeletes(boolean useKnownIdForDeletes) {
+    this.useKnownIdForDeletes = useKnownIdForDeletes;
   }
 
   public List<StorageProvider> getStorageProviders() {
@@ -610,6 +645,13 @@ public class Historian {
                 Historian::firstInWinsMerge));
   }
 
+  private String generateDeletedMetacardId(String metacardId) {
+    if (useKnownIdForDeletes) {
+      return uuidGenerator.generateKnownId(DeletedMetacard.DELETED_TAG, "historian", metacardId);
+    }
+    return uuidGenerator.generateUuid();
+  }
+
   /**
    * Caution should be used with this, as it elevates the permissions to the System user.
    *
@@ -629,11 +671,12 @@ public class Historian {
     return systemSubject.execute(func);
   }
 
-  private boolean doSkip(@Nullable Operation op) {
+  private boolean doSkip(@Nullable Response response) {
     return !historyEnabled
-        || op == null
+        || response == null
         || ((boolean)
-            Optional.of(op)
+            Optional.of(response)
+                .map(Response::getRequest)
                 .map(Operation::getProperties)
                 .orElse(Collections.emptyMap())
                 .getOrDefault(SKIP_VERSIONING, false));

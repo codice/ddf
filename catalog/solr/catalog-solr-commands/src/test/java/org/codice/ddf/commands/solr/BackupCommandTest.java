@@ -36,10 +36,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -66,34 +62,6 @@ public class BackupCommandTest extends SolrCommandTest {
   @Rule public ExpectedException expectedException = ExpectedException.none();
 
   @Mock SolrClient mockSolrClient;
-
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    setDdfHome();
-    setDdfEtc();
-    createDefaultMiniSolrCloudCluster();
-    addDocument("1");
-  }
-
-  @AfterClass
-  public static void afterClass() throws Exception {
-    if (miniSolrCloud != null) {
-      miniSolrCloud.getSolrClient().close();
-      miniSolrCloud.shutdown();
-    }
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
-    consoleOutput = new ConsoleOutput();
-    consoleOutput.interceptSystemOut();
-  }
-
-  @After
-  public void tearDown() {
-    consoleOutput.resetSystemOut();
-  }
 
   @Test
   public void testPerformSolrCloudSynchronousBackup() throws Exception {
@@ -250,7 +218,7 @@ public class BackupCommandTest extends SolrCommandTest {
             String.format(
                 "Backing up collection [%s] to shared location [%s] using backup name [%s_",
                 DEFAULT_CORE_NAME, backupCommand.backupLocation, DEFAULT_CORE_NAME)));
-    assertThat(consoleOutput.getOutput(), containsString("Solr Cloud backup request Id:"));
+    assertThat(consoleOutput.getOutput(), containsString("Solr Cloud backup request Id ["));
   }
 
   @Test
@@ -564,21 +532,25 @@ public class BackupCommandTest extends SolrCommandTest {
   // Replace ASCII color codes in console output and get the request Id
   private String getRequestId(String consoleOutput) {
     return StringUtils.trim(
-        StringUtils.substringAfterLast(
-            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), ":"));
+        StringUtils.substringsBetween(
+            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""),
+            "Solr Cloud backup request Id [",
+            "]")[0]);
   }
 
   // Replace ASCII color codes in console output and get the status
   private String getRequestStatus(String consoleOutput) {
     return StringUtils.trim(
         StringUtils.substringsBetween(
-            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[1]);
+            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "] is [", "]")[0]);
   }
 
   private String getBackupName(String consoleOutput) {
     return StringUtils.trim(
         StringUtils.substringsBetween(
-            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[2]);
+            ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""),
+            "using backup name [",
+            "]")[0]);
   }
 
   private String waitForCompletedStatusOrFail(

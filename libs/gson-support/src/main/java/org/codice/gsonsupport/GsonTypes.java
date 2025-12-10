@@ -82,6 +82,7 @@ public class GsonTypes {
       throw new IllegalArgumentException();
     }
   }
+
   /**
    * Returns a new parameterized type, applying {@code typeArguments} to {@code rawType} and
    * enclosed by {@code ownerType}.

@@ -16,11 +16,15 @@
     <!-- Map the root URL "/" -->
     <bean id="resourceMapping"
           class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping">
-        <property name="alias" value="/landing"/>
-        <property name="path" value=""/>
     </bean>
     <service id="resources" ref="resourceMapping"
-             interface="org.ops4j.pax.web.service.whiteboard.ResourceMapping"/>
+             interface="org.ops4j.pax.web.service.whiteboard.ResourceMapping">
+            <service-properties>
+                <entry key="osgi.http.whiteboard.resource.pattern" value="/landing/assets/*"/>
+                <entry key="osgi.http.whiteboard.resource.prefix" value="assets"/>
+                <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
+            </service-properties>
+    </service>
 
     <reference id="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
 
@@ -48,8 +52,9 @@
 
     <service ref="landingPage" interface="javax.servlet.http.HttpServlet">
         <service-properties>
-            <entry key="alias" value="/"/>
-            <entry key="servlet-name" value="LandingPage"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="LandingPage"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
         </service-properties>
     </service>
 

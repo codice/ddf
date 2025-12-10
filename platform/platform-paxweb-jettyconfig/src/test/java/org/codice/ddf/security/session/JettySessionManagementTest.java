@@ -24,6 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,7 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.session.HouseKeeper;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -57,9 +59,11 @@ public class JettySessionManagementTest {
     HandlerList handlers = new HandlerList();
     server.setHandler(handlers);
     // Configure server according to the jetty.xml file
-    XmlConfiguration configuration =
-        new XmlConfiguration(
-            JettySessionManagementTest.class.getResourceAsStream("/jetty-session.xml"));
+    URL resourceURL = JettySessionManagementTest.class.getResource("/jetty-session.xml");
+    if (resourceURL == null) {
+      throw new RuntimeException("Unable to open resource jetty-session.xml");
+    }
+    XmlConfiguration configuration = new XmlConfiguration(new PathResource(resourceURL));
     configuration.configure(server);
     // Have server bind to first available port
     ServerConnector connector = new ServerConnector(server);

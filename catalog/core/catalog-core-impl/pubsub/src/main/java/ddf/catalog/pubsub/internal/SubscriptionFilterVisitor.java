@@ -29,28 +29,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.IncludeFilter;
+import org.geotools.api.filter.Not;
+import org.geotools.api.filter.Or;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.PropertyIsLike;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.spatial.DWithin;
+import org.geotools.api.filter.spatial.Intersects;
+import org.geotools.api.filter.spatial.Within;
+import org.geotools.api.filter.temporal.During;
+import org.geotools.api.temporal.Period;
+import org.geotools.api.temporal.PeriodDuration;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
-import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.temporal.object.DefaultPeriodDuration;
-import org.opengis.filter.And;
-import org.opengis.filter.Filter;
-import org.opengis.filter.IncludeFilter;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Within;
-import org.opengis.filter.temporal.During;
-import org.opengis.temporal.Period;
-import org.opengis.temporal.PeriodDuration;
+import org.locationtech.jts.geom.Geometry;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -548,19 +548,12 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     return returnSearchPhrase;
   }
 
-  private org.locationtech.jts.geom.Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
-    org.locationtech.jts.geom.Geometry jtsGeometry;
-
-    if (geoExpression.getValue() instanceof GeometryImpl) {
-      GeometryImpl geo = (GeometryImpl) geoExpression.getValue();
-      jtsGeometry = geo.getJTSGeometry();
-    } else if (geoExpression.getValue() instanceof org.locationtech.jts.geom.Geometry) {
-      jtsGeometry = (org.locationtech.jts.geom.Geometry) geoExpression.getValue();
+  private Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
+    if (geoExpression.getValue() instanceof Geometry) {
+      return (Geometry) geoExpression.getValue();
     } else {
       throw new UnsupportedOperationException(
           "Unsupported implementation of Geometry for spatial filters.");
     }
-
-    return jtsGeometry;
   }
 }

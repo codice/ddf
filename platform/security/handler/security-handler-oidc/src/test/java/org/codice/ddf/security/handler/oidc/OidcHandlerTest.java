@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.io.CharStreams;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -42,11 +43,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
+import org.pac4j.oidc.metadata.OidcOpMetadataResolver;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class OidcHandlerTest {
@@ -61,7 +64,9 @@ public class OidcHandlerTest {
 
   @Mock private OidcHandlerConfiguration mockConfiguration;
   @Mock private OidcConfiguration mockOidcConfiguration;
-  @Mock private OidcClient<OidcConfiguration> mockOidcClient;
+  @Mock private OidcClient mockOidcClient;
+  @Mock private OidcOpMetadataResolver mockOpMetadataResolver;
+  @Mock private OIDCProviderMetadata mockProviderMetadata;
   @Mock private HttpServletRequest mockRequest;
   @Mock private HttpServletResponse mockResponse;
   @Mock private HttpSession mockSession;
@@ -100,13 +105,16 @@ public class OidcHandlerTest {
     // oidc client
     when(mockOidcClient.computeFinalCallbackUrl(any(WebContext.class)))
         .thenReturn("https://final.callback.url");
-    when(mockOidcClient.getRedirectionAction(any(WebContext.class)))
+    when(mockOidcClient.getRedirectionAction(any(CallContext.class)))
         .thenReturn(Optional.of(mockRedirectionAction));
     when(mockOidcClient.getConfiguration()).thenReturn(mockOidcConfiguration);
 
     // oidc configuration
     when(mockConfiguration.getOidcConfiguration()).thenReturn(mockOidcConfiguration);
     when(mockConfiguration.getOidcClient(anyString())).thenReturn(mockOidcClient);
+
+    when(mockOidcConfiguration.getOpMetadataResolver()).thenReturn(mockOpMetadataResolver);
+    when(mockOpMetadataResolver.load()).thenReturn(mockProviderMetadata);
 
     // session
     when(mockSession.getAttribute(mockOidcClient.getStateSessionAttributeName())).thenReturn(state);
@@ -169,7 +177,7 @@ public class OidcHandlerTest {
 
   @Test
   public void getNormalizedTokenNoCredentialsAndMissingRedirectAction() throws Exception {
-    when(mockOidcClient.getRedirectionAction(any(WebContext.class))).thenReturn(Optional.empty());
+    when(mockOidcClient.getRedirectionAction(any(CallContext.class))).thenReturn(Optional.empty());
     result = handler.getNormalizedToken(mockRequest, mockResponse, null, false);
 
     assertThat(result.getStatus(), is(Status.NO_ACTION));
@@ -202,7 +210,7 @@ public class OidcHandlerTest {
     assertThat(result.getStatus(), is(Status.COMPLETED));
     assertThat(result.getToken().getCredentials(), instanceOf(OidcCredentials.class));
     assertThat(
-        ((OidcCredentials) result.getToken().getCredentials()).getAccessToken().toString(),
+        ((OidcCredentials) result.getToken().getCredentials()).toAccessToken().toString(),
         is(accessTokenString));
   }
 
@@ -216,12 +224,12 @@ public class OidcHandlerTest {
     assertThat(result.getStatus(), is(Status.COMPLETED));
     assertThat(result.getToken().getCredentials(), instanceOf(OidcCredentials.class));
     assertThat(
-        ((OidcCredentials) result.getToken().getCredentials()).getIdToken().getParsedString(),
+        ((OidcCredentials) result.getToken().getCredentials()).toIdToken().getParsedString(),
         is(idTokenString));
   }
 
   // have to do a manual mock here in order to stub methods from the parent class
-  private static class MockOidcClient extends OidcClient<OidcConfiguration> {
+  private static class MockOidcClient extends OidcClient {
 
     public MockOidcClient(OidcConfiguration configuration) {
       super(configuration);

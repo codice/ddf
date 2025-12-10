@@ -15,6 +15,7 @@ package ddf.catalog.transformer.common.tika.handler;
 
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
 import java.nio.charset.StandardCharsets;
+import org.apache.tika.exception.WriteLimitReachedException;
 import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.WriteOutContentHandler;
 import org.xml.sax.Attributes;
@@ -153,7 +154,7 @@ public class BodyAndMetadataContentHandler extends DefaultHandler {
   }
 
   private void handleException(SAXException se) throws SAXException {
-    if (writeOutContentHandler.isWriteLimitReached(se)) {
+    if (se instanceof WriteLimitReachedException) {
       bodyWriteLimitReached = true;
     } else {
       throw se;

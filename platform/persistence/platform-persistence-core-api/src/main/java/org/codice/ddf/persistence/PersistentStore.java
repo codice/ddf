@@ -25,7 +25,6 @@ public interface PersistentStore {
     NOTIFICATION_TYPE("notification"),
     ACTIVITY_TYPE("activity"),
     WORKSPACE_TYPE("workspace"),
-    PREFERENCES_TYPE("preferences"),
     USER_ATTRIBUTE_TYPE("attributes"),
     SUBSCRIPTION_TYPE("subscriptions"),
     EVENT_SUBSCRIPTIONS_TYPE("event_subscriptions"),

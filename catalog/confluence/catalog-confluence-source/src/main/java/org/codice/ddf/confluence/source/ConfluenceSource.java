@@ -68,7 +68,7 @@ import org.codice.ddf.confluence.api.SearchResource;
 import org.codice.ddf.cxf.client.ClientBuilder;
 import org.codice.ddf.cxf.client.ClientBuilderFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

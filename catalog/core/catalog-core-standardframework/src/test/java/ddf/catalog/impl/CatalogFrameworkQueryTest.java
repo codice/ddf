@@ -63,15 +63,15 @@ import java.util.UUID;
 import org.codice.ddf.catalog.sourcepoller.SourcePoller;
 import org.codice.ddf.catalog.sourcepoller.SourceStatus;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.temporal.Instant;
+import org.geotools.api.temporal.Period;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.filter.FilterFactory;
-import org.opengis.temporal.Instant;
-import org.opengis.temporal.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

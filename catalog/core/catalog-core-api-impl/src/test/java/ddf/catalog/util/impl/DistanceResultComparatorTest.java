@@ -17,10 +17,10 @@ import static org.junit.Assert.assertEquals;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ResultImpl;
+import org.geotools.api.filter.sort.SortOrder;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opengis.filter.sort.SortOrder;
 
 public class DistanceResultComparatorTest {
   private ResultImpl shortDistance;

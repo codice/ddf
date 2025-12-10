@@ -40,21 +40,17 @@ import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
-import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -90,7 +86,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
   private static FederatedCswMockServer cswServer;
   private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
   private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
-  private final List<String> resourcesToDelete = new ArrayList<>();
 
   private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
   private static final String CSW_STUB_SOURCE_ID = "cswStubServer";
@@ -157,12 +152,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
         DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
-
-    for (String resource : resourcesToDelete) {
-      FileUtils.deleteQuietly(new File(resource));
-    }
-
-    resourcesToDelete.clear();
 
     cswServer.stop();
 
@@ -410,8 +399,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
   public static String getSimpleXml(String uri) {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        + getFileContent(
-            XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard", ImmutableMap.of("uri", uri));
+        + getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard", Map.of("uri", uri));
   }
 
   private void setupOpenSearch() throws IOException {

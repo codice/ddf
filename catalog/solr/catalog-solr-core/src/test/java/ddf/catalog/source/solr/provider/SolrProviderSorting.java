@@ -45,16 +45,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -625,7 +625,7 @@ public class SolrProviderSorting {
     SortByImpl sortBy =
         new SortByImpl(
             filterFactory.property(Metacard.EFFECTIVE),
-            org.opengis.filter.sort.SortOrder.ASCENDING);
+            org.geotools.api.filter.sort.SortOrder.ASCENDING);
     QueryImpl query =
         query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
@@ -641,7 +641,7 @@ public class SolrProviderSorting {
     sortBy =
         new SortByImpl(
             filterFactory.property(Metacard.EFFECTIVE),
-            org.opengis.filter.sort.SortOrder.ASCENDING);
+            org.geotools.api.filter.sort.SortOrder.ASCENDING);
     query = query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -656,7 +656,7 @@ public class SolrProviderSorting {
     sortBy =
         new SortByImpl(
             filterFactory.property(Metacard.EFFECTIVE),
-            org.opengis.filter.sort.SortOrder.ASCENDING);
+            org.geotools.api.filter.sort.SortOrder.ASCENDING);
     query = query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -671,7 +671,7 @@ public class SolrProviderSorting {
     sortBy =
         new SortByImpl(
             filterFactory.property(Metacard.EFFECTIVE),
-            org.opengis.filter.sort.SortOrder.ASCENDING);
+            org.geotools.api.filter.sort.SortOrder.ASCENDING);
     query = query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     sourceResponse = provider.query(new QueryRequestImpl(query));

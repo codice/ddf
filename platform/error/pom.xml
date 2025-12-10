@@ -16,7 +16,7 @@
     <parent>
         <artifactId>platform</artifactId>
         <groupId>ddf.platform</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.29.28-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf.platform.error</groupId>
@@ -26,7 +26,6 @@
         <module>platform-error-api</module>
         <module>platform-error-impl</module>
         <module>platform-error-servlet</module>
-        <module>platform-error-page-injector</module>
     </modules>
     <packaging>pom</packaging>
 </project>

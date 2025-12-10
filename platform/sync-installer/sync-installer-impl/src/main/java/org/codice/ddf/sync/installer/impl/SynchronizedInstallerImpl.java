@@ -340,6 +340,7 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
     try {
       featuresService.uninstallFeatures(featuresToUninstall, options);
     } catch (Exception e) {
+      LOGGER.warn("Failed to uninstall the following features: [{}]", featureNames);
       throw new SynchronizedInstallerException(
           "Failed to uninstall features [" + String.join(", ", featuresToUninstall) + "]", e);
     }

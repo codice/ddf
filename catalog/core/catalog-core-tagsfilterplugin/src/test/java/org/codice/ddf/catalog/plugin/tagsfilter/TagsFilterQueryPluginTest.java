@@ -35,10 +35,10 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceCache;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.Filter;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.filter.And;
-import org.opengis.filter.Filter;
 
 public class TagsFilterQueryPluginTest {
   private TagsFilterQueryPlugin plugin;

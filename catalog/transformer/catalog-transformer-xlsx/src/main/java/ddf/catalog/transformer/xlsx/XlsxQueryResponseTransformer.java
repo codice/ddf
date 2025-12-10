@@ -20,8 +20,10 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +41,18 @@ public class XlsxQueryResponseTransformer implements QueryResponseTransformer {
       throw new CatalogTransformerException("Null result set cannot be transformed to XLSX");
     }
 
+    List<String> attributeOrder =
+        Optional.ofNullable((List<String>) arguments.get(XlsxMetacardUtility.COLUMN_ORDER_KEY))
+            .orElse(Collections.emptyList());
+
+    Map<String, String> columnAliasMap =
+        Optional.ofNullable(
+                (Map<String, String>) arguments.get(XlsxMetacardUtility.COLUMN_ALIAS_KEY))
+            .orElse(Collections.emptyMap());
+
     List<Metacard> metacards =
         sourceResponse.getResults().stream().map(Result::getMetacard).collect(Collectors.toList());
 
-    return XlsxMetacardUtility.buildSpreadSheet(metacards);
+    return XlsxMetacardUtility.buildSpreadSheet(metacards, columnAliasMap, attributeOrder);
   }
 }

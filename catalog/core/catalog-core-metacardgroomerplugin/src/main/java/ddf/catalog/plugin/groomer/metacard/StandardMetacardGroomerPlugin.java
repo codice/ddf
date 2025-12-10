@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,10 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StandardMetacardGroomerPlugin.class);
 
+  private static final String PREFERENCES_TAG = "ddf-preferences";
+
+  private static final String USER_ATTRIBUTE = "user";
+
   private UuidGenerator uuidGenerator;
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {
@@ -47,9 +52,16 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
   protected void applyCreatedOperationRules(
       CreateRequest createRequest, Metacard aMetacard, Date now) {
     LOGGER.debug("Applying standard rules on CreateRequest");
-    if ((aMetacard.getResourceURI() != null && !isCatalogResourceUri(aMetacard.getResourceURI()))
+    if ((isValidResourceUri(aMetacard.getResourceURI())
+            && !isCatalogResourceUri(aMetacard.getResourceURI()))
         || !uuidGenerator.validateUuid(aMetacard.getId())) {
-      aMetacard.setAttribute(new AttributeImpl(Metacard.ID, uuidGenerator.generateUuid()));
+      if (isPreferenceMetacard(aMetacard)) {
+        String userId = (String) aMetacard.getAttribute(USER_ATTRIBUTE).getValue();
+        aMetacard.setAttribute(
+            new AttributeImpl(Metacard.ID, uuidGenerator.generateKnownId(PREFERENCES_TAG, userId)));
+      } else {
+        aMetacard.setAttribute(new AttributeImpl(Metacard.ID, uuidGenerator.generateUuid()));
+      }
     }
 
     if (aMetacard.getCreatedDate() == null) {
@@ -71,6 +83,10 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
     aMetacard.setAttribute(new AttributeImpl(Core.METACARD_MODIFIED, now));
     logMetacardAttributeUpdate(aMetacard, Core.METACARD_MODIFIED, now);
+  }
+
+  private boolean isValidResourceUri(URI uri) {
+    return uri != null && StringUtils.isNotBlank(uri.toString());
   }
 
   private boolean isCatalogResourceUri(URI uri) {
@@ -135,5 +151,9 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
   private boolean isDateAttributeEmpty(Metacard metacard, String attribute) {
     Attribute origAttribute = metacard.getAttribute(attribute);
     return (origAttribute == null || !(origAttribute.getValue() instanceof Date));
+  }
+
+  private boolean isPreferenceMetacard(Metacard metacard) {
+    return metacard.getTags().contains(PREFERENCES_TAG);
   }
 }

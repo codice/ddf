@@ -14,6 +14,7 @@
 package org.codice.ddf.security.oidc.validator;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.pac4j.core.context.HttpConstants.APPLICATION_JSON;
@@ -52,17 +53,25 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Optional;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.jee.context.JEEContext;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.metadata.OidcOpMetadataResolver;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OidcTokenValidatorTest {
@@ -72,7 +81,8 @@ public class OidcTokenValidatorTest {
   @Mock private ResourceRetriever resourceRetriever;
   @Mock private OidcConfiguration configuration;
   @Mock private OIDCProviderMetadata oidcProviderMetadata;
-  @Mock private OidcClient<OidcConfiguration> oidcClient;
+  @Mock private OidcClient oidcClient;
+  @Mock private JEEContext jeeContext;
 
   private Algorithm validAlgorithm;
   private Algorithm invalidAlgorithm;
@@ -102,14 +112,17 @@ public class OidcTokenValidatorTest {
         .thenReturn(
             new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
 
+    OidcOpMetadataResolver metadataResolver = mock(OidcOpMetadataResolver.class);
+    when(metadataResolver.load()).thenReturn(oidcProviderMetadata);
+
     Resource resource = new Resource(jwk, APPLICATION_JSON);
     when(resourceRetriever.retrieveResource(any())).thenReturn(resource);
 
     when(configuration.getClientId()).thenReturn("ddf-client");
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
-    when(configuration.findProviderMetadata()).thenReturn(oidcProviderMetadata);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
+    when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
 
     validAlgorithm = Algorithm.RSA256(publicKey, privateKey);
     invalidAlgorithm = Algorithm.HMAC256("WRONG");
@@ -305,10 +318,100 @@ public class OidcTokenValidatorTest {
   }
 
   private WebContext getWebContext() {
-    WebContext context = mock(WebContext.class);
-    SessionStore sessionStore = mock(SessionStore.class);
-    when(sessionStore.get(context, NONCE_SESSION_ATTRIBUTE)).thenReturn(Optional.of("myNonce"));
-    when(context.getSessionStore()).thenReturn(sessionStore);
-    return context;
+
+    HttpSession session = new MyHttpSession();
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getSession(anyBoolean())).thenReturn(session);
+
+    when(jeeContext.getNativeRequest()).thenReturn(request);
+
+    JEESessionStoreFactory.INSTANCE
+        .newSessionStore(null)
+        .set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
+    return jeeContext;
+  }
+
+  /**
+   * It was easiest to implement a simple session with a hash map. It only has to support setting
+   * and getting session values.
+   */
+  private static class MyHttpSession implements HttpSession {
+
+    private final Map<String, Object> map = new HashMap<>();
+
+    @Override
+    public long getCreationTime() {
+      return 0;
+    }
+
+    @Override
+    public String getId() {
+      return "";
+    }
+
+    @Override
+    public long getLastAccessedTime() {
+      return 0;
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+      return null;
+    }
+
+    @Override
+    public void setMaxInactiveInterval(int i) {}
+
+    @Override
+    public int getMaxInactiveInterval() {
+      return 0;
+    }
+
+    @Override
+    public HttpSessionContext getSessionContext() {
+      return null;
+    }
+
+    @Override
+    public Object getAttribute(String s) {
+      return map.get(s);
+    }
+
+    @Override
+    public Object getValue(String s) {
+      return null;
+    }
+
+    @Override
+    public Enumeration<String> getAttributeNames() {
+      return null;
+    }
+
+    @Override
+    public String[] getValueNames() {
+      return new String[0];
+    }
+
+    @Override
+    public void setAttribute(String s, Object o) {
+      map.put(s, o);
+    }
+
+    @Override
+    public void putValue(String s, Object o) {}
+
+    @Override
+    public void removeAttribute(String s) {}
+
+    @Override
+    public void removeValue(String s) {}
+
+    @Override
+    public void invalidate() {}
+
+    @Override
+    public boolean isNew() {
+      return false;
+    }
   }
 }

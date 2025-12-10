@@ -44,6 +44,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.geotools.styling.UomOgcMapping;
@@ -52,10 +56,6 @@ import org.junit.Test;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.mockito.internal.util.collections.Sets;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class SolrProviderSpatial {
 
   private static final double METERS_PER_KM = 1000.0;
 
-  private final FilterFactory2 filterFactory = new FilterFactoryImpl();
+  private final FilterFactory filterFactory = new FilterFactoryImpl();
 
   private final WKTReader wktReader = new WKTReader();
 
@@ -186,7 +186,8 @@ public class SolrProviderSpatial {
 
     SortByImpl sortby =
         new SortByImpl(
-            filterFactory.property(Result.DISTANCE), org.opengis.filter.sort.SortOrder.ASCENDING);
+            filterFactory.property(Result.DISTANCE),
+            org.geotools.api.filter.sort.SortOrder.ASCENDING);
     query.setSortBy(sortby);
     query.setPageSize(3);
     sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -232,7 +233,7 @@ public class SolrProviderSpatial {
     QueryImpl query = new QueryImpl(finalFilter);
     SortBy sortby =
         new ddf.catalog.filter.impl.SortByImpl(
-            Result.DISTANCE, org.opengis.filter.sort.SortOrder.DESCENDING);
+            Result.DISTANCE, org.geotools.api.filter.sort.SortOrder.DESCENDING);
     query.setSortBy(sortby);
 
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -279,7 +280,7 @@ public class SolrProviderSpatial {
     // Descending
     SortBy sortby =
         new ddf.catalog.filter.impl.SortByImpl(
-            Result.DISTANCE, org.opengis.filter.sort.SortOrder.DESCENDING);
+            Result.DISTANCE, org.geotools.api.filter.sort.SortOrder.DESCENDING);
     query.setSortBy(sortby);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -827,6 +828,7 @@ public class SolrProviderSpatial {
       String metacardWkt, String positiveWkt, String negativeWkt) throws Exception {
     Filter positiveFilter =
         getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(positiveWkt);
+
     Filter negativeFilter =
         getFilterBuilder().attribute(Metacard.ANY_GEO).intersecting().wkt(negativeWkt);
     testSpatialWithWkt(metacardWkt, positiveFilter, negativeFilter);
@@ -868,7 +870,8 @@ public class SolrProviderSpatial {
 
     SortByImpl sortby =
         new SortByImpl(
-            filterFactory.property(Result.DISTANCE), org.opengis.filter.sort.SortOrder.ASCENDING);
+            filterFactory.property(Result.DISTANCE),
+            org.geotools.api.filter.sort.SortOrder.ASCENDING);
     query.setSortBy(sortby);
 
     return query;

@@ -14,11 +14,14 @@
 package ddf.catalog.pubsub.criteria.contextual;
 
 import ddf.util.XPathHelper;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class XPathEvaluator {
   private static final Logger LOGGER = LoggerFactory.getLogger(XPathEvaluator.class);
@@ -29,12 +32,14 @@ public class XPathEvaluator {
     Document document = xpathCriteria.getDocument();
     String xpath = xpathCriteria.getXPath();
 
-    XPathHelper evaluator = new XPathHelper(document);
-
     try {
+      XPathHelper evaluator = new XPathHelper(document);
       return (Boolean) evaluator.evaluate(xpath, XPathConstants.BOOLEAN);
 
-    } catch (XPathExpressionException e) {
+    } catch (IOException
+        | ParserConfigurationException
+        | SAXException
+        | XPathExpressionException e) {
       LOGGER.debug("Unable to evaluate xpath", e);
     }
 
