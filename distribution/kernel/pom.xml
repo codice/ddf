@@ -231,7 +231,7 @@
                                 <artifactItem>
                                     <groupId>com.sun.activation</groupId>
                                     <artifactId>javax.activation</artifactId>
-                                    <version>1.2.0</version>
+                                    <version>${javax.activation.version}</version>
                                     <outputDirectory>${setup.folder}/jdk9plus</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
