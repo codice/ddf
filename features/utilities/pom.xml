@@ -17,7 +17,7 @@
     <parent>
         <artifactId>features</artifactId>
         <groupId>ddf.features</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
 
     <name>DDF :: Features :: Utilities</name>
@@ -128,18 +128,13 @@
         <!-- BEGIN: Tika dependencies -->
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-bundle</artifactId>
+            <artifactId>tika-core</artifactId>
             <version>${tika.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
             <version>${zstd-jni.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.openjson</groupId>
-            <artifactId>openjson</artifactId>
-            <version>${openjson.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jwordnet</groupId>
@@ -151,7 +146,7 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-all</artifactId>
-            <version>1.14</version>
+            <version>1.17</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -183,12 +178,12 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.geotools.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts.io</groupId>
             <artifactId>jts-io-common</artifactId>
-            <version>${jts.geotools.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
@@ -199,7 +194,7 @@
         <!-- BEGIN: GeoTools dependencies -->
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-opengis</artifactId>
+            <artifactId>gt-api</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
@@ -212,11 +207,6 @@
             <artifactId>gt-cql</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-jts-wrapper</artifactId>
-			<version>${org.geotools.version}</version>
-		</dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
@@ -257,6 +247,13 @@
 			<artifactId>gt-epsg-hsql</artifactId>
 			<version>${org.geotools.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>${geotools-hsql.version}</version>
+            <type>jar</type>
+            <classifier>jdk8</classifier>
+        </dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-epsg-extension</artifactId>
@@ -319,7 +316,6 @@
         <dependency>
             <groupId>javax.measure</groupId>
             <artifactId>unit-api</artifactId>
-            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>ddf.thirdparty</groupId>
@@ -332,7 +328,7 @@
             <version>1.2</version>
         </dependency>
         <!-- END -->
-        
+
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>bootflag-api</artifactId>
@@ -386,6 +382,12 @@
             <version>${cxf.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.activemq</groupId>
+                    <artifactId>activemq-broker</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.features</groupId>

@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.platform.solr</groupId>
         <artifactId>platform-solr</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>solr-query</artifactId>
     <name>DDF :: Platform :: Solr :: Query</name>
@@ -68,6 +68,24 @@
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-handler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-epoll</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -80,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-opengis</artifactId>
+            <artifactId>gt-api</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
@@ -100,6 +118,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 public class DurableFileAlterationListener
     implements AsyncFileAlterationListener, FileAlterationListener {
 
+  public static final int DEFAULT_EXPIRATION_TIME = 300_000;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
   private static final String FILE_EXTENSION_HEADER = "org.codice.ddf.camel.FileExtension";
@@ -47,6 +49,12 @@ public class DurableFileAlterationListener
   private static final String CATALOG_UPDATE = "UPDATE";
 
   private static final String CATALOG_DELETE = "DELETE";
+
+  private static final String TIMEOUT_HEADER_KEY = "timeoutMilliseconds";
+
+  private long expirationTime =
+      Long.getLong(
+          "org.codice.ddf.catalog.content.monitor.expirationTime", DEFAULT_EXPIRATION_TIME);
 
   private FileSystemPersistenceProvider productToMetacardIdMap;
 
@@ -91,6 +99,7 @@ public class DurableFileAlterationListener
             .addHeader(OPERATION_HEADER, CATALOG_UPDATE)
             .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
             .addHeader(Core.RESOURCE_URI, fileUri)
+            .addHeader(TIMEOUT_HEADER_KEY, expirationTime)
             .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
             .addSynchronization(
                 new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
@@ -113,6 +122,7 @@ public class DurableFileAlterationListener
             .addHeader(OPERATION_HEADER, "CREATE")
             .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
             .addHeader(Core.RESOURCE_URI, fileUri)
+            .addHeader(TIMEOUT_HEADER_KEY, expirationTime)
             .addSynchronization(
                 new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
             .addSynchronization(cb)

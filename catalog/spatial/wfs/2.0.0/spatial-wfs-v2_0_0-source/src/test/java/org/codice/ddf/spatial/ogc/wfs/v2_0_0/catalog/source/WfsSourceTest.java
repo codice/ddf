@@ -48,6 +48,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
 import ddf.security.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
@@ -98,14 +99,14 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 
 public class WfsSourceTest {
@@ -1000,7 +1001,7 @@ public class WfsSourceTest {
     final Integer receiveTimeout = 20000;
     final String certAlias = "mycert";
     final String keystorePath = "/path/to/keystore";
-    final String sslProtocol = "TLSv1.2";
+    final String sslProtocol = SecurityConstants.getDefaultSslProtocol();
 
     source.setCertAlias(certAlias);
     source.setKeystorePath(keystorePath);

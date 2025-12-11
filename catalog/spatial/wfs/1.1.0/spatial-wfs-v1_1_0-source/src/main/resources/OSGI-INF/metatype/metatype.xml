@@ -46,7 +46,7 @@
         <AD description="Keystore for WFS Service (optional)" name="Keystore Path" id="keystorePath"
           required="false" type="String"/>
         <AD description="SSL Protocol for WFS Service (optional)" name="SSL Protocol" id="sslProtocol"
-          required="false" type="String" default="TLSv1.2"/>
+          required="false" type="String"/>
         <AD description="Force only a specific FeatureType to be queried instead of all featureTypes"
             name="Forced Feature Type" id="forcedFeatureType" type="String" required="false"/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
@@ -97,6 +97,12 @@
         <AD description="Forces the source to support all geometry operands."
             name="Force All Geometry Operands" id="forceAllGeometryOperands" required="false"
             type="Boolean" default="false"/>
+        <AD description="Set the default sort attribute name (optional). If the default sort attribute is set, then the default sort order must be set."
+            name="Default Sort Attribute" id="defaultSortName" required="false"
+            type="String"/>
+        <AD description="Set the default sort order (optional). If the default sort order is set, then the default sort attribute must be set. Allowed values: ASCENDING, DESCENDING"
+            name="Default Sort Order" id="defaultSortOrder" required="false"
+            type="String"/>
     </OCD>
 
     <Designate pid="Wfs_v110_Federated_Source" factoryPid="Wfs_v110_Federated_Source">

@@ -43,6 +43,8 @@ public class CamelServletCreator {
     Dictionary<String, Object> props = new DictionaryMap<>();
     props.put("alias", SERVLET_PATH);
     props.put("servlet-name", SERVLET_NAME);
+    props.put("osgi.http.whiteboard.servlet.pattern", SERVLET_PATH);
+    props.put("osgi.http.whiteboard.servlet.name", SERVLET_NAME);
     bundleContext.registerService(
         "javax.servlet.Servlet", new HttpProxyCamelHttpTransportServlet(camelContext), props);
   }

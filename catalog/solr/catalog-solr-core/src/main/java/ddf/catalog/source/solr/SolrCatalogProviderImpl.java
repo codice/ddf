@@ -82,6 +82,10 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
+  private static final String SQMB = "qm.sp."; // query metric base for solr provider
+  private static final String QM_TRACEID = "qm.trace-id";
+  private static final String QM_ELAPSED = ".elapsed";
+
   private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
   static final int MAX_BOOLEAN_CLAUSES = 1024;
@@ -200,9 +204,15 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-    long startTime = System.currentTimeMillis();
+    Serializable traceId = "none";
+    if (request != null) {
+      Map<String, Serializable> props = request.getProperties();
+      traceId = props == null ? "none" : request.getProperties().get(QM_TRACEID);
+    }
+    long startTime = System.nanoTime();
     SourceResponse response = client.query(request);
-    LOGGER.debug("Time elapsed for Query {} ms", System.currentTimeMillis() - startTime);
+    long elapsedTime = System.nanoTime() - startTime;
+    response.getProperties().put(SQMB + "query" + QM_ELAPSED, elapsedTime);
     return response;
   }
 
@@ -237,7 +247,7 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
       output.add(metacard);
     }
 
-    long startTime = System.currentTimeMillis();
+    long startTime = System.nanoTime();
     try {
       client.add(output, isForcedAutoCommit());
     } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
@@ -245,9 +255,9 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
       throw new IngestException("Could not ingest metacard(s).", e);
     }
     LOGGER.debug(
-        "Time elapsed to create {} metacards is {} ms",
+        "Time elapsed to create {} metacards is {} ns",
         metacards.size(),
-        System.currentTimeMillis() - startTime);
+        System.nanoTime() - startTime);
 
     return new CreateResponseImpl(request, request.getProperties(), output);
   }

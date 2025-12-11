@@ -16,7 +16,7 @@
     <parent>
         <artifactId>filter</artifactId>
         <groupId>ddf.security.filter</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Security :: Filter :: Login</name>
@@ -90,12 +90,12 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
         <dependency>

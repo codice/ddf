@@ -18,11 +18,14 @@ import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
@@ -57,9 +60,16 @@ public class AsyncFileAlterationObserver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
-  private static final int LOGGING_TIME_DELAY = 500;
-  private static final int LOGGING_TIME_INTERVAL = 5000;
+  private static final int INGEST_CHECK_TIME_DELAY = 500;
+
+  private static final int INGEST_CHECK_TIME_INTERVAL = 5000;
+
   private static final String NULL_ARG_MSG = "Arguments can not be null";
+
+  private static final String FAILURE_RETRY_PERIOD_KEY =
+      "org.codice.ddf.catalog.content.monitor.failureRetryPeriod";
+
+  private static final long DEFAULT_FAILURE_RETRY_PERIOD = TimeUnit.HOURS.toMillis(12);
 
   private final AsyncFileEntry rootFile;
   private AsyncFileAlterationListener listener = null;
@@ -69,6 +79,10 @@ public class AsyncFileAlterationObserver {
   private final Object processingLock = new Object();
 
   private Timer timer;
+
+  private long lastFailureRetry = new Date().getTime();
+
+  Map<String, AsyncFileEntry> failedFiles = new ConcurrentHashMap<>();
 
   private boolean isProcessing = false;
 
@@ -126,13 +140,15 @@ public class AsyncFileAlterationObserver {
   public void initializePeriodicLogging() {
     if (timer == null) {
       timer = new Timer();
-      timer.scheduleAtFixedRate(new LogProcessing(), LOGGING_TIME_DELAY, LOGGING_TIME_INTERVAL);
+      timer.scheduleAtFixedRate(
+          new StatusTask(), INGEST_CHECK_TIME_DELAY, INGEST_CHECK_TIME_INTERVAL);
     }
   }
 
   public void destroy() {
+    serializer.store(rootFile.getName(), rootFile);
     rootFile.destroy();
-
+    LOGGER.debug("Destroying AsyncFileAlterationObserver and timer");
     if (timer != null) {
       timer.cancel();
       timer.purge();
@@ -160,8 +176,10 @@ public class AsyncFileAlterationObserver {
     AsyncFileAlterationListener listenerCopy;
     synchronized (processingLock) {
       if (!processing.isEmpty()) {
-        LOGGER.debug(
-            "{} files are still processing. Waiting until the list is empty", processing.size());
+        LOGGER.trace(
+            "{} files are still processing in {}. Waiting until the list is empty.",
+            processing.size(),
+            rootFile.getFile().getPath());
         return false;
       } else if (isProcessing) {
         LOGGER.debug("Another thread is currently running, returning until next poll");
@@ -206,7 +224,9 @@ public class AsyncFileAlterationObserver {
    * @param entry The file entry
    */
   private void doCreate(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-
+    if (failedAndNotUpdated(entry.getFile())) {
+      return;
+    }
     processing.add(entry);
 
     if (!entry.getFile().isDirectory()) {
@@ -216,13 +236,11 @@ public class AsyncFileAlterationObserver {
     } else {
       // Directories are always committed and added to the parent IF they
       // don't already exist
-
+      commitCreate(entry, true);
       File[] children = listFiles(entry.getFile());
       for (File child : children) {
         doCreate(new AsyncFileEntry(entry, child), listenerCopy);
       }
-
-      commitCreate(entry, true);
     }
   }
 
@@ -245,6 +263,7 @@ public class AsyncFileAlterationObserver {
             entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
       } else {
         LOGGER.debug("Create task failed for {}", entry.getName());
+        failedFiles.put(entry.getFile().getPath(), entry);
       }
     } finally {
       onFinish(entry);
@@ -257,10 +276,10 @@ public class AsyncFileAlterationObserver {
    * @param entry The previous file system entry
    */
   private void doMatch(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
-    if (!entry.hasChanged()) {
+
+    if (!entry.hasChanged() || !entry.getFile().exists() || failedAndNotUpdated(entry.getFile())) {
       return;
     }
-
     processing.add(entry);
 
     LOGGER.trace("{} has changed", entry.getName());
@@ -281,12 +300,13 @@ public class AsyncFileAlterationObserver {
    */
   private void commitMatch(AsyncFileEntry entry, boolean success) {
     try {
+      entry.commit();
+      LOGGER.debug("{} committed", entry.getName());
       if (success) {
         LOGGER.trace("commitMatch({},{}): Starting...", entry.getName(), success);
-        entry.commit();
-        LOGGER.debug("{} committed", entry.getName());
       } else {
         LOGGER.debug("Match task failed for {}", entry.getName());
+        failedFiles.put(entry.getFile().getPath(), entry);
       }
     } finally {
       onFinish(entry);
@@ -299,6 +319,12 @@ public class AsyncFileAlterationObserver {
    * @param entry The file entry
    */
   private void doDelete(AsyncFileEntry entry, final AsyncFileAlterationListener listenerCopy) {
+    // There is a case where a delete would be ignored if prior to the delete there
+    // was a failed update. In this case a restart of the directory monitor would clear the issue.
+    if (failedFiles.containsKey(entry.getFile().getPath())) {
+      return;
+    }
+
     if (!entry.isDirectory()) {
       processing.add(entry);
       listenerCopy.onFileDelete(
@@ -333,10 +359,32 @@ public class AsyncFileAlterationObserver {
             entry.getParent().map(AsyncFileEntry::getName).orElse("parent"));
       } else {
         LOGGER.debug("Delete task failed for {}", entry.getName());
+        failedFiles.put(entry.getFile().getPath(), entry);
       }
     } finally {
       onFinish(entry);
     }
+  }
+
+  /**
+   * Verify whether {@link File} has previously failed processing time AND has not been updated
+   *
+   * @param file
+   * @return true if the file has failed processing before and has not been updated since
+   */
+  private boolean failedAndNotUpdated(File file) {
+    if (file.isDirectory() || !failedFiles.containsKey(file.getPath())) {
+      return false;
+    }
+
+    long lastModified = failedFiles.get(file.getPath()).getFile().lastModified();
+    boolean updated = lastModified != file.lastModified();
+
+    if (updated) {
+      failedFiles.remove(file.getPath());
+    }
+
+    return !updated;
   }
 
   /**
@@ -363,6 +411,7 @@ public class AsyncFileAlterationObserver {
         doCreate(new AsyncFileEntry(parent, files[c]), listenerCopy);
         c++;
       }
+
       if (c < files.length && entry.compareToFile(files[c]) == 0) {
         doMatch(entry, listenerCopy);
         checkAndNotify(entry, entry.getChildren(), listFiles(files[c]), listenerCopy);
@@ -419,22 +468,67 @@ public class AsyncFileAlterationObserver {
     synchronized (processingLock) {
       processing.remove(entry);
       if (processing.isEmpty()) {
-        LOGGER.debug("All files finished processing");
+        LOGGER.debug("All files finished processing for {}", rootFile.getFile().getPath());
         serializer.store(rootFile.getName(), rootFile);
         isProcessing = false;
+        logFailedIngests();
       }
     }
   }
 
-  private class LogProcessing extends TimerTask {
+  private void logFailedIngests() {
+    if (LOGGER.isDebugEnabled()) {
+      if (!failedFiles.isEmpty()) {
+        String failedFilesStr =
+            failedFiles.values().stream()
+                .map(AsyncFileEntry::getName)
+                .collect(Collectors.joining(", "));
+        LOGGER.debug(
+            "Total failed ingests {} in {}. Failed files:  {}",
+            failedFiles.size(),
+            rootFile.getFile().getPath(),
+            failedFilesStr);
+      }
+    }
+  }
+
+  @VisibleForTesting
+  void checkFailureRetry() {
+    long retry = Long.getLong(FAILURE_RETRY_PERIOD_KEY, DEFAULT_FAILURE_RETRY_PERIOD);
+    if (retry > 0 && lastFailureRetry + retry < new Date().getTime()) {
+      lastFailureRetry = new Date().getTime();
+      LOGGER.info(
+          "Retrying failed ingests. Next retry will be in {} minutes",
+          TimeUnit.MILLISECONDS.toMinutes(retry));
+      failedFiles.clear();
+    }
+  }
+
+  @VisibleForTesting
+  void setLastFailureRetry(long time) {
+    lastFailureRetry = time;
+  }
+
+  /** Processing and logging operations which should be done periodically */
+  private class StatusTask extends TimerTask {
 
     /** Log files still in processing at scheduled intervals */
     @Override
     public void run() {
-      if (LOGGER.isDebugEnabled() && !processing.isEmpty()) {
-        String files =
-            processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
-        LOGGER.debug("{} files being processed: {}", processing.size(), files);
+      checkFailureRetry();
+      if (!processing.isEmpty()) {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(
+              "{} files being processed in '{}' directory",
+              processing.size(),
+              rootFile.getFile().getPath());
+        }
+        if (LOGGER.isTraceEnabled()) {
+          logFailedIngests();
+          String files =
+              processing.stream().map(AsyncFileEntry::getName).collect(Collectors.joining(", "));
+          LOGGER.trace("Files processing in {}: {}", rootFile.getFile().getPath(), files);
+        }
       }
     }
   }

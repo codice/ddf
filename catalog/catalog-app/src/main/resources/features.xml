@@ -37,8 +37,8 @@
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-api/${org.geotools.version}$Bundle-Name=gt-api&amp;Bundle-SymbolicName=gt-api
+        </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment/${project.version}</bundle>
     </feature>
 
@@ -49,6 +49,12 @@
         <feature version="${cxf.version}">cxf-jaxrs</feature>
 
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom2.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${xalan.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan-serializer/${xalan.bundle.version}
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${xerces.bundle.version}</bundle>
+
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
@@ -64,18 +70,20 @@
         <bundle>mvn:ddf.catalog.core/filter-proxy/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-requiredattributes/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
         <feature>joda-converter</feature>
         <feature>dev-failsafe</feature>
         <feature>slf4j</feature>
-        <bundle>mvn:org.locationtech.spatial4j/spatial4j/${spatial4j.version}</bundle>
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
 
         <bundle>mvn:nu.validator.htmlparser/htmlparser/1.4</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}
+        </bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}
         </bundle>
@@ -137,7 +145,9 @@
     <feature name="catalog-opensearch-source" version="${project.version}"
              description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
         <feature>abdera</feature>
-        <feature>cxf-rs-security-sso-saml</feature>
+        <feature>cxf-rs-security-xml</feature>
+        <bundle start-level="40" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-sso-saml/${cxf.version}</bundle>
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
@@ -280,6 +290,8 @@
         <feature>catalog-plugin-oauth</feature>
         <feature>catalog-security-policyplugin</feature>
         <feature>catalog-transformer-thumbnail</feature>
+        <bundle>mvn:ddf.platform/preferences-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/preferences-impl/${project.version}</bundle>
     </feature>
 
     <!-- Start of app features -->
@@ -314,7 +326,9 @@
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-transformer-bootflag" version="${project.version}"
@@ -599,8 +613,8 @@
     </feature>
 
     <feature name="catalog-validator-unsupportedattributes"
-      version="${project.version}"
-      description="Unsupported Attributes Query Validator">
+             version="${project.version}"
+             description="Unsupported Attributes Query Validator">
         <feature>catalog-core-api</feature>
         <bundle>
             mvn:org.codice.ddf.validator/catalog-validator-unsupportedattributes/${project.version}
@@ -706,6 +720,17 @@
         <feature>catalog-core-attachment</feature>
         <feature>catalog-plugin-gazetteer</feature>
         <feature>catalog-facet-attribute-access-plugin</feature>
+    </feature>
+
+    <feature name="catalog-all" version="${project.version}"
+             description="Installs all catalog app features">
+        <feature>catalog-app</feature>
+        <feature>catalog-transformer-streaming</feature>
+        <feature>catalog-core-backupplugin</feature>
+        <feature>catalog-plugin-expirationdate</feature>
+        <feature>catalog-plugin-federationreplication</feature>
+        <feature>catalog-versioning-plugin</feature>
+        <feature>catalog-metacard-backup-filestorage</feature>
     </feature>
 
 </features>

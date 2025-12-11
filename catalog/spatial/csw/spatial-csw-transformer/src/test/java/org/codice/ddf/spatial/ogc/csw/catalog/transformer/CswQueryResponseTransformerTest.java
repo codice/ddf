@@ -69,13 +69,13 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.geotools.api.filter.Filter;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.opengis.filter.Filter;
 
 public class CswQueryResponseTransformerTest {
   private CswQueryResponseTransformer transformer;

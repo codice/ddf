@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.core</groupId>
         <artifactId>catalog-core-impl</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>ddf-pubsub</artifactId>
     <name>DDF :: Catalog :: Core :: Impl :: PubSub</name>
@@ -120,6 +120,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.data.impl.*,
                             ddf.catalog.util.impl,
+                            ddf.catalog.filter.impl,
                             org.codice.ddf.platform.util
                         </Private-Package>
                     </instructions>

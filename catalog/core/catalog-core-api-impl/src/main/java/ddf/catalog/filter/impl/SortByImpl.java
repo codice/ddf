@@ -13,9 +13,9 @@
  */
 package ddf.catalog.filter.impl;
 
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use {@link

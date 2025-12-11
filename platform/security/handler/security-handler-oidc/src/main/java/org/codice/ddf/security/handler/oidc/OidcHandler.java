@@ -28,17 +28,18 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
-import org.pac4j.core.context.JEEContext;
-import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.exception.http.RedirectionAction;
-import org.pac4j.core.http.adapter.JEEHttpActionAdapter;
 import org.pac4j.core.http.callback.QueryParameterCallbackUrlResolver;
 import org.pac4j.core.util.Pac4jConstants;
+import org.pac4j.jee.context.JEEContext;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
+import org.pac4j.jee.http.adapter.JEEHttpActionAdapter;
 import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
-import org.pac4j.oidc.credentials.extractor.OidcExtractor;
+import org.pac4j.oidc.credentials.extractor.OidcCredentialsExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +98,7 @@ public class OidcHandler implements AuthenticationHandler {
     LOGGER.debug(
         "Doing Oidc authentication and authorization for path {}.", httpRequest.getContextPath());
 
-    JEESessionStore sessionStore = new JEESessionStore();
-    JEEContext jeeContext = new JEEContext(httpRequest, httpResponse, sessionStore);
+    JEEContext jeeContext = new JEEContext(httpRequest, httpResponse);
 
     StringBuffer requestUrlBuffer = httpRequest.getRequestURL();
     requestUrlBuffer.append(
@@ -106,7 +106,7 @@ public class OidcHandler implements AuthenticationHandler {
     String requestUrl = requestUrlBuffer.toString();
     String ipAddress = httpRequest.getRemoteAddr();
 
-    OidcClient<OidcConfiguration> oidcClient = configuration.getOidcClient(requestUrl);
+    OidcClient oidcClient = configuration.getOidcClient(requestUrl);
 
     OidcCredentials credentials;
     boolean isMachine = userAgentIsNotBrowser(httpRequest);
@@ -187,8 +187,7 @@ public class OidcHandler implements AuthenticationHandler {
             || userAgentHeader.contains("Chrome"));
   }
 
-  private OidcCredentials getCredentialsFromRequest(
-      OidcClient<OidcConfiguration> oidcClient, JEEContext jeeContext) {
+  private OidcCredentials getCredentialsFromRequest(OidcClient oidcClient, JEEContext jeeContext) {
     // Check that the request contains a code, an access token or an id token
     Map<String, String[]> requestParams = jeeContext.getRequestParameters();
     if (!requestParams.containsKey("code")
@@ -198,14 +197,21 @@ public class OidcHandler implements AuthenticationHandler {
     }
     oidcClient.setCallbackUrlResolver(new QueryParameterCallbackUrlResolver());
 
-    OidcExtractor oidcExtractor = new OidcExtractor(oidcClient.getConfiguration(), oidcClient);
-    return oidcExtractor.extract(jeeContext).orElse(null);
+    OidcCredentialsExtractor oidcExtractor =
+        new OidcCredentialsExtractor(oidcClient.getConfiguration(), oidcClient);
+    return (OidcCredentials)
+        oidcExtractor
+            .extract(
+                new CallContext(jeeContext, JEESessionStoreFactory.INSTANCE.newSessionStore(null)))
+            .orElse(null);
   }
 
   private HandlerResult redirectForCredentials(
-      OidcClient<OidcConfiguration> oidcClient, JEEContext jeeContext, String requestUrl) {
-    jeeContext.getSessionStore().set(jeeContext, Pac4jConstants.REQUESTED_URL, requestUrl);
-    Optional<RedirectionAction> redirectionAction = oidcClient.getRedirectionAction(jeeContext);
+      OidcClient oidcClient, JEEContext jeeContext, String requestUrl) {
+    SessionStore sessionStore = JEESessionStoreFactory.INSTANCE.newSessionStore(null);
+    sessionStore.set(jeeContext, Pac4jConstants.REQUESTED_URL, requestUrl);
+    Optional<RedirectionAction> redirectionAction =
+        oidcClient.getRedirectionAction(new CallContext(jeeContext, sessionStore));
     if (!redirectionAction.isPresent()) {
       LOGGER.debug("No redirect action found. Returning NO_ACTION instead");
       return noActionResult;

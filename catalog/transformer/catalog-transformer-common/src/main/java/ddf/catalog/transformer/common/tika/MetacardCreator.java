@@ -169,7 +169,7 @@ public class MetacardCreator {
 
     setAttribute(metacard, Contact.CREATOR_NAME, metadata.get(TikaCoreProperties.CREATOR));
 
-    setMultipleAttributes(metacard, Topic.KEYWORD, metadata.getValues(TikaCoreProperties.KEYWORDS));
+    setMultipleAttributes(metacard, Topic.KEYWORD, metadata.getValues(TikaCoreProperties.SUBJECT));
 
     setAttribute(
         metacard,
@@ -370,7 +370,13 @@ public class MetacardCreator {
     if (StringUtils.isBlank(dateStr)) {
       return null;
     }
-    Date date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
+    Date date;
+    try {
+      date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
+    } catch (Exception e) {
+      LOGGER.debug("failed to parse tika date from string {}", dateStr, e);
+      return null;
+    }
 
     // Tika will return epoch dates when they are missing/null in the source metadata
     if (date.equals(UNIX_EPOCH_DATE) || date.equals(EXCEL_EPOCH_DATE)) {

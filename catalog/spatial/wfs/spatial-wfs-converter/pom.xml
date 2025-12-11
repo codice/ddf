@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>wfs</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>spatial-wfs-converter</artifactId>
     <name>DDF :: Spatial :: WFS :: Converter</name>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.geotools.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

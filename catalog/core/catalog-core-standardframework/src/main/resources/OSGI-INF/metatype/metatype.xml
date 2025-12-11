@@ -34,6 +34,8 @@
     <OCD name="Historian" id="ddf.catalog.history.Historian">
         <AD name="Enable Versioning" id="historyEnabled" type="Boolean" default="true"
             description="Enables versioning of both metacards and content."/>
+        <AD name="Use Known IDs for deleted metacards" id="useKnownIdForDeletes" type="Boolean" default="true"
+            description="Enables deleted metacards to use known UUID generation for their IDs"/>
     </OCD>
 
     <OCD name="Status Source Poller Runner" id="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">

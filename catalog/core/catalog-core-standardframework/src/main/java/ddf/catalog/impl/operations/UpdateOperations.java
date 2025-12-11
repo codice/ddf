@@ -75,7 +75,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,7 +213,7 @@ public class UpdateOperations {
                   metacardMap.values().stream().map(Metacard::getId).collect(Collectors.toList()),
                   String.class),
               new ArrayList<>(metacardMap.values()));
-      updateRequest.setProperties(streamUpdateRequest.getProperties());
+      updateRequest.setProperties(new HashMap<>(streamUpdateRequest.getProperties()));
       historian.setSkipFlag(updateRequest);
       updateResponse = doUpdate(updateRequest);
       historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
@@ -631,7 +631,7 @@ public class UpdateOperations {
             null,
             false, /* total result count */
             0 /* timeout */);
-    Map<String, Serializable> properties = new HashMap<>();
+    Map<String, Serializable> properties = new HashMap<>(updateRequest.getProperties());
     properties.put(
         SecurityConstants.SECURITY_SUBJECT, opsSecuritySupport.getSubject(updateRequest));
     return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);

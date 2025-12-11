@@ -12,13 +12,12 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.distribution</groupId>
         <artifactId>docker</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>ddf-solrcloud</artifactId>
     <groupId>ddf.distribution.docker</groupId>
@@ -55,8 +54,9 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>docker-compose</executable>
+                            <executable>docker</executable>
                             <arguments>
+                                <argument>compose</argument>
                                 <argument>up</argument>
                                 <argument>-d</argument>
                             </arguments>
@@ -69,9 +69,10 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>docker-compose</executable>
+                          <executable>docker</executable>
                             <arguments>
-                                <argument>logs</argument>
+                              <argument>compose</argument>
+                              <argument>logs</argument>
                                 <argument>--tail=50</argument>
                                 <argument>-f</argument>
                             </arguments>
@@ -84,9 +85,10 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>docker-compose</executable>
+                            <executable>docker</executable>
                             <arguments>
-                                <argument>down</argument>
+                              <argument>compose</argument>
+                              <argument>down</argument>
                             </arguments>
                             <workingDirectory>${project.build.outputDirectory}/solrcloud</workingDirectory>
                         </configuration>

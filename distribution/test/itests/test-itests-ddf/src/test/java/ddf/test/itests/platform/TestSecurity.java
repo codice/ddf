@@ -42,6 +42,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.data.Metacard;
+import ddf.security.SecurityConstants;
 import io.restassured.path.json.JsonPath;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -455,7 +456,9 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test
   public void testTLSv12IsAllowed() throws Exception {
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-    HttpClient client = createHttpClient("TLSv1.2", createBasicAuth("admin", "admin"));
+    HttpClient client =
+        createHttpClient(
+            SecurityConstants.getDefaultSslProtocol(), createBasicAuth("admin", "admin"));
 
     assertBasicAuth(client, url, 200);
   }
@@ -486,7 +489,11 @@ public class TestSecurity extends AbstractIntegrationTest {
     CredentialsProvider credentialsProvider = createBasicAuth("admin", "admin");
     for (String cipher : supportedCipherSuites) {
       if (cipher.contains("_" + keyAlgorithm + "_")) {
-        HttpClient client = createHttpClient("TLSv1.2", new String[] {cipher}, credentialsProvider);
+        HttpClient client =
+            createHttpClient(
+                SecurityConstants.getDefaultSslProtocol(),
+                new String[] {cipher},
+                credentialsProvider);
         assertBasicAuth(client, url, 200);
       }
     }
@@ -544,7 +551,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
     CredentialsProvider credentialsProvider = createBasicAuth("admin", "admin");
-    HttpClient client = createHttpClient("TLSv1.2", disallowedCipherSuites, credentialsProvider);
+    HttpClient client =
+        createHttpClient(
+            SecurityConstants.getDefaultSslProtocol(), disallowedCipherSuites, credentialsProvider);
 
     HttpGet get = new HttpGet(url);
     client.execute(get);

@@ -21,7 +21,7 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.QueryImpl;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 public class CatalogHelper {
 

@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,6 +51,7 @@ import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.data.types.constants.core.DataType;
 import ddf.catalog.data.types.experimental.Extracted;
@@ -435,7 +437,7 @@ public class TikaInputTransformerTest {
     assertNotNull(metacard.getMetadata());
     assertThat(
         metacard.getMetadata(),
-        containsString("<meta name=\"Keywords\" content=\"grazelands\" />"));
+        containsString("<meta name=\"dc:subject\" content=\"grazelands\" />"));
     assertThat(metacard.getContentTypeName(), is("image/jpeg"));
     assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
 
@@ -472,6 +474,9 @@ public class TikaInputTransformerTest {
         containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\" />"));
     assertThat(metacard.getContentTypeName(), is("audio/mpeg"));
     assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(SOUND));
+    assertThat(
+        metacard.getMetadata(), containsString("<meta name=\"xmpDM:duration\" content=\"2.4"));
+    assertEquals((Double) metacard.getAttribute(Media.DURATION).getValue(), 2.4, 0.1);
   }
 
   @Test

@@ -84,9 +84,9 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
  
 ## Building
 ### What you need ###
-* [Install OpenJDK 11](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot).
+* Install OpenJDK 17
 * Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (Windows) or $JAVA\_HOME$/bin (\*NIX).
-* [Install Maven 3.6.3 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
+* [Install Maven 3.9.0 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
 * Set the MAVEN_OPTS variable with the appropriate memory settings
 ### Optional 
 * If you do not wish to run formatting from the commandline (see below) you may use an IDE to format the code for you with the google-java-format plugins.
@@ -109,7 +109,7 @@ Change to the root directory of the cloned ddf repository. Run the following com
 mvn install
 ```
 
-This will compile DDF and run all of the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
+This will compile DDF and run all the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
 The distribution will be available under "distribution/ddf/target" directory.
 
 ### How to release ###

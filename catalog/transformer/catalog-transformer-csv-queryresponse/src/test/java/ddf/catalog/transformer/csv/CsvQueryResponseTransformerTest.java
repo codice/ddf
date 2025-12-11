@@ -49,9 +49,10 @@ public class CsvQueryResponseTransformerTest {
     {"attribute2", new Integer(101), BasicTypes.INTEGER_TYPE},
     {"attribute3", new Double(3.14159), BasicTypes.DOUBLE_TYPE},
     {"attribute4", "value,4", BasicTypes.STRING_TYPE},
-    {"attribute5", "value5", BasicTypes.STRING_TYPE},
+    {"attribute5", "POINT(1,1)", BasicTypes.GEO_TYPE},
     {"attribute6", "OBJECT", BasicTypes.OBJECT_TYPE},
-    {"attribute7", "BINARY", BasicTypes.BINARY_TYPE}
+    {"attribute7", "BINARY", BasicTypes.BINARY_TYPE},
+    {"attribute8", "", BasicTypes.STRING_TYPE}
   };
 
   private static final String METACARD_TYPE_NAME = "test-type";
@@ -87,7 +88,7 @@ public class CsvQueryResponseTransformerTest {
     String[] hiddenFieldsArray = {"attribute3", "attribute5"};
     argumentsMap.put("hiddenFields", buildSet(hiddenFieldsArray));
 
-    String[] columnOrderArray = {"attribute3", "attribute4", "attribute2"};
+    String[] columnOrderArray = {"attribute3", "attribute4", "attribute2", "attribute8"};
     argumentsMap.put("columnOrder", buildList(columnOrderArray));
 
     String[][] aliases = {{"attribute1", "column1"}, {"attribute2", "column2"}};
@@ -153,6 +154,42 @@ public class CsvQueryResponseTransformerTest {
     // The scanner will split "value,4" into two tokens even though the CSVPrinter will
     // handle it correctly.
     String[] expectedValues = {"", "\"value", "4\"", "101", METACARD_TYPE_NAME};
+
+    for (int i = 0; i < METACARD_COUNT; i++) {
+      validate(scanner, expectedValues);
+    }
+
+    // final new line causes an extra "" value at end of file
+    assertThat(scanner.hasNext(), is(true));
+    assertThat(scanner.next(), is(""));
+    assertThat(scanner.hasNext(), is(false));
+  }
+
+  @Test
+  public void testCsvQueryResponseTransformerWithNoArgs() throws CatalogTransformerException {
+    Map<String, Serializable> argumentsMap = new HashMap<>();
+
+    assertThat(ATTRIBUTE_DESCRIPTOR_LIST.size(), is(ATTRIBUTE_DATA.length));
+
+    BinaryContent bc = transformer.transform(sourceResponse, argumentsMap);
+    Scanner scanner = new Scanner(bc.getInputStream());
+    scanner.useDelimiter("\\n|\\r|,");
+
+    /*
+     * OBJECT types, BINARY types, empty values, and hidden attributes will be filtered out
+     * We want to ensure that the only output data matches the explicitly requested headers
+     */
+
+    String[] expectedHeaders = {
+      "attribute1", "attribute2", "attribute3", "attribute4", "attribute5", "metacard-type"
+    };
+    validate(scanner, expectedHeaders);
+
+    // The scanner will split "value,4" into two tokens even though the CSVPrinter will
+    // handle it correctly.
+    String[] expectedValues = {
+      "", "value1", "101", "3.14159", "\"value", "4\"", "\"POINT(1", "1)\"", "test-type"
+    };
 
     for (int i = 0; i < METACARD_COUNT; i++) {
       validate(scanner, expectedValues);

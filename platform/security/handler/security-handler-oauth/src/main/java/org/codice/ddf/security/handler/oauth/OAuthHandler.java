@@ -25,8 +25,7 @@ import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.pac4j.core.context.JEEContext;
-import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.jee.context.JEEContext;
 import org.pac4j.oauth.exception.OAuthCredentialsException;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
@@ -61,8 +60,7 @@ public class OAuthHandler implements AuthenticationHandler {
       return processHeadRequest(httpResponse);
     }
 
-    JEESessionStore sessionStore = new JEESessionStore();
-    JEEContext jeeContext = new JEEContext(httpRequest, httpResponse, sessionStore);
+    JEEContext jeeContext = new JEEContext(httpRequest, httpResponse);
 
     // time to try and pull credentials off of the request
     LOGGER.debug(

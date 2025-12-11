@@ -37,20 +37,23 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-    <service interface="javax.servlet.Servlet">
+    <bean id="localLogout" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet" >
+        <argument>
+            <reference interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
+        </argument>
+        <argument value="/logout/logout-response.html"/>
+        <argument>
+            <reference interface="ddf.security.audit.SecurityLogger"/>
+        </argument>
+    </bean>
+
+    <service ref="localLogout" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="alias" value="/logout/local"/>
-            <entry key="async-supported" value="true"/>
+            <entry key="osgi.http.whiteboard.servlet.pattern" value="/logout/local/*"/>
+            <entry key="osgi.http.whiteboard.servlet.name" value="localLogout"/>
+            <entry key="osgi.http.whiteboard.context.select" value="(osgi.http.whiteboard.context.path=/)"/>
+            <entry key="osgi.http.whiteboard.servlet.asyncSupported" value="true"/>
         </service-properties>
-        <bean class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
-            <argument>
-                <reference interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
-            </argument>
-            <argument value="/logout/logout-response.html"/>
-            <argument>
-                <reference interface="ddf.security.audit.SecurityLogger"/>
-            </argument>
-        </bean>
     </service>
 
 </blueprint>

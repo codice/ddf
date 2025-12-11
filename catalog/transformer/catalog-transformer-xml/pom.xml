@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-transformer-xml</artifactId>
     <packaging>bundle</packaging>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.geotools.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools.xsd</groupId>
@@ -143,6 +143,7 @@
                             ddf.catalog.transformer.thread,
                             ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
+                            ddf.catalog.filter.impl,
                             ddf.catalog.util.impl
                         </Private-Package>
                         <Export-Package>

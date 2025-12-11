@@ -17,7 +17,7 @@
     <parent>
         <artifactId>platform-solr</artifactId>
         <groupId>ddf.platform.solr</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>solr-dependencies</artifactId>
     <name>DDF :: Platform :: Solr :: Dependencies</name>
@@ -26,7 +26,113 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
+            <artifactId>solr-api</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
+            <version>${solr.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>http2-client</artifactId>
+                    <groupId>org.eclipse.jetty.http2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>http2-common</artifactId>
+                    <groupId>org.eclipse.jetty.http2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>http2-hpack</artifactId>
+                    <groupId>org.eclipse.jetty.http2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>http2-http-client-transport</artifactId>
+                    <groupId>org.eclipse.jetty.http2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-client</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-alpn-java-client</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-client</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-http</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-io</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-util</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>http2-client</artifactId>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>http2-common</artifactId>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>http2-hpack</artifactId>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>http2-http-client-transport</artifactId>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>jetty-alpn-client</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>jetty-alpn-java-client</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>jetty-client</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>jetty-http</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>jetty-io</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>jetty-util</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>${solr.jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj-zookeeper</artifactId>
             <version>${solr.version}</version>
             <exclusions>
                 <exclusion>
@@ -38,11 +144,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-client</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -71,6 +172,22 @@
                 <exclusion>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-handler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-epoll</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -103,12 +220,15 @@
                             <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj.*;version=${solr.version},
+                            org.apache.solr.client.api.util.*;version=${solr.version},
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper.*;version=${solr.zookeeper.version},
                             com.fasterxml.jackson.*;version=${jackson.version}
                         </Export-Package>
                         <Embed-Dependency>
+                            solr-api,
                             solr-solrj,
+                            solr-solrj-zookeeper,
                             commons-io,
                             httpmime,
                             zookeeper,
@@ -146,9 +266,6 @@
                             javax.swing,
                             javax.swing.table,
                             javax.swing.tree,
-                            javax.ws.rs,
-                            javax.ws.rs.core,
-                            javax.ws.rs.ext,
                             javax.xml.bind;version="[2.2,3)",
                             javax.xml.datatype,
                             javax.xml.namespace,
@@ -170,8 +287,10 @@
                             org.eclipse.jetty.http;resolution:=optional,
                             org.eclipse.jetty.http2.client;resolution:=optional,
                             org.eclipse.jetty.http2.client.http;resolution:=optional,
+                            org.eclipse.jetty.io;resolution:=optional,
+                            org.eclipse.jetty.io.*;resolution:=optional,
                             org.eclipse.jetty.util;resolution:=optional,
-                            org.eclipse.jetty.util.ssl;resolution:=optional,
+                            org.eclipse.jetty.util.*;resolution:=optional,
 
                             <!--
                                 There are ddf dependencies using both this solr-dependencies and httpclient/httpcore.

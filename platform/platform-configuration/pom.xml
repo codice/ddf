@@ -18,7 +18,7 @@
     <parent>
         <artifactId>platform</artifactId>
         <groupId>ddf.platform</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>platform-configuration</artifactId>
     <name>DDF :: Platform :: Configuration</name>
@@ -39,8 +39,8 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>

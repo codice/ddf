@@ -14,7 +14,7 @@
 package ddf.catalog.filter;
 
 import java.util.Date;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 /**
  * Completes the fluent API to build a temporal {@link Filter} using an instant in time (vs a

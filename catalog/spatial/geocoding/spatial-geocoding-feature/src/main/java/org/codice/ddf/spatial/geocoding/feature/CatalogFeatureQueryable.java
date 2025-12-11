@@ -30,11 +30,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

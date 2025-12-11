@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog</groupId>
         <artifactId>catalog</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-app</artifactId>
     <packaging>pom</packaging>
@@ -73,6 +73,16 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>preferences-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>preferences-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
@@ -89,7 +99,7 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-opengis</artifactId>
+            <artifactId>gt-api</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
@@ -115,7 +125,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.geotools.version}</version>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
@@ -271,6 +281,16 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>tika-input-transformer</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcjmail-jdk18on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -391,6 +411,12 @@
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-pptx</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.security</groupId>
@@ -460,6 +486,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attributeregistry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-requiredattributes</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -596,6 +627,32 @@
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-metacardbackup-s3storage</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec-http</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-handler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-classes-epoll</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.plugin</groupId>
@@ -661,8 +718,23 @@
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.poi</artifactId>
-            <version>${servicemix.bundles.poi.version}</version>
+            <artifactId>org.apache.servicemix.bundles.xalan</artifactId>
+            <version>${xalan.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xalan-serializer</artifactId>
+            <version>${xalan.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xerces</artifactId>
+            <version>${xerces.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+            <version>${xalan.version}</version>
         </dependency>
     </dependencies>
 </project>

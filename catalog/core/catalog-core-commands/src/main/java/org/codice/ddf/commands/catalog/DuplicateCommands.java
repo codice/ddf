@@ -52,8 +52,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

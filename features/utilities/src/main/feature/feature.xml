@@ -23,7 +23,7 @@
              description="Platform Utilities">
         <feature>dev-failsafe</feature>
         <feature>common-system</feature>
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>guava</feature>
         <bundle>mvn:ddf.platform.util/platform-util/${project.version}</bundle>
     </feature>
@@ -43,6 +43,7 @@
     <feature name="parser-xml" version="${project.version}"
              description="Platform JAXB support.">
         <feature>guava</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.platform/platform-parser-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
@@ -60,11 +61,10 @@
 
     <feature name="error-api" version="${project.version}"
              description="Platform error handler API.">
-        <feature>pax-jetty</feature>
+        <feature>pax-web-jetty</feature>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.error/platform-error-page-injector/${project.version}</bundle>
     </feature>
 
     <feature name="error-impl" version="${project.version}"
@@ -82,13 +82,14 @@
              description="MIME Core">
         <feature>mime-core-api</feature>
         <feature>guava</feature>
-        <feature>spring</feature>
+        <feature version="${spring.feature.version}">spring</feature>
         <feature>common-system</feature>
         <feature>slf4j</feature>
         <feature>platform-util</feature>
+        <feature dependency="true">tika</feature>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csw
         </configfile>
@@ -110,6 +111,8 @@
              description="Tika MIME Resolver">
         <feature>mime-core-api</feature>
         <feature>slf4j</feature>
+        <feature>tika</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
 
@@ -142,7 +145,7 @@
     </feature>
 
     <feature name="metrics-servlet-filter" version="${project.version}" description="Servlet metrics reporter">
-        <feature>pax-jetty</feature>
+        <feature>pax-web-jetty</feature>
         <feature>metrics-micrometer</feature>
         <bundle dependency="true">mvn:ddf.platform/http-filter-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.metrics/metrics-servlet-filter/${project.version}</bundle>
@@ -179,6 +182,7 @@
              description="platform-logging">
         <feature>guava</feature>
         <feature>javax-validation</feature>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
     </feature>
 
@@ -187,13 +191,12 @@
         <feature prerequisite="true">wrap</feature>
         <feature>jackson</feature>
         <bundle>mvn:com.github.luben/zstd-jni/${zstd-jni.version}</bundle>
-        <bundle>mvn:com.github.openjson/openjson/${openjson.version}</bundle>
         <bundle>wrap:mvn:net.sf.jwordnet/jwnl/${jwnl.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
+        <bundle>mvn:ddf.thirdparty/tika/${project.version}</bundle>
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
         <bundle>mvn:ddf.platform.io/platform-io-internal-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.io/platform-io-impl/${project.version}</bundle>
     </feature>
@@ -202,38 +205,43 @@
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson.version}</bundle>
     </feature>
 
     <feature name="poi" version="${project.version}">
         <feature dependency="true">apache-commons</feature>
+        <feature dependency="true">tika</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/1.2_5</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/9.9.1-6_1</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/3.1.0_2</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${xmlbeans.version}_1</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-compress/${commons-compress.version}</bundle>
-        <bundle>wrap:mvn:org.apache.xmlgraphics/batik-all/1.14</bundle>
+        <bundle>wrap:mvn:org.apache.xmlgraphics/batik-all/1.17</bundle>
         <bundle>wrap:mvn:xml-apis/xml-apis-ext/1.3.04</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
         <bundle>wrap:mvn:org.apache.xmlgraphics/xmlgraphics-commons/2.7</bundle>
         <bundle>mvn:org.apache.pdfbox/pdfbox/${pdfbox.version}</bundle>
         <bundle>mvn:org.apache.pdfbox/fontbox/${pdfbox.version}</bundle>
+        <bundle>mvn:org.apache.pdfbox/pdfbox-io/${pdfbox.version}</bundle>
+        <bundle>wrap:mvn:org.apache.pdfbox/pdfbox-tools/${pdfbox.version}</bundle>
         <bundle>wrap:mvn:de.rototor.pdfbox/graphics2d/0.38</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/${servicemix.bundles.poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-ooxml/${poi.version}</bundle>
+        <bundle>wrap:mvn:org.apache.poi/poi-scratchpad/${poi.version}</bundle>
     </feature>
 
     <feature name="jts" version="${project.version}">
-        <bundle>mvn:org.locationtech.jts/jts-core/${jts.geotools.version}</bundle>
-        <bundle>wrap:mvn:org.locationtech.jts.io/jts-io-common/${jts.geotools.version}$Bundle-Name=jts-io-common&amp;Bundle-SymbolicName=jts-io-common</bundle>
+        <bundle>mvn:org.locationtech.jts/jts-core/${jts.version}</bundle>
+        <bundle>wrap:mvn:org.locationtech.jts.io/jts-io-common/${jts.version}$Bundle-Name=jts-io-common&amp;Bundle-SymbolicName=jts-io-common</bundle>
         <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
     </feature>
 
     <feature name="geotools" version="${project.version}">
         <feature>javax-inject</feature>
-        <bundle>wrap:mvn:org.geotools/gt-opengis/${org.geotools.version}$Bundle-Name=gt-opengis&amp;Bundle-SymbolicName=gt-opengis</bundle>
+        <bundle>wrap:mvn:org.geotools/gt-api/${org.geotools.version}$Bundle-Name=gt-api&amp;Bundle-SymbolicName=gt-api</bundle>
         <bundle>wrap:mvn:org.geotools/gt-main/${org.geotools.version}$Bundle-Name=gt-main&amp;Bundle-SymbolicName=gt-main</bundle>
         <bundle>wrap:mvn:org.geotools/gt-cql/${org.geotools.version}$Bundle-Name=gt-cql&amp;Bundle-SymbolicName=gt-cql</bundle>
-        <bundle>wrap:mvn:org.geotools/gt-jts-wrapper/${org.geotools.version}$Bundle-Name=gt-jts-wrapper&amp;Bundle-SymbolicName=gt-jts-wrapper</bundle>
         <bundle>wrap:mvn:org.geotools/gt-xml/${org.geotools.version}$Bundle-Name=gt-xml&amp;Bundle-SymbolicName=gt-xml</bundle>
         <bundle>wrap:mvn:org.picocontainer/picocontainer/1.2$Bundle-Name=picocontainer&amp;Bundle-SymbolicName=picocontainer</bundle>
         <bundle>mvn:ddf.thirdparty/eclipse-emf/${project.version}</bundle>
@@ -250,13 +258,35 @@
         <bundle>wrap:mvn:org.geotools/gt-geojson/${org.geotools.version}$Bundle-Name=gt-geojson&amp;Bundle-SymbolicName=gt-geojson</bundle>
         <bundle>wrap:mvn:org.geotools/gt-shapefile/${org.geotools.version}$Bundle-Name=gt-shapefile&amp;Bundle-SymbolicName=gt-shapefile</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
-        <bundle>mvn:tech.units/indriya/2.0.1</bundle>
+        <bundle>mvn:tech.units/indriya/2.0.2</bundle>
         <bundle>mvn:tech.uom.lib/uom-lib-common/2.1</bundle>
         <bundle>mvn:si.uom/si-quantity/2.0.1</bundle>
         <bundle>wrap:mvn:si.uom/si-units/2.0.1$overwrite=merge&amp;Bundle-Name=si-units&amp;Bundle-SymbolicName=si-units&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
         <bundle>mvn:systems.uom/systems-quantity/2.0.1</bundle>
-        <bundle>wrap:mvn:systems.uom/systems-common/2.0.1$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
-        <bundle>mvn:javax.measure/unit-api/2.0</bundle>
+        <bundle>wrap:mvn:systems.uom/systems-common/2.0.2$overwrite=merge&amp;Bundle-Name=systems-common&amp;Bundle-SymbolicName=systems-common&amp;Bundle-Version=2.0.1&amp;Export-Package=*</bundle>
+        <bundle>mvn:javax.measure/unit-api/2.2</bundle>
+        <bundle>wrap:mvn:org.hsqldb/hsqldb/${geotools-hsql.version}/jar/jdk8</bundle>
+        <bundle>wrap:mvn:org.ejml/ejml-core/0.41</bundle>
+        <bundle>wrap:mvn:org.ejml/ejml-ddense/0.41</bundle>
+    </feature>
+
+    <feature name="utilities-all" version="${project.version}">
+        <feature>util-uuidgenerator</feature>
+        <feature>parser-xml</feature>
+        <feature>action-core-impl</feature>
+        <feature>error-impl</feature>
+        <feature>mime-core</feature>
+        <feature>mime-tika-resolver</feature>
+        <feature>bootflag-api</feature>
+        <feature>metrics-core</feature>
+        <feature>platform-api</feature>
+        <feature>platform-usng4j</feature>
+        <feature>platform-logging</feature>
+        <feature>tika</feature>
+        <feature>io</feature>
+        <feature>poi</feature>
+        <feature>jts</feature>
+        <feature>geotools</feature>
     </feature>
 
 </features>

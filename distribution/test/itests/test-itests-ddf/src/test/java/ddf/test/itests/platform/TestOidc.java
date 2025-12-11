@@ -136,7 +136,7 @@ public class TestOidc extends AbstractIntegrationTest {
 
   private static final String DDF_CLIENT_ID = "ddf.client";
   private static final String DDF_CLIENT_SECRET = "c0eb883e-8714-43aa-962f-e6b4f9486c28";
-  private static final String DDF_SCOPE = "openid profile email resource.read";
+  private static final String DDF_SCOPE = "openid profile email";
   // Unique value. OIDC Spec: the OpenID Provider MUST calculate a unique sub (subject) value for
   // each Sector Identifier. The Subject Identifier value MUST NOT be reversible by any party other
   // than the OpenID Provider.

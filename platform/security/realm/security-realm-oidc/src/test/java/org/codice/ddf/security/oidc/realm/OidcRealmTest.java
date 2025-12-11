@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.AUTH_TIME;
@@ -39,7 +40,6 @@ import com.nimbusds.jose.util.Resource;
 import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -54,8 +54,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Optional;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.codice.ddf.security.handler.OidcAuthenticationToken;
@@ -63,12 +69,18 @@ import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.jee.context.JEEContext;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
+import org.pac4j.oidc.metadata.OidcOpMetadataResolver;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OidcRealmTest {
 
   private static final String NONCE_SESSION_ATTRIBUTE = "session-attribute";
@@ -79,6 +91,7 @@ public class OidcRealmTest {
 
   private Algorithm validAlgorithm;
   private Algorithm invalidAlgorithm;
+  @Mock private JEEContext jeeContext;
 
   @Before
   public void setup() throws Exception {
@@ -100,8 +113,6 @@ public class OidcRealmTest {
             .keyID(UUID.randomUUID().toString())
             .build();
 
-    String jwk = "{\"keys\": [" + sigJwk.toPublicJWK().toJSONString() + "] }";
-
     OIDCProviderMetadata oidcProviderMetadata = mock(OIDCProviderMetadata.class);
     when(oidcProviderMetadata.getIDTokenJWSAlgs()).thenReturn(ImmutableList.of(JWSAlgorithm.RS256));
     when(oidcProviderMetadata.getIssuer())
@@ -109,6 +120,10 @@ public class OidcRealmTest {
     when(oidcProviderMetadata.getJWKSetURI())
         .thenReturn(
             new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
+    OidcOpMetadataResolver metadataResolver = mock(OidcOpMetadataResolver.class);
+    when(metadataResolver.load()).thenReturn(oidcProviderMetadata);
+
+    String jwk = "{\"keys\": [" + sigJwk.toPublicJWK().toJSONString() + "] }";
 
     ResourceRetriever resourceRetriever = mock(ResourceRetriever.class);
     Resource resource = new Resource(jwk, APPLICATION_JSON);
@@ -119,8 +134,8 @@ public class OidcRealmTest {
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
     when(configuration.getResponseType()).thenReturn("code");
-    when(configuration.findProviderMetadata()).thenReturn(oidcProviderMetadata);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
+    when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
 
     OidcHandlerConfiguration handlerConfiguration = mock(OidcHandlerConfiguration.class);
     when(handlerConfiguration.getOidcConfiguration()).thenReturn(configuration);
@@ -132,14 +147,12 @@ public class OidcRealmTest {
 
     JWT jwt = mock(JWT.class);
     AccessToken accessToken = new BearerAccessToken(getAccessTokenBuilder().sign(validAlgorithm));
-    AuthorizationCode authorizationCode = new AuthorizationCode();
 
     WebContext webContext = getWebContext();
     oidcCredentials = mock(OidcCredentials.class);
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
-    when(oidcCredentials.getAccessToken()).thenReturn(accessToken);
-    when(oidcCredentials.getCode()).thenReturn(authorizationCode);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toAccessToken()).thenReturn(accessToken);
 
     authenticationToken = mock(OidcAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn(oidcCredentials);
@@ -166,7 +179,6 @@ public class OidcRealmTest {
 
     // token not an OidcAuthenticationToken type
     SAMLAuthenticationToken samlAuthenticationToken = mock(SAMLAuthenticationToken.class);
-    when(samlAuthenticationToken.getCredentials()).thenReturn("creds");
     supports = realm.supports(samlAuthenticationToken);
     assertFalse(supports);
   }
@@ -176,7 +188,7 @@ public class OidcRealmTest {
     String idToken = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(idToken);
 
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
 
     AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
     assertNotNull(authenticationInfo.getCredentials());
@@ -187,7 +199,7 @@ public class OidcRealmTest {
   @Test
   public void testDoGetAuthenticationInfoWithMissingInfo() throws ParseException {
     JWT jwt = getIncompleteJwt();
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
 
     AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
     assertNotNull(authenticationInfo.getCredentials());
@@ -200,7 +212,7 @@ public class OidcRealmTest {
   public void testDoGetAuthenticationInvalid() throws Exception {
     String idToken = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(invalidAlgorithm);
     JWT jwt = SignedJWT.parse(idToken);
-    when(oidcCredentials.getIdToken()).thenReturn(jwt);
+    when(oidcCredentials.toIdToken()).thenReturn(jwt);
 
     realm.doGetAuthenticationInfo(authenticationToken);
   }
@@ -250,11 +262,16 @@ public class OidcRealmTest {
   }
 
   private WebContext getWebContext() {
-    WebContext context = mock(WebContext.class);
-    SessionStore sessionStore = mock(SessionStore.class);
-    when(sessionStore.get(context, NONCE_SESSION_ATTRIBUTE)).thenReturn(Optional.of("myNonce"));
-    when(context.getSessionStore()).thenReturn(sessionStore);
-    return context;
+    HttpSession session = new MyHttpSession();
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getSession(anyBoolean())).thenReturn(session);
+
+    when(jeeContext.getNativeRequest()).thenReturn(request);
+
+    JEESessionStoreFactory.INSTANCE
+        .newSessionStore(null)
+        .set(jeeContext, NONCE_SESSION_ATTRIBUTE, "myNonce");
+    return jeeContext;
   }
 
   private JWT getIncompleteJwt() throws ParseException {
@@ -279,5 +296,89 @@ public class OidcRealmTest {
             .sign(validAlgorithm);
 
     return SignedJWT.parse(idToken);
+  }
+
+  /**
+   * It was easiest to implement a simple session with a hash map. It only has to support setting
+   * and getting session values.
+   */
+  private static class MyHttpSession implements HttpSession {
+
+    private final Map<String, Object> map = new HashMap<>();
+
+    @Override
+    public long getCreationTime() {
+      return 0;
+    }
+
+    @Override
+    public String getId() {
+      return "";
+    }
+
+    @Override
+    public long getLastAccessedTime() {
+      return 0;
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+      return null;
+    }
+
+    @Override
+    public void setMaxInactiveInterval(int i) {}
+
+    @Override
+    public int getMaxInactiveInterval() {
+      return 0;
+    }
+
+    @Override
+    public HttpSessionContext getSessionContext() {
+      return null;
+    }
+
+    @Override
+    public Object getAttribute(String s) {
+      return map.get(s);
+    }
+
+    @Override
+    public Object getValue(String s) {
+      return null;
+    }
+
+    @Override
+    public Enumeration<String> getAttributeNames() {
+      return null;
+    }
+
+    @Override
+    public String[] getValueNames() {
+      return new String[0];
+    }
+
+    @Override
+    public void setAttribute(String s, Object o) {
+      map.put(s, o);
+    }
+
+    @Override
+    public void putValue(String s, Object o) {}
+
+    @Override
+    public void removeAttribute(String s) {}
+
+    @Override
+    public void removeValue(String s) {}
+
+    @Override
+    public void invalidate() {}
+
+    @Override
+    public boolean isNew() {
+      return false;
+    }
   }
 }

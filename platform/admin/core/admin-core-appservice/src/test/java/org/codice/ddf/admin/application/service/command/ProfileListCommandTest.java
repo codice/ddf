@@ -36,6 +36,7 @@ import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.internal.service.FeaturesServiceImpl;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,6 +59,8 @@ public class ProfileListCommandTest {
   public void setup() throws IOException {
     ddfHome.newFolder("etc", "profiles");
     profilePath = Paths.get(ddfHome.getRoot().toString(), "etc", "profiles");
+    System.setProperty(
+        "ddf.etc", Paths.get(ddfHome.getRoot().toString(), "etc").toAbsolutePath().toString());
     Files.copy(
         this.getClass().getResourceAsStream("/profiles/devProfile.json"),
         Paths.get(profilePath.toAbsolutePath().toString(), "devProfile.json"));
@@ -83,6 +86,11 @@ public class ProfileListCommandTest {
     when(feature.getDependencies()).thenReturn(deps);
     when(applicationService.getInstallationProfiles())
         .thenReturn(Collections.singletonList(feature));
+  }
+
+  @After
+  public void after() {
+    System.clearProperty("ddf.etc");
   }
 
   @Test

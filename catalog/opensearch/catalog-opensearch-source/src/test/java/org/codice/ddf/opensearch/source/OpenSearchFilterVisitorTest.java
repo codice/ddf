@@ -41,6 +41,19 @@ import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.exparity.hamcrest.date.DateMatchers;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.Not;
+import org.geotools.api.filter.Or;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.PropertyIsLike;
+import org.geotools.api.filter.spatial.Contains;
+import org.geotools.api.filter.spatial.DWithin;
+import org.geotools.api.filter.spatial.Intersects;
+import org.geotools.api.filter.temporal.After;
+import org.geotools.api.filter.temporal.During;
+import org.geotools.api.filter.temporal.TOverlaps;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
 import org.geotools.filter.text.cql2.CQLException;
@@ -48,19 +61,6 @@ import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.filter.And;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.temporal.After;
-import org.opengis.filter.temporal.During;
-import org.opengis.filter.temporal.TOverlaps;
 
 public class OpenSearchFilterVisitorTest {
 
@@ -705,8 +705,8 @@ public class OpenSearchFilterVisitorTest {
 
   @Test
   public void testBefore() {
-    org.opengis.filter.temporal.Before beforeFilter =
-        (org.opengis.filter.temporal.Before)
+    org.geotools.api.filter.temporal.Before beforeFilter =
+        (org.geotools.api.filter.temporal.Before)
             geotoolsFilterBuilder.attribute(TEMPORAL_ATTRIBUTE_NAME).before().date(END_DATE);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
@@ -742,7 +742,7 @@ public class OpenSearchFilterVisitorTest {
 
   @Test
   public void testPropertyLikeWildcard() {
-    FilterFactory2 factory = new FilterFactoryImpl();
+    FilterFactory factory = new FilterFactoryImpl();
     PropertyIsLike textLikeFilter =
         factory.like(factory.property(Core.TITLE), UI_WILDCARD, UI_WILDCARD, "'", "_", false);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =

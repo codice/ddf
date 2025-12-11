@@ -50,9 +50,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.geotools.api.filter.Filter;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class SolrProviderDelete {
 

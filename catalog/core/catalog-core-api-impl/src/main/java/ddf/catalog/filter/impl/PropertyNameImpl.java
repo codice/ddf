@@ -13,8 +13,8 @@
  */
 package ddf.catalog.filter.impl;
 
-import org.opengis.filter.expression.ExpressionVisitor;
-import org.opengis.filter.expression.PropertyName;
+import org.geotools.api.filter.expression.ExpressionVisitor;
+import org.geotools.api.filter.expression.PropertyName;
 import org.xml.sax.helpers.NamespaceSupport;
 
 /**

@@ -17,7 +17,6 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.pac4j.core.context.WebContext;
@@ -33,27 +32,24 @@ public class CustomOAuthCredentialsExtractor {
   public OidcCredentials getOauthCredentialsAsOidcCredentials(final WebContext context) {
     OidcCredentials credentials = new OidcCredentials();
 
-    try {
-      final String codeParam =
-          context.getRequestParameter(OAuth20Configuration.OAUTH_CODE).orElse(null);
-      if (codeParam != null) {
-        credentials.setCode(
-            new AuthorizationCode(URLDecoder.decode(codeParam, StandardCharsets.UTF_8.name())));
-      } else {
-        LOGGER.debug("No OAuth2 code found on request.");
-      }
+    final String codeParam =
+        context.getRequestParameter(OAuth20Configuration.OAUTH_CODE).orElse(null);
+    if (codeParam != null) {
+      credentials.setCode(
+          new AuthorizationCode(URLDecoder.decode(codeParam, StandardCharsets.UTF_8)).getValue());
+    } else {
+      LOGGER.debug("No OAuth2 code found on request.");
+    }
 
-      final String accessTokenParam = context.getRequestParameter("access_token").orElse(null);
-      final String accessTokenHeader = getAccessTokenFromHeader(context);
-      final String accessToken = accessTokenParam != null ? accessTokenParam : accessTokenHeader;
-      if (isNotBlank(accessToken)) {
-        credentials.setAccessToken(
-            new BearerAccessToken(URLDecoder.decode(accessToken, StandardCharsets.UTF_8.name())));
-      } else {
-        LOGGER.debug("No OAuth2 access token found on request.");
-      }
-    } catch (UnsupportedEncodingException e) {
-      LOGGER.debug("Error decoding the authorization code/access token from url parameters.", e);
+    final String accessTokenParam = context.getRequestParameter("access_token").orElse(null);
+    final String accessTokenHeader = getAccessTokenFromHeader(context);
+    final String accessToken = accessTokenParam != null ? accessTokenParam : accessTokenHeader;
+    if (isNotBlank(accessToken)) {
+      credentials.setAccessToken(
+          new BearerAccessToken(URLDecoder.decode(accessToken, StandardCharsets.UTF_8))
+              .toJSONObject());
+    } else {
+      LOGGER.debug("No OAuth2 access token found on request.");
     }
 
     return credentials;

@@ -38,6 +38,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.TermFacetProperties;
@@ -82,8 +83,8 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.util.SimpleOrderedMap;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,6 +130,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String ERR_UNSUPPORTED_QUERY_MSG = "Could not complete solr query.";
 
+  public static final String SKIP_REALTIME_GET = "skipRealtimeGet";
+
   private final SolrClient client;
 
   private final SolrFilterDelegateFactory filterDelegateFactory;
@@ -155,6 +158,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final int queryTimeAllowedMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_QUERY_TIMEALLOWEDMS, "0")), 0);
 
+  private static final String SQCMB = "qm.sc."; // query metric base for solr client
+  private static final String QM_TRACEID = "qm.trace-id";
+  private static final String QM_ELAPSED = ".elapsed";
+
   protected ResultHighlighter highlighter;
 
   public SolrMetacardClientImpl(
@@ -178,58 +185,124 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     if (request == null || request.getQuery() == null) {
       return new QueryResponseImpl(request, new ArrayList<>(), true, 0L);
     }
+    Map<String, Serializable> metrics = new HashMap<String, Serializable>();
 
     long totalHits = 0;
+    Serializable traceId = request.getProperties().get(QM_TRACEID);
+    Set<String> ids = request.getSourceIds();
+    String sourceId = "<empty>";
+    if (ids != null) {
+      sourceId = ids.stream().collect(Collectors.joining(","));
+    }
+    String traceSource = "trace-id " + traceId + "source " + sourceId;
     Map<String, Serializable> responseProps = new HashMap<>();
     List<Result> results = new ArrayList<>();
 
     SolrFilterDelegate solrFilterDelegate =
         filterDelegateFactory.newInstance(resolver, request.getProperties());
-    SolrQuery query = getSolrQuery(request, solrFilterDelegate);
 
+    LOGGER.trace("Generate solr query for {}: query request {}", traceSource, request);
+    long startQuery = System.nanoTime();
+    long start = startQuery;
+    SolrQuery query = getSolrQuery(request, solrFilterDelegate);
+    long timer1 = System.nanoTime();
+    LOGGER.trace("Done generating solr query for {}: solr query {}", traceSource, query);
+    metrics.put(SQCMB + "getsolrquery" + QM_ELAPSED, timer1 - startQuery);
     boolean isFacetedQuery = handleFacetRequest(query, request);
+    long timer2 = System.nanoTime();
+    metrics.put(SQCMB + "handleFacetReq" + QM_ELAPSED, timer2 - timer1);
     query = handleSuggestionQuery(query, request);
+    metrics.put(SQCMB + "handleSuggestion" + QM_ELAPSED, System.nanoTime() - timer2);
     boolean userSpellcheckIsOn = userSpellcheckIsOn(request);
 
     try {
       QueryResponse solrResponse;
-      boolean doRealTimeGet =
-          (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
-              || BooleanUtils.toBoolean(
-                  filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate()));
-
-      if (doRealTimeGet) {
-        LOGGER.debug("Performing real time query");
+      start = System.nanoTime();
+      LOGGER.trace("Begin executing solr query for {}", traceSource);
+      if (shouldDoRealTimeGet(request)) {
+        LOGGER.debug("Performing real time query for {}", traceSource);
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
+        metrics.put(SQCMB + "realtimeQuery" + QM_ELAPSED, System.nanoTime() - start);
       } else {
         if (userSpellcheckIsOn) {
           query.setParam(SPELLCHECK_KEY, true);
         }
+        LOGGER.debug("Highlighter pre-query processing for {}", traceSource);
         highlighter.processPreQuery(request, query);
+        long currentTime = System.nanoTime();
+        metrics.put(SQCMB + "hilighterPreQuery" + QM_ELAPSED, currentTime - start);
+        start = currentTime;
+        LOGGER.debug("Performing query for {}", traceSource);
         solrResponse = client.query(query, METHOD.POST);
+        metrics.put(SQCMB + "normalQuery" + QM_ELAPSED, System.nanoTime() - start);
       }
+      LOGGER.trace("End executing solr query for {}", traceSource);
 
       if (isFacetedQuery) {
+        start = System.nanoTime();
         handleFacetResponse(solrResponse, responseProps);
+        LOGGER.trace("Completed handleFacetResponse for {}", traceSource);
+        metrics.put(SQCMB + "facetHandling" + QM_ELAPSED, System.nanoTime() - start);
       }
 
+      start = System.nanoTime();
       handleSuggestionResponse(solrResponse, responseProps);
+      LOGGER.trace("Complete handling suggestions for {}", traceSource);
+      long currentTime = System.nanoTime();
+      metrics.put(SQCMB + "suggestionHandling" + QM_ELAPSED, currentTime - start);
 
       handlePartialResults(solrResponse, responseProps);
+      LOGGER.trace("Complete handling partial results for {}", traceSource);
+      start = System.nanoTime();
+      metrics.put(SQCMB + "partialHandling" + QM_ELAPSED, start - currentTime);
 
       SolrDocumentList docs = solrResponse.getResults();
       docs =
           handleSpellcheck(request, solrResponse, responseProps, query, docs, userSpellcheckIsOn);
+      LOGGER.trace("Handled spellcheck for {}", traceSource);
+      metrics.put(SQCMB + "spellcheckHandling" + QM_ELAPSED, System.nanoTime() - start);
       if (docs != null) {
         addDocsToResults(docs, results);
         totalHits = docs.getNumFound();
       }
+
     } catch (SolrServerException | IOException | SolrException e) {
       throw new UnsupportedQueryException(ERR_UNSUPPORTED_QUERY_MSG, e);
     }
 
+    // add in all the solr query metrics to return
+    metrics.put(SQCMB + "solrquery" + QM_ELAPSED, System.nanoTime() - startQuery);
+    responseProps.putAll(metrics);
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private boolean isFaceted(QueryRequest request) {
+    Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
+    return textFacetPropRaw instanceof TermFacetProperties;
+  }
+
+  private boolean shouldDoRealTimeGet(QueryRequest request) throws UnsupportedQueryException {
+
+    if ((boolean) request.getProperties().getOrDefault(SKIP_REALTIME_GET, false)) {
+      return false;
+    }
+
+    if (isFaceted(request)) {
+      // real time get makes use of the update log
+      // and as a result does not support faceting
+      return false;
+    }
+
+    Query query = request.getQuery();
+    if (query.getStartIndex() > 1) {
+      // solr doesn't support paging of real time get requests so if a paging request is received
+      // here, it is safe to assume that we should not be doing a real time get to solr
+      return false;
+    }
+
+    return (boolean) request.getProperties().getOrDefault(DO_REALTIME_GET, false)
+        || BooleanUtils.toBoolean(filterAdapter.adapt(query, new RealTimeGetDelegate()));
   }
 
   private List<SolrDocument> getSolrDocs(Set<String> ids) throws UnsupportedQueryException {
@@ -252,8 +325,15 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     if (textFacetPropRaw instanceof TermFacetProperties) {
       TermFacetProperties textFacetProp = (TermFacetProperties) textFacetPropRaw;
       isFacetedQuery = true;
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Enabling faceted query for request [{}] on field {}", request, textFacetProp);
+      if (LOGGER.isDebugEnabled()) {
+        Serializable traceId = request.getProperties().get(QM_TRACEID);
+        String sourceId = request.getSourceIds().stream().collect(Collectors.joining(","));
+        LOGGER.debug(
+            "Enabling faceted query for trace-id {} source {} request [{}] on field {}",
+            traceId,
+            sourceId,
+            request,
+            textFacetProp);
       }
 
       textFacetProp.getFacetAttributes().stream()
@@ -365,12 +445,20 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     QueryResponse highlightResponse = solrResponse;
     SolrDocumentList resultDocs = originalDocs;
     if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
+      LOGGER.trace("Begin solr spellcheck: query request {}", request);
+      long time0 = System.nanoTime();
       Collation collation = getCollationToResend(solrResponse);
       query.set("q", collation.getCollationQueryString());
       query.set(SPELLCHECK_KEY, false);
+      long time1 = System.nanoTime();
+      responseProps.put(SQCMB + "collation" + QM_ELAPSED, time1 - time0);
       highlighter.processPreQuery(request, query);
+      long time2 = System.nanoTime();
+      responseProps.put(SQCMB + "highlighter.processPreQuery" + QM_ELAPSED, time2 - time1);
       QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
       SolrDocumentList docs = solrResponseRequery.getResults();
+      long time3 = System.nanoTime();
+      responseProps.put(SQCMB + "highlighter.respRequery" + QM_ELAPSED, time3 - time2);
       if (docs != null && docs.size() > originalDocs.size()) {
         resultDocs = docs;
         highlightResponse = solrResponseRequery;
@@ -386,8 +474,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
         responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
       }
+      LOGGER.trace("End solr spellcheck: query request {}", request);
     }
-    highlighter.processPostQuery(highlightResponse, responseProps);
+    if (highlightResponse.getHighlighting() != null) {
+      LOGGER.trace("Starting highlight extraction.");
+      long time0 = System.nanoTime();
+      highlighter.processPostQuery(highlightResponse, responseProps);
+      responseProps.put(
+          SQCMB + "highlighter.processPostQuery" + QM_ELAPSED, System.nanoTime() - time0);
+      LOGGER.trace("Ending highlight extraction.");
+    }
     return resultDocs;
   }
 
@@ -519,6 +615,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     query.addFacetField(contentTypeField);
     query.addFacetPivotField(contentTypeField + "," + contentTypeVersionField);
 
+    long timer0 = System.nanoTime();
     try {
       QueryResponse solrResponse = client.query(query, METHOD.POST);
       List<FacetField> facetFields = solrResponse.getFacetFields();
@@ -574,10 +671,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           }
         }
       }
-
     } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Solr exception getting content types", e);
     }
+    LOGGER.debug("Solr client - get content types - elapsed time: {}", System.nanoTime() - timer0);
 
     return finalSet;
   }
@@ -686,10 +783,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private int queryForNumberOfRows(SolrQuery query) throws SolrServerException, IOException {
+    long timer0 = System.nanoTime();
     int numRows;
     query.setRows(0);
     QueryResponse solrResponse = client.query(query, METHOD.POST);
     numRows = Math.toIntExact(solrResponse.getResults().getNumFound());
+    LOGGER.debug(
+        "Solr client - query for num rows - elapsed time: {}ns", System.nanoTime() - timer0);
     return numRows;
   }
 
@@ -917,5 +1017,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             /* waitToMakeVisible */ true,
             /* softCommit */ true)
         .process(client);
+  }
+
+  private ddf.catalog.operation.QueryResponse putMetricsDuration(
+      ddf.catalog.operation.QueryResponse response, String key, long value) {
+    putMetricsDuration(response.getRequest(), key, value);
+    return response;
+  }
+
+  private QueryRequest putMetricsDuration(QueryRequest request, String key, long value) {
+    request.getProperties().put(key, value);
+    return request;
   }
 }

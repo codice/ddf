@@ -24,16 +24,19 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.util.XPathHelper;
+import java.io.IOException;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
+import org.geotools.api.filter.Filter;
 import org.joda.time.DateTime;
-import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 @Service
 @Command(
@@ -125,34 +128,40 @@ public class SearchCommand extends CqlCommands {
       String modifiedDate = "";
 
       if (searchPhrase != null && metacard.getMetadata() != null) {
-        XPathHelper helper = new XPathHelper(metacard.getMetadata());
-        String indexedText = helper.getDocument().getDocumentElement().getTextContent();
-        indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
+        try {
+          XPathHelper helper = new XPathHelper(metacard.getMetadata());
+          String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+          indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
 
-        String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
+          String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
 
-        int index = -1;
+          int index = -1;
 
-        if (caseSensitive) {
-          index = indexedText.indexOf(normalizedSearchPhrase);
-        } else {
-          index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
-        }
+          if (caseSensitive) {
+            index = indexedText.indexOf(normalizedSearchPhrase);
+          } else {
+            index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+          }
 
-        if (index != -1) {
-          int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-          excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
-          excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-          excerpt = excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
-          excerpt = excerpt + Ansi.ansi().reset().toString();
-          excerpt =
-              excerpt
-                  + indexedText.substring(
-                      index + normalizedSearchPhrase.length(),
-                      Math.min(
-                          indexedText.length(),
-                          index + normalizedSearchPhrase.length() + contextLength))
-                  + "...";
+          if (index != -1) {
+            int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+            excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
+            excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
+            excerpt =
+                excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
+            excerpt = excerpt + Ansi.ansi().reset().toString();
+            excerpt =
+                excerpt
+                    + indexedText.substring(
+                        index + normalizedSearchPhrase.length(),
+                        Math.min(
+                            indexedText.length(),
+                            index + normalizedSearchPhrase.length() + contextLength))
+                    + "...";
+          }
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+          // excerpt remains N/A
+          LOGGER.debug("failed to parse excerpt", e);
         }
       }
 

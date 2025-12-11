@@ -16,7 +16,7 @@
     <parent>
         <artifactId>distribution</artifactId>
         <groupId>ddf</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Distribution :: Solr Distro</name>
@@ -61,9 +61,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <groupId>io.github.download-maven-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
-                <version>1.6.6</version>
+                <version>2.0.0</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -71,13 +71,13 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <url>
-                              ${solr.download.url}/solr/solr/${solr.version}/solr-${solr.version}.tgz
-                            </url>
+                            <url>${solr.download.url}/solr/solr/${solr.version}/solr-${solr.version}.tgz</url>
+                            <!-- default 3000 -->
+                            <readTimeOut>60000</readTimeOut>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha512>383c6b6f352f2a385ece99b2b0a82e1552430aea65c6c33e5569da422138844192db4e06f58699325af55ee631694e16f836a5bbf8556f86fdeabc0cfa0533d5</sha512>
-                            <checkSignature>true</checkSignature>
+                            <sha512>f97153ce12a1b88134b54c4a5a74f6eedd67e06092b6caa3cc9ddaff7b65fa3d4816e7702fb07a54cc0e83724eb9ceab78af77100b688cd68323b5a988e031be</sha512>
+                          <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>
                 </executions>

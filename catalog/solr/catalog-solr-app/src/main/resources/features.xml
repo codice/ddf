@@ -65,4 +65,11 @@
         <feature>catalog-solr-commands</feature>
     </feature>
 
+    <feature name="catalog-solr-all" version="${project.version}"
+             description="Installs all catalog solr features">
+        <feature>catalog-solr-app</feature>
+        <feature>catalog-solr-cache</feature>
+        <feature>catalog-solr-offline-gazetteer</feature>
+    </feature>
+
 </features>

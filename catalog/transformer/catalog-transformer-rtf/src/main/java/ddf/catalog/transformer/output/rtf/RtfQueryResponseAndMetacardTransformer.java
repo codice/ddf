@@ -25,27 +25,36 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.catalog.transformer.output.rtf.model.ExportCategory;
 import ddf.catalog.transformer.output.rtf.model.RtfCategory;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import org.apache.commons.lang.StringUtils;
 
 public class RtfQueryResponseAndMetacardTransformer
     implements MetacardTransformer, QueryResponseTransformer {
 
   private final MimeType mimeType;
 
-  private final List<RtfCategory> categories;
+  private final List<RtfCategory> defaultCategories;
+
+  public static final String COLUMN_ORDER_KEY = "columnOrder";
+
+  public static final String COLUMN_ALIAS_KEY = "aliases";
 
   public RtfQueryResponseAndMetacardTransformer(List<RtfCategory> categories)
       throws MimeTypeParseException {
-    this.categories = categories;
+    this.defaultCategories = categories;
     this.mimeType = new MimeType("application/rtf");
   }
 
@@ -56,9 +65,24 @@ public class RtfQueryResponseAndMetacardTransformer
       throw new CatalogTransformerException("Null metacard cannot be transformed into RTF");
     }
 
+    String aliasesArg = (String) arguments.getOrDefault("aliases", "");
+    Map<String, String> aliases =
+        (StringUtils.isNotBlank(aliasesArg))
+            ? Arrays.stream(aliasesArg.split(","))
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(k -> k[0], k -> k[1]))
+            : Collections.EMPTY_MAP;
+    String attributeString = (String) arguments.getOrDefault(COLUMN_ORDER_KEY, "");
+    List<String> attributes =
+        Arrays.stream(attributeString.split(","))
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+    final List<RtfCategory> categories =
+        attributes.isEmpty() ? defaultCategories : createCategory("Details", attributes, aliases);
+
     ByteArrayInputStream rtfStream =
         Optional.of(metacard)
-            .map(this::toRtf)
+            .map(m -> toRtf(metacard, categories))
             .map(this::rtfStringToInputStream)
             .orElseThrow(this::emptyRtfException);
 
@@ -73,11 +97,24 @@ public class RtfQueryResponseAndMetacardTransformer
       throw new CatalogTransformerException("Null result set cannot be transformed to RTF");
     }
 
+    List<String> attributeOrder =
+        Optional.ofNullable((List<String>) arguments.get(COLUMN_ORDER_KEY))
+            .orElse(Collections.emptyList());
+
+    Map<String, String> columnAliasMap =
+        Optional.ofNullable((Map<String, String>) arguments.get(COLUMN_ALIAS_KEY))
+            .orElse(Collections.emptyMap());
+
+    final List<RtfCategory> categories =
+        attributeOrder.isEmpty()
+            ? defaultCategories
+            : createCategory("Details", attributeOrder, columnAliasMap);
+
     Rtf doc = createRtfDoc();
 
     upstreamResponse.getResults().stream()
         .map(Result::getMetacard)
-        .forEach(metacard -> toRtf(doc, metacard));
+        .forEach(metacard -> toRtf(doc, metacard, categories));
 
     ByteArrayInputStream templateStream =
         Optional.ofNullable(doc)
@@ -106,18 +143,27 @@ public class RtfQueryResponseAndMetacardTransformer
     return doc;
   }
 
-  private String toRtf(Metacard metacard) {
-    return Optional.ofNullable(toRtf(createRtfDoc(), metacard))
+  private String toRtf(Metacard metacard, List<RtfCategory> categories) {
+    return Optional.ofNullable(toRtf(createRtfDoc(), metacard, categories))
         .map(Rtf::out)
         .map(Object::toString)
         .orElse("");
   }
 
-  private Rtf toRtf(Rtf doc, Metacard metacard) {
+  private Rtf toRtf(Rtf doc, Metacard metacard, List<RtfCategory> categories) {
     return new RtfTemplate.Builder()
-        .withCategories(this.categories)
+        .withCategories(categories)
         .withMetacard(metacard)
         .build()
         .rtf(doc);
+  }
+
+  private List<RtfCategory> createCategory(
+      String title, List<String> attributes, Map<String, String> aliases) {
+    ExportCategory dynamicCategory = new ExportCategory();
+    dynamicCategory.setTitle(title);
+    dynamicCategory.setAttributes(attributes);
+    dynamicCategory.setAliases(aliases);
+    return Collections.singletonList(dynamicCategory);
   }
 }

@@ -31,26 +31,21 @@
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
     </feature>
 
-    <feature name="hamcrest-all" version="${project.version}"
-             description="Hamcrest bundles for asserting test cases.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
-        </bundle>
-    </feature>
-
     <feature name="awaitility" version="${project.version}"
              description="Hamcrest bundles for asserting test cases.">
         <bundle>mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
     </feature>
 
     <feature name="tinybundles" version="${project.version}" description="Dynamically creates bundles" >
-        <bundle>mvn:org.ops4j.base/ops4j-base-lang/1.5.0</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-monitors/1.5.0</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-io/1.5.0</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j.base.version}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${org.ops4j.base.version}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-io/${org.ops4j.base.version}</bundle>
 
-        <bundle>mvn:org.ops4j.base/ops4j-base-store/1.5.0</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-store/${org.ops4j.base.version}</bundle>
 
-        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/3.5.0</bundle>
-        <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/3.0.0</bundle>
+        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/${tinybundles.bnd.version}</bundle>
+        <bundle>mvn:biz.aQute.bnd/biz.aQute.bnd.util/${tinybundles.bnd.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/${tinybundles.version}</bundle>
     </feature>
 
     <feature name="rest-assured" version="${project.version}">
@@ -63,9 +58,10 @@
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
         <bundle>wrap:mvn:jakarta.xml.bind/jakarta.xml.bind-api/${jakarta.xml.bind.version}</bundle>
         <bundle>wrap:mvn:javax.activation/activation/1.1.1</bundle>
-        <bundle>mvn:org.codehaus.groovy/groovy-all/2.4.21</bundle>
 
-        <bundle>mvn:io.rest-assured/rest-assured/${restassured.version}</bundle>
+        <bundle>mvn:org.codehaus.groovy/groovy-all/2.4.21</bundle>
+        <!-- TODO: Would be better to find a groovy 4 bundle that works with rest-assured 5.5.0 -->
+        <bundle>mvn:io.rest-assured/rest-assured/3.3.0</bundle>
     </feature>
 
     <feature name="tink-test-dependencies" version="${project.version}"

@@ -23,6 +23,9 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -39,10 +42,9 @@ import org.slf4j.LoggerFactory;
  *
  * @see java.util.Iterator
  */
-class MetacardIterator implements Iterator<Serializable> {
+public class MetacardIterator implements Iterator<Serializable> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardIterator.class);
-
   private static final String MULTIVALUE_DELIMITER = "\n";
 
   private final List<AttributeDescriptor> attributeDescriptorList;
@@ -51,12 +53,14 @@ class MetacardIterator implements Iterator<Serializable> {
 
   private int index;
 
+  private DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
   /**
    * @param metacard the metacard to be iterated over.
    * @param attributeDescriptorList the list of attributeDescriptors used to determine which
    *     metacard attributes to return.
    */
-  MetacardIterator(
+  public MetacardIterator(
       final Metacard metacard, final List<AttributeDescriptor> attributeDescriptorList) {
     this.metacard = metacard;
     this.attributeDescriptorList = Collections.unmodifiableList(attributeDescriptorList);
@@ -118,7 +122,9 @@ class MetacardIterator implements Iterator<Serializable> {
           return null;
         }
         Instant instant = ((Date) value).toInstant();
-        return instant.toString();
+        ZoneId zoneId = ZoneId.of("UTC");
+        ZonedDateTime zonedDateTime = instant.atZone(zoneId);
+        return zonedDateTime.format(formatter);
       case BINARY:
         byte[] bytes = (byte[]) value;
         return DatatypeConverter.printBase64Binary(bytes);

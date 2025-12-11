@@ -17,14 +17,16 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/specs/${karaf.version}/xml/features</repository>
     <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="kernel" version="${project.version}"
-             description="Minimual set of features and dependencies commonly used.">
+             description="Minimal set of features and dependencies commonly used.">
         <feature version="${karaf.version}">standard</feature>
         <feature version="${karaf.version}">eventadmin</feature>
         <feature version="${karaf.version}">jasypt-encryption</feature>
-        <feature version="${pax.web.version}">pax-web-core</feature>
+        <feature version="${karaf.version}">pax-web-http-war</feature>
+        <feature version="${pax.web.version}">pax-web-karaf</feature>
         <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
         <!--Added wrap at the end so features before this can startup up while we block on the wrap feature-->
         <feature prerequisite="true">wrap</feature>
@@ -58,10 +60,7 @@
         <bundle>
             mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/${org.ops4j.pax.swissbox.version}
         </bundle>
-        <bundle>
-            mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}
-        </bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j-base-lang}</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j.base.version}</bundle>
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}
         </bundle>
     </feature>
@@ -90,5 +89,19 @@
     <feature name="dev-failsafe" version="${project.version}">
         <feature prerequisite="true">wrap</feature>
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
+    </feature>
+
+    <feature name="kernel-all" version="${project.version}">
+        <feature>kernel</feature>
+        <feature>sync-installer</feature>
+        <feature>javax-validation</feature>
+        <feature>joda-converter</feature>
+        <feature>javax-inject</feature>
+        <feature>slf4j</feature>
+        <feature>pax-swissbox</feature>
+        <feature>apache-commons</feature>
+        <feature>saxon</feature>
+        <feature>guava</feature>
+        <feature>dev-failsafe</feature>
     </feature>
 </features>

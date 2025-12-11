@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+
+    <bean id="errorPage" class="org.codice.ddf.platform.error.servlet.ErrorServlet" init-method="init" />
+
+    <service interface="javax.servlet.Servlet" ref="errorPage">
+        <service-properties>
+            <entry key="osgi.http.whiteboard.servlet.errorPage">
+                <list>
+                    <value>400</value>
+                    <value>401</value>
+                    <value>403</value>
+                    <value>404</value>
+                    <value>405</value>
+                    <value>406</value>
+                    <value>500</value>
+                    <value>501</value>
+                    <value>502</value>
+                    <value>503</value>
+                    <value>504</value>
+                </list>
+            </entry>
+            <entry key="osgi.http.whiteboard.servlet.name" value="errorPage"/>
+        </service-properties>
+    </service>
+
+</blueprint>

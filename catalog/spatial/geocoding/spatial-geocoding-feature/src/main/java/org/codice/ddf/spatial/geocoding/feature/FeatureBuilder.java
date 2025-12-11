@@ -13,11 +13,11 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class FeatureBuilder {
   public static SimpleFeatureBuilder forGeometry(Geometry geometry) {

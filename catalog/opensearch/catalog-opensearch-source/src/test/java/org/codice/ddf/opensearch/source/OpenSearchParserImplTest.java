@@ -38,6 +38,9 @@ import java.util.Date;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.opensearch.OpenSearchConstants;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -48,9 +51,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 
 public class OpenSearchParserImplTest {
 

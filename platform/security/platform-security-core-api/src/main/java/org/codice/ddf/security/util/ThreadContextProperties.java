@@ -28,7 +28,7 @@ public final class ThreadContextProperties {
 
   public static final String TRACE_CONTEXT_KEY = "trace-context";
 
-  private static final String TRACE_ID = "trace-id";
+  public static final String TRACE_ID = "trace-id";
 
   public static final String CLIENT_INFO_KEY = "client-info";
 

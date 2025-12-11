@@ -15,8 +15,8 @@ package org.codice.ddf.catalog.content.monitor;
 
 import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
-import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapStore;
+import com.hazelcast.map.MapLoader;
+import com.hazelcast.map.MapStore;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

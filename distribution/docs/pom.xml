@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>distribution</artifactId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <artifactId>docs</artifactId>
     <name>DDF DOCS</name>
@@ -70,7 +70,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.5</version>
                         <executions>
                             <execution>
                                 <id>attach-docs-pdf</id>
@@ -198,7 +197,7 @@
             <plugin>
                 <groupId>org.jbake</groupId>
                 <artifactId>jbake-maven-plugin</artifactId>
-                <version>0.3.3</version>
+                <version>2.7.0-rc.7</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -213,19 +212,9 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.freemarker</groupId>
-                        <artifactId>freemarker</artifactId>
-                        <version>2.3.30</version>
-                    </dependency>
-                    <dependency>
                         <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctor-maven-plugin</artifactId>
-                        <version>${asciidoctor.maven.plugin.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.pegdown</groupId>
-                        <artifactId>pegdown</artifactId>
-                        <version>1.6.0</version>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${asciidoctorj.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -289,11 +278,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
                 <executions>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/adoc-files</outputDirectory>
                         </configuration>
                         <id>include-adocs</id>
@@ -304,7 +294,9 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/images</outputDirectory>
                         </configuration>
                         <id>include-images</id>
@@ -315,7 +307,9 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/export-templates</outputDirectory>
                         </configuration>
                         <id>include-templates</id>
@@ -326,7 +320,9 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/docs-export.xml</descriptor>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/docs-export.xml</descriptor>
+                            </descriptors>
                             <outputDirectory>${project.build.directory}/export-docs</outputDirectory>
                         </configuration>
                         <id>include-docs</id>
@@ -340,7 +336,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>attach-docs-html</id>

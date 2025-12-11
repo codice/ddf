@@ -16,7 +16,7 @@
     <parent>
         <artifactId>geocoding</artifactId>
         <groupId>org.codice.ddf.spatial</groupId>
-        <version>2.29.0-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spatial-geocoding-geocoder</artifactId>
@@ -30,12 +30,22 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-opengis</artifactId>
+            <artifactId>gt-api</artifactId>
             <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>${org.geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-referencing</artifactId>
+            <version>${org.geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
@@ -44,11 +54,6 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-jts-wrapper</artifactId>
-            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

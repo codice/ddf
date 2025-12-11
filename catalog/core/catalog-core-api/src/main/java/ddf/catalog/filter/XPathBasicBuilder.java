@@ -14,14 +14,14 @@
 package ddf.catalog.filter;
 
 /**
- * Builds XPath-based Contextual {@link org.opengis.filter.Filter}s.
+ * Builds XPath-based Contextual {@link org.geotools.api.filter.Filter}s.
  *
  * @author Michael Menousek
  */
 public interface XPathBasicBuilder {
 
   /**
-   * Continue building an XPath {@link org.opengis.filter.Filter} with a Contextual operator
+   * Continue building an XPath {@link org.geotools.api.filter.Filter} with a Contextual operator
    *
    * @return {@link ContextualExpressionBuilder} to continue building
    */

@@ -13,14 +13,22 @@
  */
 package org.codice.ddf.rest.service;
 
+import static ddf.catalog.data.Metacard.CHECKSUM_ALGORITHM;
+
 import com.google.common.collect.Iterables;
 import ddf.action.Action;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
+import ddf.catalog.content.StorageException;
+import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.ReadStorageRequest;
+import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
+import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -34,10 +42,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -47,6 +57,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
+import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
@@ -66,6 +77,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -78,6 +90,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -102,12 +115,13 @@ import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.rest.api.CatalogService;
 import org.codice.ddf.rest.api.CatalogServiceException;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -149,6 +163,8 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   private UuidGenerator uuidGenerator;
 
+  private List<ChecksumProvider> checksumProviders;
+
   protected static MimeType jsonMimeType;
 
   static {
@@ -171,14 +187,20 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   protected CatalogFramework catalogFramework;
 
+  protected List<StorageProvider> storageProviders;
+
   public AbstractCatalogService(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
-      AttributeRegistry attributeRegistry) {
+      AttributeRegistry attributeRegistry,
+      List<StorageProvider> storageProviders,
+      List<ChecksumProvider> checksumProviders) {
     LOGGER.trace("Constructing CatalogServiceImpl");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
+    this.storageProviders = storageProviders;
+    this.checksumProviders = checksumProviders;
     LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
@@ -245,6 +267,12 @@ public abstract class AbstractCatalogService implements CatalogService {
         throw new InternalServerErrorException(exceptionMessage);
       } catch (CatalogTransformerException e) {
         String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+        Throwable cause = e.getCause();
+        if (cause instanceof ResourceNotFoundException) {
+          exceptionMessage = "Resource file is not available";
+        } else if (cause instanceof IOException) {
+          exceptionMessage = "Unable to read resource file";
+        }
         LOGGER.info(exceptionMessage, e);
         throw new InternalServerErrorException(exceptionMessage);
       } catch (SourceUnavailableException e) {
@@ -279,6 +307,126 @@ public abstract class AbstractCatalogService implements CatalogService {
 
   @Override
   public abstract BinaryContent getSourcesInfo();
+
+  @Override
+  public String doesLocalResourceExist(String metacardId, String sourceId)
+      throws CatalogServiceException {
+
+    Filter filter = filterBuilder.attribute(Core.ID).is().text(metacardId);
+
+    QueryResponse queryResponse;
+
+    try {
+      queryResponse =
+          catalogFramework.query(
+              new QueryRequestImpl(new QueryImpl(filter), Collections.singletonList(sourceId)));
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      throw new CatalogServiceException(
+          String.format(
+              "Unable to query the framework for metacard %s and source %s", metacardId, sourceId),
+          e);
+    }
+
+    if (queryResponse.getResults().size() != 1) {
+      LOGGER.debug("metacard {} not found", metacardId);
+      return null;
+    }
+
+    Metacard metacard = queryResponse.getResults().get(0).getMetacard();
+
+    URI resourceUri = metacard.getResourceURI();
+
+    if (resourceUri == null) {
+      try {
+        resourceUri = new URI("content", metacardId, null);
+      } catch (URISyntaxException e) {
+        LOGGER.debug(
+            "Unable to determine if a local resource for metacard {} exists because the resource uri is invalid",
+            metacardId,
+            e);
+        return null;
+      }
+    }
+
+    ReadStorageRequest readStorageRequest =
+        new ReadStorageRequestImpl(resourceUri, Collections.emptyMap());
+
+    if (storageProviders.size() != 1) {
+      LOGGER.debug(
+          "Unable to determine if a local resource for metacard {} exists because there isn't exactly one storage provider.",
+          metacardId);
+      return null;
+    }
+
+    ReadStorageResponse readStorageResponse;
+    try {
+      readStorageResponse = storageProviders.get(0).read(readStorageRequest);
+    } catch (StorageException e) {
+      LOGGER.debug("Unable to read the resource {} (ignoring)", resourceUri, e);
+      return null;
+    }
+
+    if (containsErrors(readStorageResponse)) {
+      LOGGER.debug("Unable to read the resource {} because of processing errors", resourceUri);
+      return null;
+    }
+
+    ContentItem resource = readStorageResponse.getContentItem();
+    if (resource == null) {
+      return null;
+    }
+
+    return getChecksum(resource, metacard);
+  }
+
+  private String getChecksum(ContentItem resource, Metacard metacard) {
+    String resourceChecksum = "";
+    Attribute checksumAttribute = metacard.getAttribute(CHECKSUM_ALGORITHM);
+
+    if (checksumAttribute == null || checksumAttribute.getValue() == null) {
+      LOGGER.debug(
+          "Metacard id '{}' does not have a checksum algorithm attribute", metacard.getId());
+      return resourceChecksum;
+    }
+
+    Optional<ChecksumProvider> checksumProviderOptional =
+        checksumProviders.stream()
+            .filter(
+                checksumProvider ->
+                    doesChecksumProviderMatch(
+                        checksumProvider, (String) checksumAttribute.getValue()))
+            .findAny();
+
+    if (checksumProviderOptional.isEmpty()) {
+      LOGGER.warn(
+          "Cannot find a checksum provider named '{}' for metacard id '{}'",
+          checksumAttribute.getValue(),
+          metacard.getId());
+      return resourceChecksum;
+    }
+
+    try {
+      resourceChecksum =
+          checksumProviderOptional.get().calculateChecksum(resource.getInputStream());
+    } catch (NoSuchAlgorithmException | IOException e) {
+      LOGGER.debug("Unable to generate checksum for resource {}", metacard.getResourceURI());
+    }
+
+    return resourceChecksum;
+  }
+
+  private boolean doesChecksumProviderMatch(ChecksumProvider checksumProvider, String algorithm) {
+    String checksumProviderAlgorithm = checksumProvider.getChecksumAlgorithm();
+    if (checksumProviderAlgorithm == null) {
+      return false;
+    }
+    return checksumProviderAlgorithm.equals(algorithm);
+  }
+
+  public boolean containsErrors(ReadStorageResponse response) {
+    return response.getProcessingErrors() != null
+        && response.getProcessingErrors().stream().anyMatch(ProcessingDetails::hasException);
+  }
 
   @Override
   public BinaryContent getDocument(
@@ -362,6 +510,12 @@ public abstract class AbstractCatalogService implements CatalogService {
         throw new InternalServerErrorException(exceptionMessage);
       } catch (CatalogTransformerException e) {
         String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+        Throwable cause = e.getCause();
+        if (cause instanceof ResourceNotFoundException) {
+          exceptionMessage = "Resource file is not available";
+        } else if (cause instanceof IOException) {
+          exceptionMessage = "Unable to read resource file";
+        }
         LOGGER.info(exceptionMessage, e);
         throw new InternalServerErrorException(exceptionMessage);
       } catch (SourceUnavailableException e) {
@@ -528,7 +682,8 @@ public abstract class AbstractCatalogService implements CatalogService {
       List<String> contentTypeList,
       MultipartBody multipartBody,
       String transformerParam,
-      InputStream message)
+      InputStream message,
+      Map<String, Serializable> properties)
       throws CatalogServiceException {
     LOGGER.trace("PUT");
 
@@ -548,7 +703,19 @@ public abstract class AbstractCatalogService implements CatalogService {
       }
     }
 
-    updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message);
+    updateDocument(
+        attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message, properties);
+  }
+
+  @Override
+  public void updateDocument(
+      String id,
+      List<String> contentTypeList,
+      MultipartBody multipartBody,
+      String transformerParam,
+      InputStream message)
+      throws CatalogServiceException {
+    updateDocument(id, contentTypeList, multipartBody, transformerParam, message, null);
   }
 
   @Override
@@ -581,7 +748,42 @@ public abstract class AbstractCatalogService implements CatalogService {
       LOGGER.info("Unable to get contents part: ", e);
     }
 
-    updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message);
+    updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message, null);
+  }
+
+  @Override
+  public void updateDocument(
+      String id,
+      List<String> contentTypeList,
+      HttpServletRequest httpServletRequest,
+      String transformerParam,
+      InputStream message,
+      Map<String, Serializable> properties)
+      throws CatalogServiceException {
+    LOGGER.trace("PUT");
+
+    if (id == null || message == null) {
+      String errorResponseString = "Both ID and content are needed to perform UPDATE.";
+      LOGGER.info(errorResponseString);
+      throw new CatalogServiceException(errorResponseString);
+    }
+
+    Map.Entry<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
+    try {
+      if (httpServletRequest != null) {
+        Collection<Part> contentParts = httpServletRequest.getParts();
+        if (CollectionUtils.isNotEmpty(contentParts)) {
+          attachmentInfoAndMetacard = parseParts(contentParts, transformerParam);
+        } else {
+          LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
+        }
+      }
+    } catch (ServletException | IOException e) {
+      LOGGER.info("Unable to get contents part: ", e);
+    }
+
+    updateDocument(
+        attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message, properties);
   }
 
   private void updateDocument(
@@ -589,7 +791,8 @@ public abstract class AbstractCatalogService implements CatalogService {
       String id,
       List<String> contentTypeList,
       String transformerParam,
-      InputStream message)
+      InputStream message,
+      Map<String, Serializable> properties)
       throws CatalogServiceException {
     try {
       MimeType mimeType = getMimeType(contentTypeList);
@@ -609,7 +812,7 @@ public abstract class AbstractCatalogService implements CatalogService {
                         attachmentInfoAndMetacard.getKey().getFilename(),
                         0,
                         attachmentInfoAndMetacard.getValue())),
-                null);
+                properties);
         catalogFramework.update(streamUpdateRequest);
       }
 

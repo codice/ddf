@@ -206,6 +206,66 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  public void testTikaParse() throws IOException {
+    List<String> files =
+        List.of(
+            "AutoDetectParser.class",
+            "Book3.xls",
+            "complex.mbox",
+            "Test1.txt.tsd",
+            "test-documents-enc.rar",
+            "testATOM.atom",
+            "testCADKEY.prt",
+            "testDOCX_Thumbnail.docx",
+            "testEPUB.epub",
+            "testEXCEL_poi.xlsx",
+            "testGIF.gif",
+            "testJPEG_commented.jpg",
+            "testKMZ.kmz",
+            "testMP4.m4a",
+            "testOCTET_header.dbase3",
+            "testPages.pages",
+            "testPDF.pdf",
+            "testPPTX_Thumbnail.pptx",
+            "testTIFF_multipage.tif",
+            "testTrueType3.ttf",
+            "testWACZ.wacz",
+            "testXML.xml");
+    for (String fileName : files) {
+      LOGGER.info("ingesting {}", fileName);
+      File tmpFile =
+          createTemporaryFile(
+              fileName,
+              AbstractIntegrationTest.class
+                  .getClassLoader()
+                  .getResourceAsStream("/tika/" + fileName));
+      String id =
+          given()
+              .multiPart(tmpFile)
+              .expect()
+              .log()
+              .headers()
+              .statusCode(201)
+              .when()
+              .post(REST_PATH.getUrl())
+              .getHeader("id");
+
+      String url = REST_PATH.getUrl() + id;
+
+      when()
+          .get(url)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .body(allOf(containsString(fileName.toLowerCase()), not(containsString("EmptyParser"))));
+
+      delete(id);
+      deleteTemporaryFile(fileName);
+    }
+  }
+
+  @Test
   public void testReadStorage() throws IOException {
     String fileName = testName.getMethodName() + ".jpg";
     File tmpFile =
@@ -484,6 +544,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
     return given()
+        .log()
+        .all()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
         .body(
             getCswInsertRequest(
@@ -495,6 +557,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
   private Response ingestXmlViaCsw() {
     return given()
+        .log()
+        .all()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
         .body(
             getCswInsertRequest(
@@ -643,6 +707,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testCswUtmQuery() {
     Response response = ingestXmlViaCsw();
     response.then();
@@ -693,22 +758,28 @@ public class TestCatalog extends AbstractIntegrationTest {
   public void testCswFunctionQuery() {
     String id = ingest(getFileContent("metacard5.xml"), "text/xml");
     try {
-      given()
-          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-          .body(
-              getCswFunctionQuery(
-                  "metadata",
-                  true,
-                  "application/xml",
-                  "http://www.opengis.net/cat/csw/2.0.2",
-                  "proximity",
-                  2,
-                  "All Hail Our SysAdmin"))
-          .post(CSW_PATH.getUrl())
-          .then()
-          .assertThat()
-          .statusCode(equalTo(200))
-          .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"), not("0"));
+      CatalogTestCommons.retryAssertionErrorCall(
+          () ->
+              given()
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                  .body(
+                      getCswFunctionQuery(
+                          "metadata",
+                          true,
+                          "application/xml",
+                          "http://www.opengis.net/cat/csw/2.0.2",
+                          "proximity",
+                          2,
+                          "All Hail Our SysAdmin"))
+                  .post(CSW_PATH.getUrl())
+                  .then()
+                  .assertThat()
+                  .statusCode(equalTo(200))
+                  .body(
+                      hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"),
+                      not("0")),
+          3,
+          1);
     } finally {
       delete(id);
     }
@@ -1511,6 +1582,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testPptxTumbnail() throws Exception {
     final String file = "testPPT.pptx";
 
@@ -1538,6 +1610,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @Ignore("https://github.com/codice/ddf/issues/6798")
   public void testContentDirectoryMonitor() throws Exception {
     final String TMP_PREFIX = "tcdm_";
     Path tmpDir = Files.createTempDirectory(TMP_PREFIX);

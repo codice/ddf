@@ -26,8 +26,8 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
+import org.geotools.api.filter.Filter;
 import org.junit.Test;
-import org.opengis.filter.Filter;
 
 public class ConfluenceFilterDelegateTest {
   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";

@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.inject.Inject;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.checksum.ChecksumProvider;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.test.common.AbstractComponentTest;
@@ -62,12 +63,12 @@ import org.codice.ddf.test.common.configurators.FeatureOptionBuilder.FeatureOpti
 import org.codice.ddf.test.common.configurators.PortFinder;
 import org.codice.ddf.test.common.options.TestResourcesOptions;
 import org.codice.ddf.test.common.rules.ServiceRegistrationRule;
+import org.geotools.api.filter.Filter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.opengis.filter.Filter;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -105,6 +106,8 @@ public class RestEndpointIT extends AbstractComponentTest {
   @MockOsgiService private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
   @MockOsgiService private AttributeRegistry attributeRegistry;
+
+  @MockOsgiService private ChecksumProvider checksumProvider;
 
   @MockOsgiService(answer = Answers.RETURNS_DEEP_STUBS)
   private FilterBuilder filterBuilder;
@@ -200,12 +203,13 @@ public class RestEndpointIT extends AbstractComponentTest {
       @Override
       protected BundleOption getBundleOptions() {
         return super.getBundleOptions()
-            .add("org.bouncycastle", "bcprov-jdk15on")
+            .add("org.bouncycastle", "bcprov-jdk18on")
             .add("ddf.catalog.transformer", "catalog-transformer-attribute")
             .add("ddf.catalog.core", "catalog-core-attachment")
             .add("ddf.catalog.rest", "catalog-rest-api")
             .add("ddf.catalog.rest", "catalog-rest-service-impl")
-            .add("ddf.catalog.rest", "catalog-rest-impl");
+            .add("ddf.catalog.rest", "catalog-rest-impl")
+            .add("org.codice.ddf", "checksum");
       }
 
       @Override
@@ -251,7 +255,7 @@ public class RestEndpointIT extends AbstractComponentTest {
         // Add JAXB bundles. They must be installed before Karaf's org.apache.karaf.features.core
         // bundle (which gets installed via startup.properties), hence the low start level.
         options.add(
-            mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.3")
+            mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2")
                 .versionAsInProject()
                 .startLevel(13),
             mavenBundle(

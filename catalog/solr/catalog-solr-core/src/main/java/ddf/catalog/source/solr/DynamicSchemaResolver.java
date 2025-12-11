@@ -108,6 +108,8 @@ public class DynamicSchemaResolver {
 
   private static final String SOLR_ANYTEXT_FIELDS = "solr.query.anytext.fields";
 
+  private static final String SOLR_ANYGEO_FIELDS = "solr.query.anygeo.fields";
+
   private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
   private static final String COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES =
@@ -149,6 +151,8 @@ public class DynamicSchemaResolver {
 
   private Set<String> anyTextFields = new HashSet<>();
 
+  private Set<String> anyGeoFields = new HashSet<>();
+
   private boolean caseInsensitiveSort;
 
   private int textSortCharacterLimit;
@@ -164,6 +168,7 @@ public class DynamicSchemaResolver {
   public DynamicSchemaResolver(List<String> additionalFields) {
     schemaFields = new SchemaFields();
     anyTextFields = getAnyTextFields();
+    anyGeoFields = getAnyGeoFields();
     caseInsensitiveSort = "true".equals(System.getProperty("solr.query.sort.caseInsensitive"));
     try {
       textSortCharacterLimit =
@@ -588,10 +593,6 @@ public class DynamicSchemaResolver {
       boolean isSearchedAsExactValue,
       Map<String, Serializable> enabledFeatures) {
 
-    if (Metacard.ANY_GEO.equals(propertyName)) {
-      return Metacard.GEOGRAPHY + "_geo_index";
-    }
-
     final String fieldSuffix = getFieldSuffix(format);
     String fieldName =
         propertyName
@@ -869,6 +870,10 @@ public class DynamicSchemaResolver {
     return anyTextFields.stream();
   }
 
+  Stream<String> anyGeoFields() {
+    return anyGeoFields.stream();
+  }
+
   private Set<String> getAnyTextFields() {
     String property =
         AccessController.doPrivileged(
@@ -890,6 +895,25 @@ public class DynamicSchemaResolver {
     return fields.stream()
         .map(field -> field + SchemaFields.TEXT_SUFFIX)
         .collect(Collectors.toSet());
+  }
+
+  private Set<String> getAnyGeoFields() {
+    String property =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_ANYGEO_FIELDS, ""));
+
+    List<String> fields;
+    if (property.isEmpty()) {
+      fields = Collections.singletonList(Metacard.GEOGRAPHY);
+    } else {
+      fields =
+          Arrays.stream(property.split(","))
+              .map(String::trim)
+              .filter(field -> !field.isEmpty())
+              .collect(Collectors.toList());
+    }
+
+    return new HashSet<>(fields);
   }
 
   /**

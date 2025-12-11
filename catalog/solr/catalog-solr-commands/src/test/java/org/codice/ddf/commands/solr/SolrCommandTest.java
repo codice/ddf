@@ -33,8 +33,11 @@ import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 public abstract class SolrCommandTest {
@@ -51,9 +54,9 @@ public abstract class SolrCommandTest {
 
   protected static final String DEFAULT_DDF_HOME = "/opt/ddf";
 
-  @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
+  @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
 
-  @Rule @ClassRule public static TemporaryFolder backupLocation = new TemporaryFolder();
+  @ClassRule public static TemporaryFolder backupLocation = new TemporaryFolder();
 
   protected ConsoleOutput consoleOutput;
 
@@ -62,6 +65,34 @@ public abstract class SolrCommandTest {
   protected static String protocols;
 
   protected static MiniSolrCloudCluster miniSolrCloud;
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    setDdfHome();
+    setDdfEtc();
+    createDefaultMiniSolrCloudCluster();
+    addDocument("1");
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    if (miniSolrCloud != null) {
+      miniSolrCloud.getSolrClient().close();
+      miniSolrCloud.shutdown();
+    }
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    setupSolrClientType(SolrCommands.CLOUD_SOLR_CLIENT_TYPE);
+    consoleOutput = new ConsoleOutput();
+    consoleOutput.interceptSystemOut();
+  }
+
+  @After
+  public void tearDown() {
+    consoleOutput.resetSystemOut();
+  }
 
   protected static Path getBaseDirPath() {
     return baseDir.getRoot().toPath();
@@ -137,6 +168,7 @@ public abstract class SolrCommandTest {
   }
 
   protected static void createMiniSolrCloudCluster() throws Exception {
+    System.setProperty("solr.install.dir", Paths.get("target/test-classes/data").toString());
     System.setProperty(
         "pkiHandlerPrivateKeyPath",
         SolrTestCaseJ4.class
@@ -151,6 +183,7 @@ public abstract class SolrCommandTest {
             .toExternalForm());
     System.setProperty("jetty.testMode", "true");
     System.setProperty("solr.allowPaths", "*");
+    System.setProperty("zookeeper.4lw.commands.whitelist", "*");
     miniSolrCloud =
         new MiniSolrCloudCluster.Builder(1, getBaseDirPath())
             .withJettyConfig(jetty -> jetty.setContext("/solr"))

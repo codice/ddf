@@ -12,14 +12,14 @@ To create cores at startup this image supports an environment variable `CORES`.
 Cores should be pre-created when using solr in standalone mode, as the solr client does not automatically create missing cores.
 When using in cloud or distributed mode the `CORES` option should not be used. In this mode the solr client will automatically create cores that are missing.
 
-To create one or more cores simply add this environment variable to the run command: `docker container run -d -p 8994:8983 -e CORES="catalog metacard_cache preferences" codice/ddf-solr:<ddf-version>`.
-This example command will start a solr server with three cores already created: `catalog`, `metacard_cache`, and `preferences`
+To create one or more cores simply add this environment variable to the run command: `docker container run -d -p 8994:8983 -e CORES="catalog metacard_cache" codice/ddf-solr:<ddf-version>`.
+This example command will start a solr server with three cores already created: `catalog` and `metacard_cache`
 
 When providing multiple core names in the `CORES` environment variable must be separated by spaces.
 
 ### Docker Compose
 
-Running a basic solr container with docker-compose would look something like this:
+Running a basic solr container with docker compose would look something like this:
 
 ```
 version: '3.7'
@@ -33,7 +33,7 @@ services:
       - 8994:8983
     environment:
       # Provide cores to create at startup
-      CORES: "catalog metacard_cache alerts preferences subscriptions notification activity workspace"
+      CORES: "catalog metacard_cache alerts subscriptions notification activity workspace"
 ```
 
 ## Extending
