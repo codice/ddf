@@ -17,6 +17,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   MAVEN_OPTS: '-Xmx4G -Xms1G -XX:+ClassUnloadingWithConcurrentMark -Djava.security.egd=file:/dev/./urandom'
   MAVEN_CLI_OPTS: '-B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
