@@ -26,7 +26,7 @@
 
     <properties>
         <!-- Set the version of the codice/ddf-base docker image to build on top of here -->
-        <docker.ddf.base.version>2.29-alpine</docker.ddf.base.version>
+        <docker.ddf.base.version>3.0</docker.ddf.base.version>
     </properties>
 
     <dependencies>
@@ -74,6 +74,22 @@
                                             <descriptor>files.xml</descriptor>
                                         </assembly>
                                     </build>
+                                    <run>
+                                        <hostname>localhost</hostname>
+                                        <network>
+                                            <mode>custom</mode>
+                                            <name>solrcloud_solrcloud</name>
+                                        </network>
+                                        <ports>
+                                            <port>8993:8993</port>
+                                            <port>8181:8181</port>
+                                            <port>8101:8101</port>
+                                        </ports>
+                                        <env>
+                                            <SOLR_URL>http://solr1:8994/solr</SOLR_URL>
+                                            <SOLR_ZK_HOSTS>zoo:2181</SOLR_ZK_HOSTS>
+                                        </env>
+                                    </run>
                                 </image>
                             </images>
                         </configuration>

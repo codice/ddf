@@ -24,15 +24,14 @@ services:
   solr1:
     image: codice/ddf-solr:${project.version}
     container_name: solr1
-    hostname: localhost
+    hostname: solr1
     restart: always
     entrypoint: docker-entrypoint.sh
     command: solr-fg
     ports:
       - "8994:8994"
-      - "8995:8995"
     environment:
-      - SOLR_HOST=localhost
+      - SOLR_HOST=solr1
       - SOLR_PORT=8994
       - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
@@ -46,17 +45,21 @@ services:
   solr2:
     image: codice/ddf-solr:${project.version}
     container_name: solr2
+    hostname: solr2
     restart: always
     entrypoint: docker-entrypoint.sh
     command: solr-fg
+    ports:
+      - "8995:8995"
     environment:
-      - SOLR_HOST=localhost
+      - SOLR_HOST=solr2
       - SOLR_PORT=8995
       - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:
       - solr2_data:/var/solr
-    network_mode: "service:solr1"
+    networks:
+      - solrcloud
     depends_on:
       - zoo
       - solr1
