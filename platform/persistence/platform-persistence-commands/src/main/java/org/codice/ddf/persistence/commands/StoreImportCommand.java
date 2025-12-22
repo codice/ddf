@@ -117,7 +117,7 @@ public class StoreImportCommand extends AbstractStoreCommand {
     } catch (FileNotFoundException e) {
       console.println("File not found for import " + file.getName() + "\n");
       return null;
-    } catch (JsonSyntaxException | JsonIOException e) {
+    } catch (ClassCastException | JsonSyntaxException | JsonIOException e) {
       console.println("Unable to parse json file. Skipping " + file.getName());
       return null;
     } catch (IOException e) {

@@ -180,7 +180,7 @@
         <commons-text.version>1.13.0</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-        <countryconverter.version>0.2.3</countryconverter.version>
+        <countryconverter.version>0.2.4</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
         <cxf.version>3.6.7</cxf.version>
         <decanter.version>2.9.0</decanter.version>
@@ -195,7 +195,7 @@
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <google-http-client.version>1.22.0</google-http-client.version>
         <gml-v_3_1_1-schema.version>1.1.0</gml-v_3_1_1-schema.version>
-        <gson.version>2.11.0</gson.version>
+        <gson.version>2.13.2</gson.version>
         <guava.version>33.4.0-jre</guava.version>
         <hawtbuff.version>1.11</hawtbuff.version>
         <httpclient.version>4.5.13</httpclient.version>
@@ -282,7 +282,7 @@
         <pdfbox.version>3.0.5</pdfbox.version>
         <poi.version>5.4.1</poi.version>
         <xmlbeans.version>5.3.0</xmlbeans.version>
-        <protobuf.version>4.28.2</protobuf.version>
+        <protobuf.version>4.33.0</protobuf.version>
         <quartz.version>2.3.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
@@ -338,7 +338,7 @@
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
         <fabric8.docker.plugin.version>0.45.1</fabric8.docker.plugin.version>
-        <tink.version>1.16.0</tink.version>
+        <tink.version>1.20.0</tink.version>
         <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->
