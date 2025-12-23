@@ -237,7 +237,6 @@
         <jsoup.version>1.18.3</jsoup.version>
         <jsr305.version>3.0.2</jsr305.version>
         <jsr305.bundle.version>${jsr305.version}_1</jsr305.bundle.version>
-        <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
         <jts.version>1.20.0</jts.version>
         <jts.spatial4j.version>1.17.1</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
@@ -345,7 +344,7 @@
         <org.json.version>20240303</org.json.version>
 
         <!--temporary solr download url> -->
-        <solr.download.url>https://dlcdn.apache.org</solr.download.url>
+        <solr.download.url>https://archive.apache.org/dist</solr.download.url>
 
         <!-- SonarQube Properties -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/${project.report.output.directory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>

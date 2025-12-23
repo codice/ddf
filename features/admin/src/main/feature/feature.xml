@@ -56,8 +56,6 @@
 
     <feature name="platform-configuration" version="${project.version}"
              description="Shared platform configuration">
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
-        </bundle>
         <feature>camel-blueprint</feature>
         <feature>camel-http</feature>
         <feature>cxf-jaxrs</feature>
