@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.analysis.Analyzer;
@@ -40,6 +41,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public final class ContextualEvaluator {
   private static final String FIELD_NAME = "Resource";
@@ -318,7 +320,10 @@ public final class ContextualEvaluator {
           }
         }
       }
-    } catch (XPathExpressionException e1) {
+    } catch (ParserConfigurationException
+        | IOException
+        | SAXException
+        | XPathExpressionException e1) {
       LOGGER.debug("Unable to evaluate XPath", e1);
     }
 

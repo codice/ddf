@@ -17,14 +17,14 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf</artifactId>
-        <version>2.29.26-SNAPSHOT</version>
+        <version>2.30.0-SNAPSHOT</version>
     </parent>
     <groupId>ddf.catalog</groupId>
     <artifactId>catalog</artifactId>
     <packaging>pom</packaging>
     <name>DDF Catalog</name>
     <properties>
-        <ant.version>1.9.7</ant.version>
+        <ant.version>1.10.9</ant.version>
         <commons-weaver-privilizer-api.version>1.1</commons-weaver-privilizer-api.version>
         <cglib.version>3.2.0</cglib.version>
         <logkit.version>1.0.1</logkit.version>

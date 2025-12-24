@@ -88,6 +88,8 @@ public class TikaMetadataExtractor {
         throw new TikaException("Unexpected IOException. Stream may already be closed", cause);
       } else if (cause instanceof SAXException) {
         LOGGER.debug("Unexpected tika parsing failure", cause);
+      } else {
+        LOGGER.warn("tika failed", e);
       }
     } finally {
       IOUtils.closeQuietly(inputStream);

@@ -154,7 +154,7 @@ public class BodyAndMetadataContentHandler extends DefaultHandler {
   }
 
   private void handleException(SAXException se) throws SAXException {
-    if (WriteLimitReachedException.isWriteLimitReached(se)) {
+    if (se instanceof WriteLimitReachedException) {
       bodyWriteLimitReached = true;
     } else {
       throw se;

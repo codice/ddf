@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBase;
@@ -70,7 +71,6 @@ public class GeoPdfParserImpl implements GeoPdfParser {
    */
   @Override
   public String apply(PDDocument pdfDocument) throws IOException {
-    ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
     LinkedList<String> polygons = new LinkedList<>();
 
     for (PDPage pdPage : pdfDocument.getPages()) {
@@ -81,8 +81,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
       // Handle Multiple Map Frames
       if (lgiDictObject instanceof COSArray) {
         for (int i = 0; i < ((COSArray) lgiDictObject).size(); i++) {
-          COSDictionary lgidict =
-              (COSDictionary) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]");
+          COSDictionary lgidict = (COSDictionary) cosObject.getObjectFromPath(LGIDICT + "/" + i);
 
           COSDictionary projectionArray = (COSDictionary) lgidict.getDictionaryObject(PROJECTION);
           if (projectionArray != null) {
@@ -90,8 +89,8 @@ public class GeoPdfParserImpl implements GeoPdfParser {
                 ((COSString) projectionArray.getItem(PROJECTION_TYPE)).getString();
             if (GEOGRAPHIC.equals(projectionType)) {
               COSArray neatlineArray =
-                  (COSArray) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]/" + NEATLINE);
-              getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).ifPresent(polygons::add);
+                  (COSArray) cosObject.getObjectFromPath(LGIDICT + "/" + i + "/" + NEATLINE);
+              getWktFromNeatLine(lgidict, neatlineArray).ifPresent(polygons::add);
             } else {
               LOGGER.debug(
                   "Unsupported projection type {}.  Map Frame will be skipped.", projectionType);
@@ -114,7 +113,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
               neatlineArray = generateNeatLineFromPDFDimensions(pdPage);
             }
 
-            getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).ifPresent(polygons::add);
+            getWktFromNeatLine(lgidict, neatlineArray).ifPresent(polygons::add);
           } else {
             LOGGER.debug(
                 "Unsupported projection type {}.  Map Frame will be skipped.", projectionType);
@@ -184,12 +183,10 @@ public class GeoPdfParserImpl implements GeoPdfParser {
    *
    * @param lgidict - The PDF's LGIDict object
    * @param neatLineArray - The NeatLine array of points for the PDF
-   * @param toDoubleVisitor - A visitor that converts PDF Strings / Ints / Longs into doubles.
    * @return the generated WKT Lat/Lon set
    * @throws IOException
    */
-  private Optional<String> getWktFromNeatLine(
-      COSDictionary lgidict, COSArray neatLineArray, ICOSVisitor toDoubleVisitor)
+  private Optional<String> getWktFromNeatLine(COSDictionary lgidict, COSArray neatLineArray)
       throws IOException {
     List<Double> neatline = new LinkedList<>();
     List<String> coordinateList = new LinkedList<>();
@@ -197,17 +194,26 @@ public class GeoPdfParserImpl implements GeoPdfParser {
 
     double[] points = new double[CTM_SIZE];
     for (int i = 0; i < CTM_SIZE; i++) {
-      Object obj = lgidict.getObjectFromPath(CTM + "/[" + i + "]").accept(toDoubleVisitor);
-      if (obj != null) {
-        points[i] = (Double) obj;
+      ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
+      lgidict.getObjectFromPath(CTM + "/" + i).accept(toDoubleVisitor);
+      Double doub = toDoubleVisitor.getLastValue();
+      if (doub != null) {
+        points[i] = doub;
       } else {
-        return Optional.empty();
+        return returnAndLog();
       }
     }
     AffineTransform affineTransform = new AffineTransform(points);
 
     for (int i = 0; i < neatLineArray.size(); i++) {
-      neatline.add((Double) neatLineArray.get(i).accept(toDoubleVisitor));
+      ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
+      neatLineArray.get(i).accept(toDoubleVisitor);
+      Double doub = toDoubleVisitor.getLastValue();
+      if (doub != null) {
+        neatline.add(doub);
+      } else {
+        return returnAndLog();
+      }
     }
 
     for (int i = 0; i < neatline.size(); i += 2) {
@@ -231,57 +237,67 @@ public class GeoPdfParserImpl implements GeoPdfParser {
     return Optional.of(wktString);
   }
 
+  private static Optional<String> returnAndLog() {
+    LOGGER.trace("Invalid point, returning empty");
+    return Optional.empty();
+  }
+
   /** This visitor class converts parsable COS Objects into {@link Double}s */
   private static class ToDoubleVisitor implements ICOSVisitor {
 
-    @Override
-    public Object visitFromArray(COSArray cosArray) throws IOException {
-      return null;
+    private Double doubleValue;
+
+    private void setAndcheckForExistingValue(double newValue) {
+      if (doubleValue != null) {
+        throw new IllegalArgumentException(
+            "Existing value found, this class should not be reused!");
+      }
+      doubleValue = newValue;
+    }
+
+    @Nullable
+    public Double getLastValue() {
+      return doubleValue;
     }
 
     @Override
-    public Object visitFromBoolean(COSBoolean cosBoolean) throws IOException {
-      return null;
+    public void visitFromArray(COSArray cosArray) throws IOException {}
+
+    @Override
+    public void visitFromBoolean(COSBoolean cosBoolean) throws IOException {}
+
+    @Override
+    public void visitFromDictionary(COSDictionary cosDictionary) throws IOException {}
+
+    @Override
+    public void visitFromDocument(COSDocument cosDocument) throws IOException {}
+
+    @Override
+    public void visitFromFloat(COSFloat cosFloat) throws IOException {
+      setAndcheckForExistingValue(cosFloat.floatValue());
     }
 
     @Override
-    public Object visitFromDictionary(COSDictionary cosDictionary) throws IOException {
-      return null;
+    public void visitFromInt(COSInteger cosInteger) throws IOException {
+      setAndcheckForExistingValue(cosInteger.longValue());
     }
 
     @Override
-    public Object visitFromDocument(COSDocument cosDocument) throws IOException {
-      return null;
-    }
+    public void visitFromName(COSName cosName) throws IOException {}
 
     @Override
-    public Object visitFromFloat(COSFloat cosFloat) throws IOException {
-      return cosFloat.doubleValue();
-    }
+    public void visitFromNull(COSNull cosNull) throws IOException {}
 
     @Override
-    public Object visitFromInt(COSInteger cosInteger) throws IOException {
-      return (double) cosInteger.longValue();
-    }
+    public void visitFromStream(COSStream cosStream) throws IOException {}
 
     @Override
-    public Object visitFromName(COSName cosName) throws IOException {
-      return null;
-    }
-
-    @Override
-    public Object visitFromNull(COSNull cosNull) throws IOException {
-      return null;
-    }
-
-    @Override
-    public Object visitFromStream(COSStream cosStream) throws IOException {
-      return null;
-    }
-
-    @Override
-    public Object visitFromString(COSString cosString) throws IOException {
-      return Double.valueOf(cosString.getString());
+    public void visitFromString(COSString cosString) throws IOException {
+      try {
+        setAndcheckForExistingValue(Double.parseDouble(cosString.getString()));
+      } catch (NullPointerException | NumberFormatException e) {
+        LOGGER.warn("Failed to parse double from input string {}", cosString.getString(), e);
+      }
     }
   }
 }

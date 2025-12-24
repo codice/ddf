@@ -20,7 +20,7 @@
     </formats>
 
     <componentDescriptors>
-        <componentDescriptor>src/main/assembly/component.xml</componentDescriptor>
+        <componentDescriptor>target/classes/component.xml</componentDescriptor>
     </componentDescriptors>
 
 </assembly>
