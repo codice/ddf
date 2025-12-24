@@ -64,10 +64,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.servicemix.specs</groupId>
-            <artifactId>org.apache.servicemix.specs.jsr339-api-2.0</artifactId>
-            <version>${jsr339-api.bundle.version}</version>
-            <scope>test</scope>
+            <groupId>jakarta.ws.rs</groupId>
+	    <artifactId>jakarta.ws.rs-api</artifactId>
+	    <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.mime.tika</groupId>
