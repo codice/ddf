@@ -617,7 +617,7 @@ public class CswCqlFilterTest {
   @Before
   public void setup() {
     date = getDate();
-    propertyIsEqualToWithDate = getPropertyIsEqualToWithDate(getDate());
+    propertyIsEqualToWithDate = getPropertyIsEqualToWithDate(date);
     Hints.putSystemDefault(
         Hints.CRS_AUTHORITY_FACTORY,
         "org.geotools.referencing.factory.epsg.hsql.ThreadedHsqlEpsgFactory");
