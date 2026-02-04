@@ -1,0 +1,46 @@
+name: DDF Release
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to release'
+        required: true
+        default: 'master'
+      releaseType:
+        description: 'Release type'
+        required: true
+        default: 'Build'
+        type: choice
+        options: [Build, Release, RC1, RC2, RC3]
+      nextDevVersion:
+        description: 'Next dev version (blank = auto)'
+        required: false
+      notesUrl:
+        description: 'Release notes URL'
+        required: false
+      skipTests:
+        description: 'Skip tests'
+        default: true
+        type: boolean
+      testRun:
+        description: 'Test run only'
+        default: false
+        type: boolean
+
+jobs:
+  release:
+    uses: codice/release-pipelines/.github/workflows/maven-release.yml@main
+    with:
+      app_name: 'ddf'
+      branch: ${{ inputs.branch }}
+      release_type: ${{ inputs.releaseType }}
+      next_dev_version: ${{ inputs.nextDevVersion }}
+      skip_tests: ${{ inputs.skipTests }}
+      test_run: ${{ inputs.testRun }}
+      jdk_version_map: '{"master":"17","2.29.x":"17","2.28.x":"11","2.27.x":"11","default":"11"}'
+      artifact_path: 'distribution/ddf/target'
+      author_name: 'Codice Release Manager'
+      author_email: 'info@codicefoundation.org'
+    secrets:
+      app_id: ${{ secrets.RELEASE_APP_ID }}
+      app_private_key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}

@@ -696,14 +696,16 @@
         </dependencies>
     </dependencyManagement>
     <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>${snapshots.repository.url}</url>
-        </snapshotRepository>
         <repository>
-            <id>releases</id>
+            <id>github</id>
+            <name>GitHub Packages</name>
             <url>${releases.repository.url}</url>
         </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>${snapshots.repository.url}</url>
+        </snapshotRepository>
         <site>
             <id>reports</id>
             <url>${reports.repository.url}</url>
@@ -1551,6 +1553,10 @@
             <id>osgeo</id>
             <name>OSGeo Release Repository</name>
             <url>https://repo.osgeo.org/repository/release/</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/codice/*</url>
         </repository>
     </repositories>
     <pluginRepositories>
