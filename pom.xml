@@ -1554,10 +1554,6 @@
             <name>OSGeo Release Repository</name>
             <url>https://repo.osgeo.org/repository/release/</url>
         </repository>
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/codice/*</url>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
