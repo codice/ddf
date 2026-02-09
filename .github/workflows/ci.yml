@@ -22,22 +22,6 @@ env:
   MAVEN_CLI_OPTS: '-B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
 
 jobs:
-  # Notify build started (for PRs)
-  notify-start:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Post PR comment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `🚀 Build started! [View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
-            })
-
   # Incremental build for PRs
   incremental-build:
     if: github.event_name == 'pull_request'
@@ -99,14 +83,34 @@ jobs:
       - name: Full build (excluding itests)
         run: mvn clean install $MAVEN_CLI_OPTS -P !itests
 
-  # DDF Core integration tests
+      - name: Build itest dependencies
+        run: |
+          mvn install $MAVEN_CLI_OPTS \
+            -pl distribution/test/itests/test-itests-common,distribution/test/itests/test-itests-dependencies-app \
+            -am \
+            -DskipTests=true
+
+      - name: Run DDF Core integration tests
+        run: |
+          unset JAVA_TOOL_OPTIONS
+          mvn install $MAVEN_CLI_OPTS \
+            -pl distribution/test/itests/test-itests-ddf-core \
+            -nsu
+
+  # DDF Core integration tests (for PRs)
   integration-tests:
-    needs: [incremental-build, full-build]
-    # Run if either build succeeded (one will be skipped based on event type)
-    if: always() && (needs.incremental-build.result == 'success' || needs.full-build.result == 'success')
+    needs: incremental-build
+    if: github.event_name == 'pull_request' && needs.incremental-build.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          df -h
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -116,6 +120,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
+      - name: Quick install (skip tests)
+        run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
 
       - name: Run DDF Core integration tests
         run: |
@@ -204,12 +211,12 @@ jobs:
 
   # Deploy artifacts (master and patch branches only, in production)
   deploy:
-    needs: [integration-tests, dependency-check]
+    needs: [full-build, dependency-check]
     if: |
       always() &&
       github.event_name != 'pull_request' &&
       (github.ref == 'refs/heads/master' || contains(github.ref, '.x')) &&
-      needs.integration-tests.result == 'success' &&
+      needs.full-build.result == 'success' &&
       needs.dependency-check.result == 'success'
     runs-on: ubuntu-latest
     environment: production
@@ -229,14 +236,9 @@ jobs:
         with:
           servers: |
             [{
-              "id": "releases",
-              "username": "${{ secrets.MAVEN_USERNAME }}",
-              "password": "${{ secrets.MAVEN_PASSWORD }}"
-            },
-            {
-              "id": "snapshots",
-              "username": "${{ secrets.MAVEN_USERNAME }}",
-              "password": "${{ secrets.MAVEN_PASSWORD }}"
+              "id": "github",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.GITHUB_TOKEN }}"
             }]
 
       - name: Login to Docker Hub
@@ -250,7 +252,9 @@ jobs:
           mvn deploy $MAVEN_CLI_OPTS \
             -DskipStatic=true \
             -DskipTests=true \
-            -DretryFailedDeploymentCount=10
+            -DretryFailedDeploymentCount=10 \
+            -Dreleases.repository.url=https://maven.pkg.github.com/codice/ddf \
+            -Dsnapshots.repository.url=https://maven.pkg.github.com/codice/ddf
 
   # Final status notification
   notify-result:
@@ -284,28 +288,3 @@ jobs:
               issue_number: context.issue.number,
               body: `${emoji} ${message} [View workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
             })
-
-      - name: Slack notification
-        if: github.event_name != 'pull_request'
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": "${{ steps.result.outputs.status == 'success' && 'SUCCESS' || 'FAILURE' }}: ${{ github.repository }} - ${{ github.ref_name }} #${{ github.run_number }}",
-              "attachments": [
-                {
-                  "color": "${{ steps.result.outputs.status == 'success' && 'good' || 'danger' }}",
-                  "fields": [
-                    {
-                      "title": "Workflow",
-                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
-                      "short": true
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-        continue-on-error: true  # Don't fail if Slack is not configured

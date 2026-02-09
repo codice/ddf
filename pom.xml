@@ -693,14 +693,16 @@
         </dependencies>
     </dependencyManagement>
     <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>${snapshots.repository.url}</url>
-        </snapshotRepository>
         <repository>
-            <id>releases</id>
+            <id>github</id>
+            <name>GitHub Packages</name>
             <url>${releases.repository.url}</url>
         </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>${snapshots.repository.url}</url>
+        </snapshotRepository>
         <site>
             <id>reports</id>
             <url>${reports.repository.url}</url>
