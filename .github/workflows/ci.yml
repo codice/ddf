@@ -13,6 +13,9 @@ on:
     # Nightly build on master (same as Jenkins: H H(17-19) * * *)
     - cron: '0 18 * * *'
 
+permissions:
+  packages: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -46,6 +49,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
+      - name: Configure Maven settings
+        uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [{
+              "id": "codice",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.READ_PACKAGES }}"
+            },
+            {
+              "id": "connexta",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.READ_PACKAGES }}"
+            }]
 
       - name: Quick install (skip tests)
         run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true

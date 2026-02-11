@@ -88,13 +88,30 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
 * Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (Windows) or $JAVA\_HOME$/bin (\*NIX).
 * [Install Maven 3.9.0 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
 * Set the MAVEN_OPTS variable with the appropriate memory settings
-### Optional 
+#### Optional 
 * If you do not wish to run formatting from the commandline (see below) you may use an IDE to format the code for you with the google-java-format plugins.
   - https://github.com/google/google-java-format
     * IntelliJ: https://plugins.jetbrains.com/plugin/8527
     * Eclipse: https://github.com/google/google-java-format/releases/download/google-java-format-1.3/google-java-format-eclipse-plugin-1.3.0.jar
 
-
+### Configure Maven ###
+This repository depends on Codice and Connexta artifacts available in their GitHub repository packages.
+To pull these artifacts, you will need create a [Personal Access Token (PAT) in GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) 
+with `packages:read` permissions, and configure maven's ~/.m2/settings.xml:
+```
+<servers>
+   <server>
+       <id>codice</id>
+       <username>$USERNAME</username>
+       <password>$TOKEN</password>
+   </server>
+   <server>
+       <id>connexta</id>
+       <username>$USERNAME</username>
+       <password>$TOKEN</password>
+   </server>
+</servers>
+```
 
 ### How to build ###
 In order to run through a full build, be sure to have a clone for the ddf repository and optionally the ddf-support repository (NOTE: daily snapshots are deployed so downloading and building each repo may not be necessary since those artifacts will be retrieved.):

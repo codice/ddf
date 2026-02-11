@@ -28,7 +28,7 @@
     <dependencies>
         <dependency>
             <groupId>de.micromata.jak</groupId>
-            <artifactId>JavaAPIforKml</artifactId>
+            <artifactId>javaapiforkml</artifactId>
             <version>${JavaAPIforKml.version}</version>
         </dependency>
         <dependency>

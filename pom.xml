@@ -310,7 +310,7 @@
         <spring.feature.version>6.1.21_1</spring.feature.version>
         <spring-osgi-mock.version>1.2.1</spring-osgi-mock.version>
         <tika.version>3.2.2</tika.version>
-        <usng4j.version>0.4</usng4j.version>
+        <usng4j.version>0.5</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.5.1</woodstox.core.version>
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
@@ -1544,7 +1544,10 @@
         <repository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://artifacts.codice.org/content/groups/public/</url>
+            <url>https://maven.pkg.github.com/codice/*</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>osgeo</id>
@@ -1565,7 +1568,18 @@
         <pluginRepository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://artifacts.codice.org/content/groups/public/</url>
+            <url>https://maven.pkg.github.com/codice/*</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>connexta</id>
+            <name>Connexta Repository</name>
+            <url>https://maven.pkg.github.com/connexta/*</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
     <modules>

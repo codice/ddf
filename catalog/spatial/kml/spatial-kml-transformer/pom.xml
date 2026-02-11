@@ -128,7 +128,7 @@
                             commons-lang3,
                             antlr4-runtime,
                             catalog-core-api-impl,
-                            JavaAPIforKml,
+                            javaapiforkml,
                             catalog-core-actions,
                             spatial-kml-util
                         </Embed-Dependency>
