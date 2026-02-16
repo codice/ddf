@@ -166,6 +166,21 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Configure Maven settings
+        uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [{
+              "id": "codice",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.READ_PACKAGES }}"
+            },
+            {
+              "id": "connexta",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.READ_PACKAGES }}"
+            }]
+
       - name: OWASP Dependency Check
         run: |
           if [ "${{ github.event_name }}" != "pull_request" ]; then
