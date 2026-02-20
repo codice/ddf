@@ -29,7 +29,7 @@ on:
 
 jobs:
   release:
-    uses: codice/release-pipelines/.github/workflows/maven-release.yml@main
+    uses: codice/release-pipelines/.github/workflows/maven-release.yml@test
     with:
       app_name: 'ddf'
       branch: ${{ inputs.branch }}
