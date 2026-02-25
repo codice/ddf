@@ -203,7 +203,7 @@
 
     <feature name="jackson" version="${project.version}">
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.annotations.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson.version}</bundle>
     </feature>
