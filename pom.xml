@@ -151,9 +151,9 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.13.0</apache.shiro.version>
-        <asm.version>9.8</asm.version>
+        <asm.version>9.9</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <bouncy.version>1.81</bouncy.version>
+        <bouncy.version>1.83</bouncy.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
@@ -170,9 +170,9 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.20.0</commons-io.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.3.5</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.5</commons-net.version>
@@ -203,7 +203,7 @@
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
-        <jackson.version>2.18.4</jackson.version>
+        <jackson.version>2.21.0</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.7</jakarta.mail.version>
@@ -940,7 +940,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>3.6.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
