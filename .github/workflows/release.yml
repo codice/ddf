@@ -27,6 +27,10 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   release:
     uses: codice/release-pipelines/.github/workflows/maven-release.yml@main
