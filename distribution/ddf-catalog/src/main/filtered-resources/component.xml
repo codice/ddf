@@ -19,9 +19,6 @@
             <outputDirectory>./</outputDirectory>
             <excludes>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
-                <!-- need to upgrade jetty for CVE-2025-5115 -->
-                <exclude>**/jetty/**/${karaf.jetty.version}/*</exclude>
-                <exclude>**/jetty/**/${karaf.jetty.version}</exclude>
             </excludes>
         </fileSet>
         <fileSet>

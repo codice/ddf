@@ -123,9 +123,9 @@
         <spock.version>2.3-groovy-4.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.14.0</pax.exam.version>
-        <pax.logging.version>2.3.0</pax.logging.version>
-        <pax.url.version>2.6.17</pax.url.version>
-        <pax.web.version>8.0.33</pax.web.version>
+        <pax.logging.version>2.3.2</pax.logging.version>
+        <pax.url.version>2.7.0</pax.url.version>
+        <pax.web.version>8.0.34</pax.web.version>
         <restito.version>1.1.2</restito.version>
         <restassured.version>5.5.0</restassured.version>
         <groovy.version>4.0.23</groovy.version>
@@ -151,10 +151,10 @@
         <abdera.version>1.1.3</abdera.version>
         <antlr.version>4.3</antlr.version>
         <apache.shiro.version>1.13.0</apache.shiro.version>
-        <asm.version>9.8</asm.version>
+        <asm.version>9.9</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <bouncy.version>1.81</bouncy.version>
-        <c3p0.version>0.9.5.5</c3p0.version>
+        <bouncy.version>1.83</bouncy.version>
+        <c3p0.version>0.12.0</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
         <camel.version>3.22.4</camel.version>
@@ -170,9 +170,9 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.20.0</commons-io.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.3.5</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.5</commons-net.version>
@@ -203,7 +203,8 @@
         <httpmime.version>${httpclient.version}</httpmime.version>
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
-        <jackson.version>2.18.4</jackson.version>
+        <jackson.annotations.version>2.21</jackson.annotations.version>
+        <jackson.version>2.21.1</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.7</jakarta.mail.version>
@@ -224,8 +225,6 @@
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jdom2.bundle.version>2.0.6.1_1</jdom2.bundle.version>
         <jetty.version>9.4.58.v20250814</jetty.version>
-        <!-- need to upgrade jetty for CVE-2025-5115 -->
-        <karaf.jetty.version>9.4.57.v20241219</karaf.jetty.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <joda-convert.version>1.7</joda-convert.version>
         <dev.failsafe.version>3.2.4</dev.failsafe.version>
@@ -241,7 +240,7 @@
         <jts.spatial4j.version>1.17.1</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.4.8</karaf.version>
+        <karaf.version>4.4.10</karaf.version>
         <jansi.version>2.4.2</jansi.version>
         <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
@@ -942,7 +941,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>3.6.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
