@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - '[0-9]+.[0-9]+.x'  # Patch branches like 2.10.x, 2.9.x
-  pull_request:
+  pull_request_target:
     branches:
       - master
       - '[0-9]+.[0-9]+.x'
@@ -27,7 +27,7 @@ env:
 jobs:
   # Incremental build for PRs
   incremental-build:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -41,6 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0  # Full history needed for incremental build
 
       - name: Set up JDK 17
@@ -77,7 +78,7 @@ jobs:
 
   # Full build for master/patch branches
   full-build:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -90,6 +91,78 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Full build (excluding itests)
+        run: mvn clean install $MAVEN_CLI_OPTS -P !itests
+
+      - name: Build itest dependencies
+        run: |
+          mvn install $MAVEN_CLI_OPTS \
+            -pl distribution/test/itests/test-itests-common,distribution/test/itests/test-itests-dependencies-app \
+            -am \
+            -DskipTests=true
+
+      - name: Run DDF Core integration tests
+        run: |
+          unset JAVA_TOOL_OPTIONS
+          mvn install $MAVEN_CLI_OPTS \
+            -pl distribution/test/itests/test-itests-ddf-core \
+            -nsu
+
+  # DDF Core integration tests (for PRs)
+  integration-tests:
+    needs: incremental-build
+    if: github.event_name == 'pull_request_target' && needs.incremental-build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Quick install (skip tests)
+        run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
+
+      - name: Run DDF Core integration tests
+        run: |
+          unset JAVA_TOOL_OPTIONS
+          mvn install $MAVEN_CLI_OPTS \
+            -pl distribution/test/itests/test-itests-ddf-core \
+            -nsu
+
+  # OWASP Dependency Check (PRs)
+  dependency-check-pr:
+    needs: incremental-build
+    if: always() && needs.incremental-build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -113,61 +186,25 @@ jobs:
               "password": "${{ secrets.READ_PACKAGES }}"
             }]
 
-      - name: Full build (excluding itests)
-        run: mvn clean install $MAVEN_CLI_OPTS -P !itests
-
-      - name: Build itest dependencies
+      - name: OWASP Dependency Check
         run: |
-          mvn install $MAVEN_CLI_OPTS \
-            -pl distribution/test/itests/test-itests-common,distribution/test/itests/test-itests-dependencies-app \
-            -am \
-            -DskipTests=true
+          mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories \
+            dependency-check:aggregate $MAVEN_CLI_OPTS \
+            -q -pl '!distribution/docs' \
+            -P '!itests'
 
-      - name: Run DDF Core integration tests
-        run: |
-          unset JAVA_TOOL_OPTIONS
-          mvn install $MAVEN_CLI_OPTS \
-            -pl distribution/test/itests/test-itests-ddf-core \
-            -nsu
-
-  # DDF Core integration tests (for PRs)
-  integration-tests:
-    needs: incremental-build
-    if: github.event_name == 'pull_request' && needs.incremental-build.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          df -h
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Upload dependency check report
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
+          name: dependency-check-report
+          path: target/dependency-check-report.html
+          retention-days: 30
 
-      - name: Quick install (skip tests)
-        run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
-
-      - name: Run DDF Core integration tests
-        run: |
-          unset JAVA_TOOL_OPTIONS
-          mvn install $MAVEN_CLI_OPTS \
-            -pl distribution/test/itests/test-itests-ddf-core \
-            -nsu
-
-  # OWASP Dependency Check
+  # OWASP Dependency Check (master/patch branches)
   dependency-check:
-    needs: [incremental-build, full-build]
-    if: always() && (needs.incremental-build.result == 'success' || needs.full-build.result == 'success')
+    needs: full-build
+    if: always() && needs.full-build.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -198,32 +235,15 @@ jobs:
 
       - name: OWASP Dependency Check
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            # Full scan with distribution for non-PR builds
-            mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories \
-              dependency-check:aggregate $MAVEN_CLI_OPTS \
-              -q -pl '!distribution/docs' \
-              -P '!itests,owasp-dist'
-          else
-            # Incremental scan for PRs
-            mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories \
-              dependency-check:aggregate $MAVEN_CLI_OPTS \
-              -q -pl '!distribution/docs' \
-              -P '!itests'
-          fi
-
-      - name: Upload dependency check report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: dependency-check-report
-          path: target/dependency-check-report.html
-          retention-days: 30
+          mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories \
+            dependency-check:aggregate $MAVEN_CLI_OPTS \
+            -q -pl '!distribution/docs' \
+            -P '!itests,owasp-dist'
 
   # SonarCloud analysis (master only)
   sonarcloud:
     needs: full-build
-    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -262,7 +282,7 @@ jobs:
     needs: [full-build, dependency-check]
     if: |
       always() &&
-      github.event_name != 'pull_request' &&
+      github.event_name != 'pull_request_target' &&
       (github.ref == 'refs/heads/master' || contains(github.ref, '.x')) &&
       needs.full-build.result == 'success' &&
       needs.dependency-check.result == 'success'
