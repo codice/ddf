@@ -103,7 +103,7 @@ public class OidcTokenValidator {
 
       OIDCProviderMetadata providerMetadata = configuration.getOpMetadataResolver().load();
       TokenValidator tokenValidator = new TokenValidator(configuration, providerMetadata);
-      return tokenValidator.validate(idToken, nonce);
+      return tokenValidator.validateIdToken(idToken, nonce);
     } catch (Exception e) {
       LOGGER.error(ID_VALIDATION_ERR_MSG, e);
       throw new OidcValidationException(ID_VALIDATION_ERR_MSG, e);

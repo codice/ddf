@@ -30,7 +30,6 @@ import static org.pac4j.oidc.profile.OidcProfileDefinition.PREFERRED_USERNAME;
 
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.impl.PublicClaims;
 import com.google.common.collect.ImmutableList;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
@@ -136,6 +135,7 @@ public class OidcRealmTest {
     when(configuration.getResponseType()).thenReturn("code");
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
     when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
+    when(configuration.isCallUserInfoEndpoint()).thenReturn(true);
 
     OidcHandlerConfiguration handlerConfiguration = mock(OidcHandlerConfiguration.class);
     when(handlerConfiguration.getOidcConfiguration()).thenReturn(configuration);
@@ -231,7 +231,7 @@ public class OidcRealmTest {
         .withIssuer("http://localhost:8080/auth/realms/master")
         .withAudience("ddf-client")
         .withSubject("subject")
-        .withClaim(PublicClaims.TYPE, "ID")
+        .withClaim("typ", "ID")
         .withClaim(AUTH_TIME, new Date())
         .withArrayClaim("roles", roles)
         .withClaim(EMAIL_VERIFIED, false)
@@ -289,7 +289,7 @@ public class OidcRealmTest {
             .withIssuer("http://localhost:8080/auth/realms/master")
             .withAudience("ddf-client")
             .withSubject("subject")
-            .withClaim(PublicClaims.TYPE, "ID")
+            .withClaim("typ", "ID")
             .withClaim(AUTH_TIME, new Date())
             .withClaim("nonce", "myNonce")
             .withArrayClaim("roles", roles)

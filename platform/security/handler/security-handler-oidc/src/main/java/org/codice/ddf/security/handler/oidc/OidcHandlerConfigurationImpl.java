@@ -121,6 +121,7 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     oidcConfiguration.setConnectTimeout(connectTimeout);
     oidcConfiguration.setReadTimeout(readTimeout);
     oidcConfiguration.setClientAuthenticationMethodAsString(clientAuthMethod);
+    oidcConfiguration.setCallUserInfoEndpoint(true);
 
     try {
       testConnection();

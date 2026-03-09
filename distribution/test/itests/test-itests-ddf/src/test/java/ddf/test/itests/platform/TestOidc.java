@@ -45,7 +45,6 @@ import static org.pac4j.oidc.profile.OidcProfileDefinition.REFRESH_TOKEN;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.impl.PublicClaims;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -1108,7 +1107,7 @@ public class TestOidc extends AbstractIntegrationTest {
         .withIssuer(URL_START.toString() + "/auth/realms/master")
         .withAudience(DDF_CLIENT_ID)
         .withSubject(SUBJECT)
-        .withClaim(PublicClaims.TYPE, "ID")
+        .withClaim("typ", "ID")
         .withClaim(AUTH_TIME, new Date())
         .withArrayClaim(ROLES, roles)
         .withClaim(EMAIL_VERIFIED, false)
@@ -1128,14 +1127,7 @@ public class TestOidc extends AbstractIntegrationTest {
       String jsonString =
           GSON.toJson(
               ImmutableMap.of(
-                  ROLES,
-                  roles,
-                  PublicClaims.SUBJECT,
-                  SUBJECT,
-                  EMAIL_VERIFIED,
-                  false,
-                  PREFERRED_USERNAME,
-                  ADMIN));
+                  ROLES, roles, "sub", SUBJECT, EMAIL_VERIFIED, false, PREFERRED_USERNAME, ADMIN));
 
       return valid ? jsonString : jsonString.substring(20);
     }
@@ -1143,7 +1135,7 @@ public class TestOidc extends AbstractIntegrationTest {
     JWTCreator.Builder builder =
         JWT.create()
             .withArrayClaim(ROLES, roles)
-            .withClaim(PublicClaims.SUBJECT, SUBJECT)
+            .withClaim("sub", SUBJECT)
             .withClaim(EMAIL_VERIFIED, false)
             .withClaim(PREFERRED_USERNAME, ADMIN);
 
