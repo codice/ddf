@@ -180,7 +180,7 @@
         <commons-text.version>1.13.0</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-        <countryconverter.version>0.2.3</countryconverter.version>
+        <countryconverter.version>0.2.4</countryconverter.version>
         <cryptomator.version>1.5.2</cryptomator.version>
         <cxf.version>3.6.7</cxf.version>
         <decanter.version>2.9.0</decanter.version>
@@ -1547,7 +1547,10 @@
         <repository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://artifacts.codice.org/content/groups/public/</url>
+            <url>https://maven.pkg.github.com/codice/*</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>osgeo</id>
@@ -1568,7 +1571,12 @@
         <pluginRepository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://artifacts.codice.org/content/groups/public/</url>
+            <url>https://maven.pkg.github.com/codice/*</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>connexta</id>
+            <name>Codice Repository</name>
+            <url>https://maven.pkg.github.com/connexta/*</url>
         </pluginRepository>
     </pluginRepositories>
     <modules>
