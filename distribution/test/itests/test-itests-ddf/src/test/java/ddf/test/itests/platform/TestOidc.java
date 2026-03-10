@@ -53,6 +53,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.JWTClaimNames;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.server.StubServer;
 import io.restassured.response.Response;
@@ -1127,7 +1128,14 @@ public class TestOidc extends AbstractIntegrationTest {
       String jsonString =
           GSON.toJson(
               ImmutableMap.of(
-                  ROLES, roles, "sub", SUBJECT, EMAIL_VERIFIED, false, PREFERRED_USERNAME, ADMIN));
+                  ROLES,
+                  roles,
+                  JWTClaimNames.SUBJECT,
+                  SUBJECT,
+                  EMAIL_VERIFIED,
+                  false,
+                  PREFERRED_USERNAME,
+                  ADMIN));
 
       return valid ? jsonString : jsonString.substring(20);
     }
@@ -1135,7 +1143,7 @@ public class TestOidc extends AbstractIntegrationTest {
     JWTCreator.Builder builder =
         JWT.create()
             .withArrayClaim(ROLES, roles)
-            .withClaim("sub", SUBJECT)
+            .withClaim(JWTClaimNames.SUBJECT, SUBJECT)
             .withClaim(EMAIL_VERIFIED, false)
             .withClaim(PREFERRED_USERNAME, ADMIN);
 
