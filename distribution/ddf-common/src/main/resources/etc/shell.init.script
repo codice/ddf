@@ -63,6 +63,10 @@ if { %(jlineReader != null) } {
   keymap "^[OB" down-line-or-search
   keymap "^[[B" down-line-or-search
 
+  // Fixes hitting `tab` on an empty console to list available commands.
+  // See https://issues.apache.org/jira/browse/KARAF-5224.
+  setopt no-insert-tab
+
 }
 
 // DDF additions
@@ -72,7 +76,3 @@ waitForReady = {
   system:wait-for-ready $args
 }
 wfr = { waitForReady $args } ;
-
-// Fixes hitting `tab` on an empty console to list available commands.
-// See https://issues.apache.org/jira/browse/KARAF-5224.
-setopt no-insert-tab

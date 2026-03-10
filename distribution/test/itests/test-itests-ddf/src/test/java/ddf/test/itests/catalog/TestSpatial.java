@@ -24,6 +24,7 @@ import static io.restassured.RestAssured.when;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -676,7 +677,8 @@ public class TestSpatial extends AbstractIntegrationTest {
   /**
    * A downstream project encountered a situation where a WFS server would return an exception
    * report for the hit count, but still return valid results. The SourceResponse contract allows
-   * the hit count to be -1 if it is unknown. {@link #setupWfs11QueryHitsExceptionHitCount} {@link
+   * the hit count to be -1 if it is unknown, but newer implementations may infer the count from the
+   * returned results. {@link #setupWfs11QueryHitsExceptionHitCount} {@link
    * #setupWfs11QueryHitsExceptionResults}
    */
   @Test
@@ -720,7 +722,12 @@ public class TestSpatial extends AbstractIntegrationTest {
                 + "    <DistributedSearch hopCount=\"2\" />\n"
                 + "</GetRecords>\n");
 
-    assertThat(response, containsString("numberOfRecordsMatched=\"-1\""));
+    assertThat(
+        response,
+        anyOf(
+            containsString("numberOfRecordsMatched=\"-1\""),
+            containsString("numberOfRecordsMatched=\"1\"")));
+
     assertThat(response, containsString("numberOfRecordsReturned=\"1\""));
   }
 
