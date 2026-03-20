@@ -181,6 +181,7 @@ public class ReliableResourceInputStream extends InputStream {
               && downloadState.getDownloadState() != DownloadManagerState.DownloadState.CANCELED
               && downloadState.getDownloadState() != null)) {
 
+        fbosCount = countingFbos.getCount();
         numBytesRead = readFromFbosInputStream(b, off, len);
 
         if (numBytesRead > 0) {

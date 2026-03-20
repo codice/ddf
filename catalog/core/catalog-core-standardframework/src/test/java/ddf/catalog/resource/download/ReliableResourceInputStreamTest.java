@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
@@ -178,6 +181,8 @@ public class ReliableResourceInputStreamTest {
 
     ExecutorService executor = Executors.newCachedThreadPool();
     Future<Integer> future = executor.submit(callable);
+
+    assertThrows(TimeoutException.class, () -> future.get(200, TimeUnit.MILLISECONDS));
 
     // Write second string to FileBackedOutputStream - ReliableResourceInputStream's running
     // read(byte[], off, len) method is in loop waiting for new bytes to be written and should
