@@ -93,6 +93,17 @@
             <groupId>org.osgi</groupId>
             <artifactId>osgi.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.web</groupId>
+            <artifactId>pax-web-spi</artifactId>
+            <version>${pax.web.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
