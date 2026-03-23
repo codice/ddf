@@ -149,11 +149,13 @@ public class ReliableResourceInputStreamTest {
 
   @Test
   public void testReadByteBufferBlocksUntilNewFbosBytesWritten() throws Exception {
+    when(downloadState.getDownloadState())
+        .thenReturn(DownloadManagerState.DownloadState.IN_PROGRESS);
     final ReliableResourceInputStream is =
         new ReliableResourceInputStream(
             fbos, countingFbos, downloadState, downloadIdentifier, resourceResponse);
     is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
-    byte[] bytes = new String("Hello World").getBytes();
+    byte[] bytes = "Hello World".getBytes();
     countingFbos.write(bytes, 0, bytes.length);
     final byte[] buffer = new byte[50];
     int numBytesRead = is.read(buffer, 0, buffer.length);
@@ -163,33 +165,33 @@ public class ReliableResourceInputStreamTest {
     // to FileBackedOutputStream)
 
     Callable<Integer> callable =
-        new Callable<Integer>() {
-          @Override
-          public Integer call() {
-            int numBytesRead2 = 0;
-            try {
-              numBytesRead2 = is.read(buffer, 0, buffer.length);
-            } catch (IOException e) {
-              LOGGER.info("Failed to read bytes second time", e);
-            }
-            return numBytesRead2;
+        () -> {
+          int numBytesRead2 = 0;
+          try {
+            numBytesRead2 = is.read(buffer, 0, buffer.length);
+          } catch (IOException e) {
+            LOGGER.info("Failed to read bytes second time", e);
           }
+          return numBytesRead2;
         };
 
     ExecutorService executor = Executors.newCachedThreadPool();
     Future<Integer> future = executor.submit(callable);
 
-    // Write second string to FileBackedOutputStream - ReliableResourceInputStream's running
-    // read(byte[], off, len) method is in loop waiting for new bytes to be written and should
-    // detect this, read the new bytes and put them in the buffer
-    String secondString = "Hello a second time";
-    byte[] bytes2 = secondString.getBytes();
-    countingFbos.write(bytes2, 0, bytes2.length);
-    Integer bytesReadCount = future.get();
-    assertThat(bytesReadCount, is(bytes2.length));
-    assertThat(new String(buffer), containsString(secondString));
-
-    is.close();
+    try {
+      // Write second string to FileBackedOutputStream - ReliableResourceInputStream's running
+      // read(byte[], off, len) method is in loop waiting for new bytes to be written and should
+      // detect this, read the new bytes and put them in the buffer
+      String secondString = "Hello a second time";
+      byte[] bytes2 = secondString.getBytes();
+      countingFbos.write(bytes2, 0, bytes2.length);
+      Integer bytesReadCount = future.get();
+      assertThat(bytesReadCount, is(bytes2.length));
+      assertThat(new String(buffer), containsString(secondString));
+    } finally {
+      executor.shutdownNow();
+      is.close();
+    }
   }
 
   @Test(expected = NullPointerException.class)
