@@ -163,6 +163,7 @@
                             com.typesafe.config;resolution:=optional,
                             org.apache.logging.log4j.core;resolution:=optional,
                             org.apache.logging.log4j.core.config;resolution:=optional,
+                            org.apache.logging.log4j.core.appender;resolution:=optional,
                             <!-- END -->
                             *
                         </Import-Package>
