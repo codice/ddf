@@ -57,12 +57,12 @@ jobs:
             [{
               "id": "codice",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.READ_PACKAGES }}"
+              "password": "${{ github.token }}"
             },
             {
               "id": "connexta",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.READ_PACKAGES }}"
+              "password": "${{ github.token }}"
             }]
 
       - name: Quick install (skip tests)
@@ -105,12 +105,12 @@ jobs:
             [{
               "id": "codice",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.READ_PACKAGES }}"
+              "password": "${{ github.token }}"
             },
             {
               "id": "connexta",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.READ_PACKAGES }}"
+              "password": "${{ github.token }}"
             }]
 
       - name: Full build (excluding itests)
@@ -154,6 +154,21 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Configure Maven settings
+        uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [{
+              "id": "codice",
+              "username": "${{ github.actor }}",
+              "password": "${{ github.token }}"
+            },
+            {
+              "id": "connexta",
+              "username": "${{ github.actor }}",
+              "password": "${{ github.token }}"
+            }]
+
       - name: Quick install (skip tests)
         run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
 
@@ -188,12 +203,12 @@ jobs:
             [{
               "id": "codice",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.READ_PACKAGES }}"
+              "password": "${{ github.token }}"
             },
             {
               "id": "connexta",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.READ_PACKAGES }}"
+              "password": "${{ github.token }}"
             }]
 
       - name: OWASP Dependency Check
@@ -286,7 +301,17 @@ jobs:
         with:
           servers: |
             [{
-              "id": "github",
+              "id": "codice",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.GITHUB_TOKEN }}"
+            },
+            {
+              "id": "releases",
+              "username": "${{ github.actor }}",
+              "password": "${{ secrets.GITHUB_TOKEN }}"
+            },
+            {
+              "id": "snapshots",
               "username": "${{ github.actor }}",
               "password": "${{ secrets.GITHUB_TOKEN }}"
             }]
