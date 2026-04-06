@@ -1547,7 +1547,7 @@
         <repository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://artifacts.codice.org/content/groups/public/</url>
+            <url>https://codice-072882638589.d.codeartifact.us-east-1.amazonaws.com/maven/releases/</url>
         </repository>
         <repository>
             <id>osgeo</id>
