@@ -220,8 +220,6 @@ jobs:
       needs.dependency-check.result == 'success'
     runs-on: ubuntu-latest
     environment: production
-    permissions:
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -233,15 +231,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Configure Maven settings
-        uses: s4u/maven-settings-action@v3.0.0
-        with:
-          servers: |
-            [{
-              "id": "github",
-              "username": "${{ github.actor }}",
-              "password": "${{ secrets.GITHUB_TOKEN }}"
-            }]
+      - name: Create Maven Settings
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          mkdir -p ~/.m2
+          printf '<settings>\n  <servers>\n    <server>\n      <id>releases</id>\n      <username>%s</username>\n      <password>%s</password>\n    </server>\n    <server>\n      <id>snapshots</id>\n      <username>%s</username>\n      <password>%s</password>\n    </server>\n  </servers>\n</settings>\n' "$NEXUS_USERNAME" "$NEXUS_PASSWORD" "$NEXUS_USERNAME" "$NEXUS_PASSWORD" > ~/.m2/settings.xml
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -255,5 +251,5 @@ jobs:
             -DskipStatic=true \
             -DskipTests=true \
             -DretryFailedDeploymentCount=10 \
-            -Dreleases.repository.url=https://maven.pkg.github.com/codice/ddf \
-            -Dsnapshots.repository.url=https://maven.pkg.github.com/codice/ddf
+            -Dreleases.repository.url=https://repo.codice.org/repository/maven-releases/ \
+            -Dsnapshots.repository.url=https://repo.codice.org/repository/maven-snapshots/
