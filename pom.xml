@@ -1543,10 +1543,7 @@
         <repository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://maven.pkg.github.com/codice/*</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <url>https://repo.codice.org/repository/maven-public/</url>
         </repository>
         <repository>
             <id>osgeo</id>
@@ -1567,18 +1564,7 @@
         <pluginRepository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>https://maven.pkg.github.com/codice/*</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>connexta</id>
-            <name>Connexta Repository</name>
-            <url>https://maven.pkg.github.com/connexta/*</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <url>https://repo.codice.org/repository/maven-public/</url>
         </pluginRepository>
     </pluginRepositories>
     <modules>
