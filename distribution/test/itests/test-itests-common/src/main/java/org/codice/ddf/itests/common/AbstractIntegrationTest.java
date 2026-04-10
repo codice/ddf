@@ -580,7 +580,7 @@ public abstract class AbstractIntegrationTest {
                 + "https://repository.springsource.com/maven/bundles/external@id=springsourceext,"
                 + "https://oss.sonatype.org/content/repositories/releases/@id=sonatype,"
                 + "https://repo.osgeo.org/repository/release/@id=osgeo,"
-                + "https://repo.codice.org/repository/maven-public/@id=codice"),
+                + "https://repo.codice.org/repository/maven-public/@id=codice@snapshots"),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 editConfigurationFilePut(
