@@ -46,7 +46,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.12</version>
+        <version>1.0.13</version>
     </parent>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -56,13 +56,13 @@
         <snapshots.repository.url />
         <reports.repository.url />
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.16</ddf.support.version>
+        <ddf.support.version>2.3.17</ddf.support.version>
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
         <codice-maven.version>0.3</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
-        <codice-test.version>0.3</codice-test.version>
+        <codice-test.version>0.10</codice-test.version>
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
-        <ddf.jaxb.version>1.0.1</ddf.jaxb.version>
+        <ddf.jaxb.version>1.0.2</ddf.jaxb.version>
 
         <!--Documentation Replacements-->
         <branding>DDF</branding>
