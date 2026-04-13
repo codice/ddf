@@ -62,7 +62,7 @@
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
         <codice-test.version>0.10</codice-test.version>
         <!-- Must MANUALLY update this if the DDF Jaxb project's version changes -->
-        <ddf.jaxb.version>1.0.3</ddf.jaxb.version>
+        <ddf.jaxb.version>1.0.4</ddf.jaxb.version>
 
         <!--Documentation Replacements-->
         <branding>DDF</branding>
