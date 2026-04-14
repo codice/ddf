@@ -31,10 +31,14 @@ import ddf.catalog.transformer.xml.XmlInputTransformer;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.junit.Before;
@@ -135,9 +139,18 @@ public class XmlInputTransformerTest {
         metacard.getAttribute(Metacard.METADATA).getValue().toString(),
         startsWith("<foo xmlns=\"http://foo.com\">"));
 
-    assertEquals(
-        (new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z")).parse("Dec 27, 2012 16:31:01.641 MST"),
-        metacard.getAttribute(Metacard.EXPIRATION).getValue());
+    Date actualDate = (Date) metacard.getAttribute(Metacard.EXPIRATION).getValue();
+
+    // Define the formatter for the input pattern
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm:ss.SSS z");
+
+    // Parse the input date-time with MST, then convert to America/Denver to ensure that
+    // region-specific rules are applied correctly when parsing
+    ZonedDateTime mstDateTime = ZonedDateTime.parse("Dec 27, 2012 16:31:01.641 MST", formatter);
+    ZonedDateTime denverDateTime = mstDateTime.withZoneSameInstant(ZoneId.of("America/Denver"));
+    Date expectedDate = Date.from(denverDateTime.toInstant());
+
+    assertEquals(expectedDate, actualDate);
 
     assertEquals(DESCRIPTION, metacard.getAttribute("description").getValue());
     assertEquals(POINT_OF_CONTACT, metacard.getAttribute("point-of-contact").getValue());
@@ -183,9 +196,17 @@ public class XmlInputTransformerTest {
         metacard.getAttribute(Metacard.METADATA).getValue().toString(),
         startsWith("<foo xmlns=\"http://foo.com\">"));
 
-    assertThat(
-        (new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z")).parse("Dec 27, 2012 16:31:01.641 MST"),
-        is(metacard.getAttribute(Metacard.EXPIRATION).getValue()));
+    // Define the formatter for the input pattern
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm:ss.SSS z");
+
+    // Parse the input date-time with MST, then convert to America/Denver to ensure that
+    // region-specific rules are applied correctly when parsing
+    ZonedDateTime mstDateTime = ZonedDateTime.parse("Dec 27, 2012 16:31:01.641 MST", formatter);
+    ZonedDateTime denverDateTime = mstDateTime.withZoneSameInstant(ZoneId.of("America/Denver"));
+    Date expectedDate = Date.from(denverDateTime.toInstant());
+
+    Serializable actualDate = metacard.getAttribute(Metacard.EXPIRATION).getValue();
+    assertEquals(expectedDate, actualDate);
 
     assertEquals(DESCRIPTION, metacard.getAttribute("description").getValue());
     assertEquals(POINT_OF_CONTACT, metacard.getAttribute("point-of-contact").getValue());

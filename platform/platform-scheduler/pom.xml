@@ -34,6 +34,12 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mchange</groupId>
+                    <artifactId>c3p0</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -157,6 +163,7 @@
                             com.typesafe.config;resolution:=optional,
                             org.apache.logging.log4j.core;resolution:=optional,
                             org.apache.logging.log4j.core.config;resolution:=optional,
+                            org.apache.logging.log4j.core.appender;resolution:=optional,
                             <!-- END -->
                             *
                         </Import-Package>

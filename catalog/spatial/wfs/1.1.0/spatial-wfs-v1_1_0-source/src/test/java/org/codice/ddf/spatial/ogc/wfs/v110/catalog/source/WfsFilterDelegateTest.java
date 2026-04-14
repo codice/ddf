@@ -38,11 +38,11 @@ import io.restassured.path.xml.config.XmlPathConfig;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -62,6 +62,7 @@ import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.MultiPolygonType;
 import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -70,6 +71,7 @@ import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL
 import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -78,6 +80,7 @@ import org.xml.sax.SAXException;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class WfsFilterDelegateTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegateTest.class);
 
   private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
@@ -110,11 +113,9 @@ public class WfsFilterDelegateTest {
 
   private static final String NO_OP = "NoOp";
 
-  private final Date date = getDate();
+  private Date date;
 
-  private final Date endDate = getEndDate();
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegateTest.class);
+  private Date endDate;
 
   private static final String FILTER_QNAME_LOCAL_PART = "Filter";
 
@@ -179,7 +180,7 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsNotEqualTo>"
           + "</Filter>";
 
-  private String propertyIsEqualToXmlDate = getPropertyEqualToXmlDate();
+  private String propertyIsEqualToXmlDate;
 
   private final String propertyNotEqualToXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
@@ -197,7 +198,7 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsNotEqualTo>"
           + "</Filter>";
 
-  private final String propertyNotEqualToXmlDate = getPropertyNotEqualToXmlDate();
+  private String propertyNotEqualToXmlDate;
 
   private final String propertyNotEqualToXmlBoolean =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -233,7 +234,7 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsGreaterThan>"
           + "</Filter>";
 
-  private final String propertyGreaterThanXmlDate = getPropertyGreaterThanXmlDate();
+  private String propertyGreaterThanXmlDate;
 
   private final String propertyGreaterThanOrEqualToXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -260,8 +261,7 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsGreaterThanOrEqualTo>"
           + "</Filter>";
 
-  private final String propertyGreaterThanOrEqualToXmlDate =
-      getPropertyGreaterThanOrEqualToXmlDate();
+  private String propertyGreaterThanOrEqualToXmlDate;
 
   private final String propertyLessThanXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -288,7 +288,7 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsLessThan>"
           + "</Filter>";
 
-  private final String propertyLessThanXmlDate = getPropertyLessThanXmlDate();
+  private String propertyLessThanXmlDate;
 
   private final String propertyLessThanOrEqualToXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -315,7 +315,7 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsLessThanOrEqualTo>"
           + "</Filter>";
 
-  private final String propertyLessThanOrEqualToXmlDate = getPropertyLessThanOrEqualToXmlDate();
+  private String propertyLessThanOrEqualToXmlDate;
 
   private final String propertyIsLikeXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -404,11 +404,25 @@ public class WfsFilterDelegateTest {
           + "</PropertyIsBetween>"
           + "</Filter>";
 
-  private final String propertyBetweenXmlDate = getPropertyBetweenXmlDate();
+  private String propertyBetweenXmlDate;
 
   private FeatureMetacardType featureMetacardType = mock(FeatureMetacardType.class);
 
   private MetacardMapper metacardMapper = mock(MetacardMapper.class);
+
+  @Before
+  public void setup() {
+    // init date
+    date = getDate();
+    endDate = getEndDate();
+    propertyIsEqualToXmlDate = getPropertyEqualToXmlDate();
+    propertyNotEqualToXmlDate = getPropertyNotEqualToXmlDate();
+    propertyGreaterThanXmlDate = getPropertyGreaterThanXmlDate();
+    propertyGreaterThanOrEqualToXmlDate = getPropertyGreaterThanOrEqualToXmlDate();
+    propertyLessThanXmlDate = getPropertyLessThanXmlDate();
+    propertyLessThanOrEqualToXmlDate = getPropertyLessThanOrEqualToXmlDate();
+    propertyBetweenXmlDate = getPropertyBetweenXmlDate();
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWfsFilterDelegateNullFeatureMetacardType() {
@@ -661,9 +675,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsNotEqualToDate() throws JAXBException, SAXException, IOException {
     WfsFilterDelegate delegate = createSinglePropertyDelegate();
-
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, date);
-
     assertXMLEqual(propertyNotEqualToXmlDate, marshal(filter));
   }
 
@@ -1580,7 +1592,7 @@ public class WfsFilterDelegateTest {
   public void testAllGmlPropertiesBlacklisted() {
     whenGeom(MOCK_GEOM, MOCK_GEOM2, false, false);
 
-    List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    List<String> supportedGeo = singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(
             featureMetacardType,
@@ -2036,32 +2048,38 @@ public class WfsFilterDelegateTest {
     return jaxbContext;
   }
 
-  private Date getDate() {
-    String dateString = "Jun 11 2002";
-    SimpleDateFormat formatter = new SimpleDateFormat("MMM d yyyy");
+  private static Date getEndDate() {
+    final String JUN_11_2002 = "Jun 11 2002";
+
+    return getDate(JUN_11_2002);
+  }
+
+  private static Date getDate() {
+    final String JUN_11_2002 = "Jun 11 2002";
+
+    return getDate(JUN_11_2002);
+  }
+
+  private static @Nullable Date getDate(String dateString) {
+    // Define the formatter for the input pattern
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofPattern("MMM dd yyyy", java.util.Locale.ENGLISH);
+
     Date date = null;
+    // Parse the input date-time with MST, then convert to America/Denver to ensure that
+    // region-specific rules are applied correctly when parsing
+    LocalDate localDate;
     try {
-      date = formatter.parse(dateString);
-    } catch (ParseException e) {
+      localDate = LocalDate.parse(dateString, formatter);
+      date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
     }
     return date;
   }
 
-  private Date getEndDate() {
-    String dateString = "Jul 11 2002";
-    SimpleDateFormat formatter = new SimpleDateFormat("MMM d yyyy");
-    Date date = null;
-    try {
-      date = formatter.parse(dateString);
-    } catch (ParseException e) {
-      LOGGER.error(e.getMessage(), e);
-    }
-    return date;
-  }
-
-  private DateTime convertDateToIso8601Format(Date inputDate) {
-    return new DateTime(inputDate, DateTimeZone.UTC);
+  private String convertDateToIso8601Format(Date inputDate) {
+    return new DateTime(inputDate, DateTimeZone.UTC).toString();
   }
 
   private String getPropertyEqualToXmlDate() {
@@ -2212,7 +2230,7 @@ public class WfsFilterDelegateTest {
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
     when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
-    List<String> supportedGeo = Collections.singletonList(spatialOpType);
+    List<String> supportedGeo = singletonList(spatialOpType);
     return new WfsFilterDelegate(
         featureMetacardType,
         metacardMapper,

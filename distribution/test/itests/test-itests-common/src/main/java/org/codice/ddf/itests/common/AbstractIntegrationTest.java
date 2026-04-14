@@ -788,7 +788,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.username", "admin"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.password", "admin"),
         editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "localhost:10784"));
+            SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "127.0.0.1:10784"));
   }
 
   /**

@@ -86,7 +86,7 @@ public class PortOptions extends BasicOptions {
   }
 
   public static Option solrPort() {
-    String port = getPortFinder().getPortAsString(SSH_PORT_KEY);
+    String port = getPortFinder().getPortAsString(SOLR_PORT_KEY);
     recordConfiguration(SOLR_PORT_KEY, port);
     return editConfigurationFilePut(SYSTEM_PROPERTIES_FILE_PATH, "solr.http.port", port);
   }

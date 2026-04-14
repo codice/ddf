@@ -82,6 +82,12 @@
                 <dependency>
                     <groupId>org.springframework.osgi</groupId>
                     <artifactId>spring-osgi-core</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.springframework</groupId>
+                            <artifactId>org.springframework.aop</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
                 <dependency>
                     <groupId>ddf.security.policy</groupId>

@@ -46,12 +46,14 @@ import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -140,7 +142,7 @@ public class CswFilterDelegateTest {
 
   private static final String DISTANCE_GEO_FILTER_PROP_MAP_KEY = "distance";
 
-  private static final Date SAMPLE_NON_ISO_8601_DATE;
+  private static Date sampleNonIso8601Date;
 
   // NOTE: The contents of these maps ARE mutable
   private static final Map<String, String> POS_LIST_GEO_FILTER_PROP_MAP = new HashMap<>();
@@ -166,15 +168,6 @@ public class CswFilterDelegateTest {
   private static final String APISO_ANYTEXT = APISO_PREFIX + CswConstants.ANY_TEXT;
 
   private static Marshaller marshaller = null;
-
-  static {
-    try {
-      SAMPLE_NON_ISO_8601_DATE = new SimpleDateFormat("MMM d yyyy").parse("Jun 11 2003");
-    } catch (ParseException pe) {
-      LOGGER.error("Unable to instantiate SAMPLE_NON_ISO_8601_DATE", pe);
-      throw new RuntimeException();
-    }
-  }
 
   private final CswFilterDelegate cswFilterDelegateLatLon =
       createCswFilterDelegate(
@@ -309,7 +302,7 @@ public class CswFilterDelegateTest {
       createComparisonFilterString(
           ComparisonOperator.PROPERTY_IS_EQUAL_TO,
           DEFAULT_PROPERTY_NAME,
-          convertDateToIso8601Format(SAMPLE_NON_ISO_8601_DATE).toString());
+          convertDateToIso8601Format(sampleNonIso8601Date).toString());
 
   private final String propertyIsEqualToXmlWithBoolean =
       createComparisonFilterString(
@@ -778,6 +771,27 @@ public class CswFilterDelegateTest {
     map.put("ogc", "http://www.opengis.net/ogc");
     NamespaceContext ctx = new SimpleNamespaceContext(map);
     XMLUnit.setXpathNamespaceContext(ctx);
+
+    sampleNonIso8601Date = getNonIso8601Date();
+  }
+
+  private static Date getNonIso8601Date() {
+    final String dateString = "Jun 11 2003";
+
+    java.time.format.DateTimeFormatter formatter =
+        java.time.format.DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
+
+    Date date = null;
+    // Parse the input date-time with MST, then convert to America/Denver to ensure that
+    // region-specific rules are applied correctly when parsing
+    LocalDate localDate;
+    try {
+      localDate = LocalDate.parse(dateString, formatter);
+      date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    } catch (Exception e) {
+      LOGGER.error(e.getMessage(), e);
+    }
+    return date;
   }
 
   private static FilterCapabilities getMockFilterCapabilities() {
@@ -1518,11 +1532,10 @@ public class CswFilterDelegateTest {
   public void testPropertyIsEqualToDateLiteral()
       throws JAXBException, ParseException, SAXException, IOException {
 
-    LOGGER.debug("Input date: {}", SAMPLE_NON_ISO_8601_DATE);
-    LOGGER.debug(
-        "ISO 8601 formatted date: {}", convertDateToIso8601Format(SAMPLE_NON_ISO_8601_DATE));
+    LOGGER.debug("Input date: {}", sampleNonIso8601Date);
+    LOGGER.debug("ISO 8601 formatted date: {}", convertDateToIso8601Format(sampleNonIso8601Date));
     FilterType filterType =
-        cswFilterDelegateLatLon.propertyIsEqualTo(propertyName, SAMPLE_NON_ISO_8601_DATE);
+        cswFilterDelegateLatLon.propertyIsEqualTo(propertyName, sampleNonIso8601Date);
     assertXMLEqual(propertyIsEqualToXmlWithNonIso8601Date, getXmlFromMarshaller(filterType));
   }
 

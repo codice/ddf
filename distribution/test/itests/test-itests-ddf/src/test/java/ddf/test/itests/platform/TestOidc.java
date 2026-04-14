@@ -45,7 +45,6 @@ import static org.pac4j.oidc.profile.OidcProfileDefinition.REFRESH_TOKEN;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.impl.PublicClaims;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -54,6 +53,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.JWTClaimNames;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.server.StubServer;
 import io.restassured.response.Response;
@@ -1108,7 +1108,7 @@ public class TestOidc extends AbstractIntegrationTest {
         .withIssuer(URL_START.toString() + "/auth/realms/master")
         .withAudience(DDF_CLIENT_ID)
         .withSubject(SUBJECT)
-        .withClaim(PublicClaims.TYPE, "ID")
+        .withClaim("typ", "ID")
         .withClaim(AUTH_TIME, new Date())
         .withArrayClaim(ROLES, roles)
         .withClaim(EMAIL_VERIFIED, false)
@@ -1130,7 +1130,7 @@ public class TestOidc extends AbstractIntegrationTest {
               ImmutableMap.of(
                   ROLES,
                   roles,
-                  PublicClaims.SUBJECT,
+                  JWTClaimNames.SUBJECT,
                   SUBJECT,
                   EMAIL_VERIFIED,
                   false,
@@ -1143,7 +1143,7 @@ public class TestOidc extends AbstractIntegrationTest {
     JWTCreator.Builder builder =
         JWT.create()
             .withArrayClaim(ROLES, roles)
-            .withClaim(PublicClaims.SUBJECT, SUBJECT)
+            .withClaim(JWTClaimNames.SUBJECT, SUBJECT)
             .withClaim(EMAIL_VERIFIED, false)
             .withClaim(PREFERRED_USERNAME, ADMIN);
 

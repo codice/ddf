@@ -21,8 +21,8 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -129,7 +129,7 @@ public class CswCqlFilterTest {
       initDefaultCswFilterDelegate(
           initCswSourceConfiguration(CswAxisOrder.LON_LAT, CswConstants.CSW_TYPE));
 
-  private final Date date = getDate();
+  private Date date;
 
   private final String propertyName = DEFAULT_PROPERTY_NAME;
 
@@ -231,7 +231,7 @@ public class CswCqlFilterTest {
 
   private final String propertyIsEqualToContentType = "type" + SPACE + EQUALS + SPACE + "'myType'";
 
-  private final String propertyIsEqualToWithDate = getPropertyIsEqualToWithDate(getDate());
+  private String propertyIsEqualToWithDate;
 
   private final String propertyIsEqualToWithBoolean =
       DEFAULT_PROPERTY_NAME + SPACE + EQUALS + SPACE + TRUE;
@@ -616,6 +616,8 @@ public class CswCqlFilterTest {
 
   @Before
   public void setup() {
+    date = getDate();
+    propertyIsEqualToWithDate = getPropertyIsEqualToWithDate(date);
     Hints.putSystemDefault(
         Hints.CRS_AUTHORITY_FACTORY,
         "org.geotools.referencing.factory.epsg.hsql.ThreadedHsqlEpsgFactory");
@@ -1499,15 +1501,23 @@ public class CswCqlFilterTest {
   }
 
   private Date getDate() {
-    String dateString = "Jun 11 2002";
-    SimpleDateFormat formatter = new SimpleDateFormat("MMM d yyyy");
-    Date aDate = null;
+    final String dateString = "Jun 11 2002";
+
+    // Define the formatter for the input pattern
+    java.time.format.DateTimeFormatter formatter =
+        java.time.format.DateTimeFormatter.ofPattern("MMM dd yyyy", java.util.Locale.ENGLISH);
+
+    Date date = null;
+    // Parse the input date-time with MST, then convert to America/Denver to ensure that
+    // region-specific rules are applied correctly when parsing
+    LocalDate localDate;
     try {
-      aDate = formatter.parse(dateString);
-    } catch (ParseException e) {
+      localDate = LocalDate.parse(dateString, formatter);
+      date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
     }
-    return aDate;
+    return date;
   }
 
   private String getPropertyIsEqualToWithDate(Date aDate) {

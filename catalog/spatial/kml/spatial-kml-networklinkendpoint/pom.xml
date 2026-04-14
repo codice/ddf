@@ -33,7 +33,8 @@
         </dependency>
         <dependency>
             <groupId>de.micromata.jak</groupId>
-            <artifactId>JavaAPIforKml</artifactId>
+            <artifactId>javaapiforkml</artifactId>
+            <version>${JavaAPIforKml.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -79,7 +80,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            JavaAPIforKml,
+                            javaapiforkml,
                             catalog-core-api-impl,
                             handlebars,
                             antlr4-runtime,

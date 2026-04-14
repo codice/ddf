@@ -133,7 +133,8 @@ public class KarafOptions implements ContainerOptions {
                 + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype,"
+                + "https://repo.osgeo.org/repository/release/@id=osgeo"),
         when(System.getProperty("maven.repo.local") != null)
             .useOptions(
                 editConfigurationFilePut(

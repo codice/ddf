@@ -25,7 +25,6 @@ import static org.pac4j.oidc.profile.OidcProfileDefinition.PREFERRED_USERNAME;
 
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.impl.PublicClaims;
 import com.google.common.collect.ImmutableList;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
@@ -174,7 +173,7 @@ public class OidcTokenValidatorTest {
             .issuer("http://localhost:8080/auth/realms/master")
             .audience("ddf-client")
             .subject("subject")
-            .claim(PublicClaims.TYPE, "ID")
+            .claim("typ", "ID")
             .claim(AUTH_TIME, new Date())
             .claim("roles", roles)
             .claim(EMAIL_VERIFIED, false)
@@ -287,7 +286,7 @@ public class OidcTokenValidatorTest {
         .withIssuer("http://localhost:8080/auth/realms/master")
         .withAudience("ddf-client")
         .withSubject("subject")
-        .withClaim(PublicClaims.TYPE, "ID")
+        .withClaim("typ", "ID")
         .withClaim(AUTH_TIME, new Date())
         .withArrayClaim("roles", roles)
         .withClaim(EMAIL_VERIFIED, false)
