@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.AzureAd2OidcConfiguration;
 import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.federation.config.OidcFederationProperties;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OidcHandlerConfigurationImplTest {
@@ -81,6 +83,7 @@ public class OidcHandlerConfigurationImplTest {
   @Test
   public void testCreateOidcClientKeycloak() {
     OidcConfiguration oidcConfiguration = mock(KeycloakOidcConfiguration.class);
+    when(oidcConfiguration.getFederation()).thenReturn(new OidcFederationProperties());
     OidcClient oidcClient =
         handlerConfiguration.createOidcClient("Keycloak", oidcConfiguration, DEFAULT_CALLBACK_URL);
     assertTrue(oidcClient instanceof KeycloakOidcClient);
@@ -89,6 +92,7 @@ public class OidcHandlerConfigurationImplTest {
   @Test
   public void testCreateOidcClientAzure() {
     OidcConfiguration oidcConfiguration = mock(AzureAd2OidcConfiguration.class);
+    when(oidcConfiguration.getFederation()).thenReturn(new OidcFederationProperties());
     OidcClient oidcClient =
         handlerConfiguration.createOidcClient("Azure", oidcConfiguration, DEFAULT_CALLBACK_URL);
     assertTrue(oidcClient instanceof AzureAd2Client);
@@ -97,6 +101,7 @@ public class OidcHandlerConfigurationImplTest {
   @Test
   public void testCreateOidcClientGoogle() {
     OidcConfiguration oidcConfiguration = mock(OidcConfiguration.class);
+    when(oidcConfiguration.getFederation()).thenReturn(new OidcFederationProperties());
     OidcClient oidcClient =
         handlerConfiguration.createOidcClient("Google", oidcConfiguration, DEFAULT_CALLBACK_URL);
     assertTrue(oidcClient instanceof GoogleOidcClient);

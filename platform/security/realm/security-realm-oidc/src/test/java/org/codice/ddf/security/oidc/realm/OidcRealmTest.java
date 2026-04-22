@@ -133,7 +133,7 @@ public class OidcRealmTest {
     when(configuration.getSecret()).thenReturn("secret");
     when(configuration.isUseNonce()).thenReturn(true);
     when(configuration.getResponseType()).thenReturn("code");
-    when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
+    when(configuration.getResourceRetriever()).thenReturn(resourceRetriever);
     when(configuration.getOpMetadataResolver()).thenReturn(metadataResolver);
     when(configuration.isCallUserInfoEndpoint()).thenReturn(true);
 

@@ -70,7 +70,7 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
       int readTimeout) {
     super(oidcConfiguration, oidcClient);
     this.metadata = metadata;
-    this.resourceRetriever = oidcConfiguration.findResourceRetriever();
+    this.resourceRetriever = oidcConfiguration.getResourceRetriever();
     this.connectTimeout = connectTimeout;
     this.readTimeout = readTimeout;
   }
