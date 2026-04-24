@@ -47,6 +47,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
+
       - name: Quick install (skip tests)
         run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
 
@@ -79,6 +82,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
 
       - name: Full build (excluding itests)
         run: mvn clean install $MAVEN_CLI_OPTS -P !itests
@@ -121,6 +127,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
+
       - name: Quick install (skip tests)
         run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
 
@@ -147,6 +156,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
 
       - name: OWASP Dependency Check
         run: |
@@ -191,6 +203,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
+
       - name: SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -231,13 +246,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Create Maven Settings
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-        run: |
-          mkdir -p ~/.m2
-          printf '<settings>\n  <servers>\n    <server>\n      <id>releases</id>\n      <username>%s</username>\n      <password>%s</password>\n    </server>\n    <server>\n      <id>snapshots</id>\n      <username>%s</username>\n      <password>%s</password>\n    </server>\n  </servers>\n</settings>\n' "$NEXUS_USERNAME" "$NEXUS_PASSWORD" "$NEXUS_USERNAME" "$NEXUS_PASSWORD" > ~/.m2/settings.xml
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -246,6 +256,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Deploy
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
           mvn deploy $MAVEN_CLI_OPTS \
             -DskipStatic=true \
