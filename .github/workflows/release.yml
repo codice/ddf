@@ -40,7 +40,7 @@ jobs:
       next_dev_version: ${{ inputs.nextDevVersion }}
       skip_tests: ${{ inputs.skipTests }}
       test_run: ${{ inputs.testRun }}
-      jdk_version_map: '{"master":"17","2.29.x":"17","2.28.x":"11","2.27.x":"11","default":"11"}'
+      jdk_version_map: '{"master":"21","2.30.x":"17","2.29.x":"17","2.28.x":"11","2.27.x":"11","default":"11"}'
       artifact_path: 'distribution/ddf/target'
       resume_from: ${{ inputs.resumeFrom }}
       author_name: 'Codice Release Manager'
