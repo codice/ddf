@@ -25,8 +25,8 @@
     <name>DDF :: Distribution :: Docker :: DDF</name>
 
     <properties>
-        <!-- Set the version of the codice/ddf-base docker image to build on top of here -->
-        <docker.ddf.base.version>3.0</docker.ddf.base.version>
+        <!-- JDK 21 base; pinned by digest for reproducibility. Bump in lockstep with codice/docker-ddf-base releases. -->
+        <docker.ddf.base.version>4.0@sha256:005cfb947b79fa15695c099707b268b4e267f0138eb2fb1d65b374ec8b31d84e</docker.ddf.base.version>
     </properties>
 
     <dependencies>
