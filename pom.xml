@@ -314,7 +314,7 @@
         <validation.version>1.1.0.Final</validation.version>
         <woodstox.core.version>6.5.1</woodstox.core.version>
         <woodstox.stax2-api.version>4.2.1</woodstox.stax2-api.version>
-        <wss4j.neethi.version>3.2.1</wss4j.neethi.version>
+        <wss4j.neethi.version>3.2.2</wss4j.neethi.version>
         <wss4j.version>2.4.3</wss4j.version>
         <xalan.bundle.version>2.7.3_1</xalan.bundle.version>
         <xalan.version>2.7.3</xalan.version>
