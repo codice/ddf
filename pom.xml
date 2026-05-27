@@ -123,8 +123,8 @@
         <spock.version>2.3-groovy-4.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.14.0</pax.exam.version>
-        <pax.logging.version>2.3.2</pax.logging.version>
-        <pax.url.version>2.7.0</pax.url.version>
+        <pax.logging.version>2.3.3</pax.logging.version>
+        <pax.url.version>2.7.1</pax.url.version>
         <pax.web.version>8.0.34</pax.web.version>
         <restito.version>1.1.2</restito.version>
         <restassured.version>5.5.0</restassured.version>
@@ -170,7 +170,7 @@
         <commons-csv.version>1.4</commons-csv.version>
         <commons-digester.version>1.8.1</commons-digester.version>
         <commons-exec.version>1.3</commons-exec.version>
-        <commons-io.version>2.21.0</commons-io.version>
+        <commons-io.version>2.22.0</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.3.5</commons-logging.version>
@@ -241,8 +241,8 @@
         <jts.spatial4j.version>1.17.1</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <jwnl.version>1.3.3</jwnl.version>
-        <karaf.version>4.4.10</karaf.version>
-        <jansi.version>2.4.2</jansi.version>
+        <karaf.version>4.4.11</karaf.version>
+        <jansi.version>2.4.3</jansi.version>
         <org.osgi.util.promise.version>1.2.0</org.osgi.util.promise.version>
         <org.osgi.util.function.version>1.2.0</org.osgi.util.function.version>
         <la4j.version>0.6.0</la4j.version>
