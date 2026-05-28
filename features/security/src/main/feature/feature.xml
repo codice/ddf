@@ -313,26 +313,11 @@
         <bundle>mvn:ddf.security.claims/security-claims-ldap/${project.version}</bundle>
     </feature>
 
-    <feature name="embedded-ldap" version="${project.version}"
-            description="Embedded LDAP for integration testing.">
-        <configfile
-                finalname="${ddf.etc}/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
-                override="false">
-            mvn:ddf.security.claims/security-claims-ldap/${project.version}/config/default-ldap-claimshandler
-        </configfile>
-        <configfile
-                finalname="${ddf.etc}/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config"
-                override="false">
-            mvn:ddf.security.jaas/security-jaas-ldap/${project.version}/config/default-ldaplogin
-        </configfile>
-    </feature>
-
     <feature name="security-all" version="${project.version}"
              description="All DDF security features">
         <feature>security-core-services</feature>
         <feature>oidc-auth</feature>
         <feature>saml-auth</feature>
         <feature>ldap-auth</feature>
-        <feature>embedded-ldap</feature>
     </feature>
 </features>
