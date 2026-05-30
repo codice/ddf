@@ -38,8 +38,66 @@
     <!-- A list of repository URIs, feature identifiers and bundle URIs to override "dependency" flag -->
     <overrideBundleDependency/>
 
-    <!-- A list of bundle URI replacements that allows changing external feature definitions -->
-    <bundleReplacements/>
+    <!--
+        Force every foreign Jackson bundle version (Karaf 4.4.11 specs ships 2.18.3,
+        CXF 3.6.10 cxf-jackson ships 2.21.0, pax-web 8.0.35 keycloak-adapter-core ships
+        2.21.1) to converge on DDF's pinned 2.21.2 from features/utilities/feature.xml.
+
+        Without this, multiple jackson-* versions end up exporting the same
+        osgi.wiring.package, and the Felix resolver (especially 4.4.11's) burns
+        minutes of CPU exploring permutations against uses-constraints during the
+        catalog-app + spatial-app + catalog-solr-app runtime install (and can OOM
+        before finding a valid wiring on the default 6g heap).
+    -->
+    <bundleReplacements>
+        <!-- Karaf 4.4.11 specs feature: jackson 2.18.3 -->
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-core/2.18.3"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-databind/2.18.3"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-annotations/2.18.3"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.annotations.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.18.3"
+                replacement="mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/2.18.3"
+                replacement="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/2.18.3"
+                replacement="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson.version}"
+                mode="MAVEN"/>
+
+        <!-- CXF 3.6.10 cxf-jackson feature: jackson 2.21.0 (primary offender per resolver DEBUG) -->
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-core/2.21.0"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-databind/2.21.0"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.21.0"
+                replacement="mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/2.21.0"
+                replacement="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/2.21.0"
+                replacement="mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.21.0"
+                replacement="mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson.version}"
+                mode="MAVEN"/>
+
+        <!-- pax-web 8.0.35 keycloak-adapter-core feature: jackson 2.21.1 -->
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-core/2.21.1"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}"
+                mode="MAVEN"/>
+        <bundle originalUri="mvn:com.fasterxml.jackson.core/jackson-databind/2.21.1"
+                replacement="mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}"
+                mode="MAVEN"/>
+    </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->
     <featureReplacements/>
