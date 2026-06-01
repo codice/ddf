@@ -153,7 +153,7 @@
         <apache.shiro.version>1.13.0</apache.shiro.version>
         <asm.version>9.9.1</asm.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <bouncy.version>1.83</bouncy.version>
+        <bouncy.version>1.84</bouncy.version>
         <c3p0.version>0.12.0</c3p0.version>
         <cal10n.version>0.8.1</cal10n.version>
         <cal10n.thirdparty.bundle.version>${cal10n.version}_1</cal10n.thirdparty.bundle.version>
