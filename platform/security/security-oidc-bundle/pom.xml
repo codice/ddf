@@ -145,6 +145,13 @@
                             !com.nimbusds.jose.shaded.json,
                             !org.reflections.*,
                             !javassist,
+                            !com.unboundid.*,
+                            !de.flapdoodle.*,
+                            !fi.iki.*,
+                            !org.h2.*,
+                            !org.junit.jupiter.*,
+                            !org.ldaptive.*,
+                            !org.skife.*,
                             net.minidev.*;version="${json-smart.version}",
                             *
                         </Import-Package>
