@@ -182,7 +182,7 @@
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.2.4</countryconverter.version>
         <cryptomator.version>1.6.1</cryptomator.version>
-        <cxf.version>3.6.10</cxf.version>
+        <cxf.version>3.6.11</cxf.version>
         <decanter.version>2.9.0</decanter.version>
         <dropwizard.version>4.1.25</dropwizard.version>
         <equinox.version>3.17.200</equinox.version>
