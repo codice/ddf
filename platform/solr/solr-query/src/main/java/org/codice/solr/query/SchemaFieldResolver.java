@@ -132,7 +132,7 @@ public class SchemaFieldResolver {
     return FORMAT_TO_SUFFIX_MAP.get(attributeFormat);
   }
 
-  public SchemaField getSchemaField(String propertyName, boolean isSearchedAsExactValue) {
+  public SchemaField getSchemaField(String propertyName) {
     SchemaField schemaField = null;
     LukeRequest luke = new LukeRequest();
     LukeResponse rsp;
@@ -152,13 +152,13 @@ public class SchemaFieldResolver {
             String fieldType = entry.getValue().getType();
             int index = StringUtils.lastIndexOfAny(entry.getKey(), FORMAT_SUFFIXES);
             String suffix = entry.getKey().substring(index);
-            if (!isSearchedAsExactValue) {
-              suffix = getSpecialIndexSuffix(suffix);
-              fieldType += suffix;
-            }
-            LOGGER.debug("field {} has type {}", entry.getKey(), fieldType);
             schemaField = new SchemaField(entry.getKey(), fieldType);
-            schemaField.setSuffix(suffix);
+            String specialSuffix = getSpecialIndexSuffix(suffix);
+            // Only add special suffix if the resulting field actually exists in the schema
+            String potentialFieldName = propertyName + suffix + specialSuffix;
+            if (fieldsInfo.containsKey(potentialFieldName)) {
+              schemaField.setSpecialSuffix(specialSuffix);
+            }
             return schemaField;
           }
         }
@@ -185,6 +185,6 @@ public class SchemaFieldResolver {
       return SchemaFieldResolver.TEXT_PATH;
     }
 
-    return "";
+    return null;
   }
 }

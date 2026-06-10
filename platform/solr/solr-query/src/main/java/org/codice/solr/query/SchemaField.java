@@ -19,7 +19,7 @@ public class SchemaField {
 
   private String name;
 
-  private String suffix;
+  private String specialSuffix;
 
   private String type;
 
@@ -36,12 +36,12 @@ public class SchemaField {
     this.name = name;
   }
 
-  public String getSuffix() {
-    return suffix;
+  public String getSpecialSuffix() {
+    return specialSuffix;
   }
 
-  public void setSuffix(String suffix) {
-    this.suffix = suffix;
+  public void setSpecialSuffix(String specialSuffix) {
+    this.specialSuffix = specialSuffix;
   }
 
   public String getType() {

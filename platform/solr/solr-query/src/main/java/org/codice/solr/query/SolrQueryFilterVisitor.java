@@ -199,8 +199,6 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
     String pattern = normalizePattern(filter.getLiteral(), wildcard, singleChar, escapeChar);
 
-    String mappedPropertyName = getMappedPropertyName(propertyName);
-
     String searchPhrase = escapeSpecialCharacters(pattern);
 
     boolean isAnyText = Metacard.ANY_TEXT.equals(propertyName);
@@ -208,8 +206,15 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     if (isAnyText && SOLR_WILDCARD_CHAR.equals(searchPhrase)) {
       return new SolrQuery("*:*");
     }
+    String solrPropertyName;
+    SchemaField schemaField = getSchemaField(propertyName);
+    if (schemaField != null && schemaField.getSpecialSuffix() != null) {
+      solrPropertyName = schemaField.getName() + schemaField.getSpecialSuffix();
+    } else {
+      solrPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING, true);
+    }
 
-    return new SolrQuery(mappedPropertyName + SchemaFieldResolver.TOKENIZED + ":" + searchPhrase);
+    return new SolrQuery(solrPropertyName + ":" + searchPhrase);
   }
 
   @SuppressWarnings("java:S127")
@@ -262,18 +267,7 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     // will have the suffix and the variations on the property name, e.g., for propertyName="user"
     // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and
     // "user_txt_tokenized_has_case"
-    SchemaField schemaField;
-    String cacheKey = solrCoreName + "." + propertyName;
-    if (schemaFieldsCache.containsKey(cacheKey)) {
-      LOGGER.debug("Getting SchemaField for propertyName {} from cache", propertyName);
-      schemaField = schemaFieldsCache.get(cacheKey);
-    } else {
-      LOGGER.debug("Using SchemaFieldResolver for propertyName {}", propertyName);
-      schemaField = schemaFieldResolver.getSchemaField(propertyName, true);
-      if (schemaField != null) {
-        schemaFieldsCache.put(cacheKey, schemaField);
-      }
-    }
+    SchemaField schemaField = getSchemaField(propertyName);
 
     if (schemaField != null) {
       mappedPropertyName = schemaField.getName();
@@ -289,6 +283,22 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     }
 
     return mappedPropertyName;
+  }
+
+  SchemaField getSchemaField(String propertyName) {
+    SchemaField schemaField;
+    String cacheKey = solrCoreName + "." + propertyName;
+    if (schemaFieldsCache.containsKey(cacheKey)) {
+      LOGGER.debug("Getting SchemaField for propertyName {} from cache", propertyName);
+      schemaField = schemaFieldsCache.get(cacheKey);
+    } else {
+      LOGGER.debug("Using SchemaFieldResolver for propertyName {}", propertyName);
+      schemaField = schemaFieldResolver.getSchemaField(propertyName);
+      if (schemaField != null) {
+        schemaFieldsCache.put(cacheKey, schemaField);
+      }
+    }
+    return schemaField;
   }
 
   private String getMappedPropertyName(

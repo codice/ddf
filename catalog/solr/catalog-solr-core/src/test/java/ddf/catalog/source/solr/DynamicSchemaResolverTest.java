@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -54,7 +55,7 @@ import org.mockito.ArgumentCaptor;
 
 public class DynamicSchemaResolverTest {
 
-  private static final int INITIAL_FIELDS_CACHE_COUNT = 5;
+  private static final int INITIAL_FIELDS_CACHE_COUNT = 3;
 
   private static final ObjectMapper METACARD_TYPE_MAPPER =
       MetacardTypeMapperFactory.newObjectMapper();
@@ -180,7 +181,7 @@ public class DynamicSchemaResolverTest {
     // Perform Test
     List<String> fields = resolver.anyTextFields().collect(Collectors.toList());
     Truth.assertThat(fields)
-        .containsExactly("metadata_txt", "title_txt", "description_txt", "ext.extracted.text_txt");
+        .containsExactly("metadata", "title", "description", "ext.extracted.text");
   }
 
   @Test
@@ -300,5 +301,203 @@ public class DynamicSchemaResolverTest {
     assertThat(
         dynamicSchemaResolver.getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
         is("unknown_txt"));
+  }
+
+  @Test
+  public void testAddFieldsWithXmlAttributeNotTokenized() throws Exception {
+    // Setup - XML attribute that is NOT tokenized
+    String metacardTypeName = "test";
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
+    String attributeName = "metadata";
+    boolean indexed = true;
+    boolean stored = true;
+    boolean tokenized = false;
+    boolean multiValued = false;
+
+    attributeDescriptors.add(
+        new TestAttributeDescriptorImpl(
+            attributeName,
+            attributeName,
+            indexed,
+            stored,
+            tokenized,
+            multiValued,
+            BasicTypes.XML_TYPE));
+
+    Attribute mockAttribute = mock(Attribute.class);
+    when(mockAttribute.getValue()).thenReturn("<root>test</root>");
+    when(mockAttribute.getValues()).thenReturn(Collections.singletonList("<root>test</root>"));
+
+    Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
+    when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
+    when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
+    when(mockMetacard.getAttribute(attributeName)).thenReturn(mockAttribute);
+
+    SolrInputDocument solrInputDocument = new SolrInputDocument();
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+
+    // Perform Test
+    resolver.addFields(mockMetacard, solrInputDocument);
+
+    // Verify - tokenized=false means the special string index should NOT be populated
+    assertThat(solrInputDocument.getFieldValue("metadata_txt_tokenized"), is(nullValue()));
+  }
+
+  @Test
+  public void testAddFieldsWithXmlAttributeTokenized() throws Exception {
+    // Setup - XML attribute that IS tokenized
+    String metacardTypeName = "test";
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
+    String attributeName = "metadata";
+    boolean indexed = true;
+    boolean stored = true;
+    boolean tokenized = true;
+    boolean multiValued = false;
+
+    attributeDescriptors.add(
+        new TestAttributeDescriptorImpl(
+            attributeName,
+            attributeName,
+            indexed,
+            stored,
+            tokenized,
+            multiValued,
+            BasicTypes.XML_TYPE));
+
+    Attribute mockAttribute = mock(Attribute.class);
+    when(mockAttribute.getValue()).thenReturn("<root>test</root>");
+    when(mockAttribute.getValues()).thenReturn(Collections.singletonList("<root>test</root>"));
+
+    Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
+    when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
+    when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
+    when(mockMetacard.getAttribute(attributeName)).thenReturn(mockAttribute);
+
+    SolrInputDocument solrInputDocument = new SolrInputDocument();
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+
+    // Perform Test
+    resolver.addFields(mockMetacard, solrInputDocument);
+
+    // Verify - tokenized=true means the special string index SHOULD be populated
+    assertThat(solrInputDocument.getFieldValue("metadata_txt_tokenized"), notNullValue());
+  }
+
+  @Test
+  public void testAddFieldsWithStringAttributeNotTokenizedAddsTxtNotTokenizedField()
+      throws Exception {
+    // Setup - STRING attribute that is NOT tokenized
+    String metacardTypeName = "test";
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
+    String attributeName = "title";
+    boolean indexed = true;
+    boolean stored = true;
+    boolean tokenized = false;
+    boolean multiValued = false;
+
+    attributeDescriptors.add(
+        new TestAttributeDescriptorImpl(
+            attributeName,
+            attributeName,
+            indexed,
+            stored,
+            tokenized,
+            multiValued,
+            BasicTypes.STRING_TYPE));
+
+    Attribute mockAttribute = mock(Attribute.class);
+    when(mockAttribute.getValue()).thenReturn("test value");
+    when(mockAttribute.getValues()).thenReturn(Collections.singletonList("test value"));
+
+    Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
+    when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
+    when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
+    when(mockMetacard.getAttribute(attributeName)).thenReturn(mockAttribute);
+
+    SolrInputDocument solrInputDocument = new SolrInputDocument();
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+
+    // Perform Test
+    resolver.addFields(mockMetacard, solrInputDocument);
+
+    // Verify - tokenized=false means the tokenized field should NOT be populated
+    assertThat(solrInputDocument.getFieldValue("title_txt"), is("test value"));
+    assertThat(solrInputDocument.getFieldValue("title_txt_tokenized"), is(nullValue()));
+  }
+
+  @Test
+  public void testAddFieldsWithStringAttributeTokenizedAddsBothTxtAndTokenizedField()
+      throws Exception {
+    // Setup - STRING attribute that IS tokenized
+    String metacardTypeName = "test";
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
+    String attributeName = "title";
+    boolean indexed = true;
+    boolean stored = true;
+    boolean tokenized = true;
+    boolean multiValued = false;
+
+    attributeDescriptors.add(
+        new TestAttributeDescriptorImpl(
+            attributeName,
+            attributeName,
+            indexed,
+            stored,
+            tokenized,
+            multiValued,
+            BasicTypes.STRING_TYPE));
+
+    Attribute mockAttribute = mock(Attribute.class);
+    when(mockAttribute.getValue()).thenReturn("test value");
+    when(mockAttribute.getValues()).thenReturn(Collections.singletonList("test value"));
+
+    Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
+    when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
+    when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
+    when(mockMetacard.getAttribute(attributeName)).thenReturn(mockAttribute);
+
+    SolrInputDocument solrInputDocument = new SolrInputDocument();
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+
+    // Perform Test
+    resolver.addFields(mockMetacard, solrInputDocument);
+
+    // Verify - tokenized=true means both fields SHOULD be populated
+    assertThat(solrInputDocument.getFieldValue("title_txt"), is("test value"));
+    assertThat(solrInputDocument.getFieldValue("title_txt_tokenized"), is("test value"));
+  }
+
+  @Test
+  public void testGetFieldNumericalFallsBackToRequestedSuffix() {
+    // When no numerical field exists in cache, should fall back to the requested suffix
+    assertThat(
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.INTEGER, false, Collections.emptyMap()),
+        is("unknown_int"));
+    assertThat(
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.LONG, false, Collections.emptyMap()),
+        is("unknown_lng"));
+    assertThat(
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.DOUBLE, false, Collections.emptyMap()),
+        is("unknown_dbl"));
+    assertThat(
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.FLOAT, false, Collections.emptyMap()),
+        is("unknown_flt"));
+    assertThat(
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.SHORT, false, Collections.emptyMap()),
+        is("unknown_shr"));
+  }
+
+  @Test
+  public void testGetFieldXmlReturnsTextPathSuffix() {
+    // XML format should use TEXT_PATH (_tpt) suffix
+    assertThat(
+        dynamicSchemaResolver.getField(
+            "metadata", AttributeFormat.XML, false, Collections.emptyMap()),
+        is("metadata_xml_tpt"));
   }
 }

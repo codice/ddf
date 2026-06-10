@@ -232,7 +232,9 @@ public class SolrFilterDelegateTest {
         .thenReturn(SchemaFields.TOKENIZED);
     when(mockResolver.getCaseSensitiveField("testProperty_txt_tokenized", Collections.emptyMap()))
         .thenReturn("testProperty_txt_tokenized_tokenized");
-
+    when(mockResolver.getField(
+            "testProperty", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("testProperty_txt_tokenized");
     // when searching for like reserved characters
     SolrQuery likeQuery =
         toTest.propertyIsLike("testProperty", "+ - && || ! ( ) { } [ ] ^ \" ~ : \\*?", true);
@@ -445,6 +447,13 @@ public class SolrFilterDelegateTest {
         .thenReturn(Collections.singletonList("metadata_txt").stream());
     when(mockResolver.getSpecialIndexSuffix(AttributeFormat.STRING, Collections.emptyMap()))
         .thenReturn(SchemaFields.TOKENIZED);
+    when(mockResolver.getField(
+            "metadata_txt", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, true, Collections.emptyMap()))
+        .thenReturn("metadata_txt");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
 
     String searchPhrase = "abc-123*";
     String expectedQuery = "(" + TOKENIZED_METADATA_FIELD + ":(abc\\-123*))";
@@ -486,6 +495,13 @@ public class SolrFilterDelegateTest {
         .thenReturn(Collections.singletonList("metadata_txt").stream());
     when(mockResolver.getSpecialIndexSuffix(AttributeFormat.STRING, Collections.emptyMap()))
         .thenReturn(SchemaFields.TOKENIZED);
+    when(mockResolver.getField(
+            "metadata_txt", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, true, Collections.emptyMap()))
+        .thenReturn("metadata_txt");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
 
     String searchPhrase = "title*";
     String expectedQuery = "(" + TOKENIZED_METADATA_FIELD + ":(title*))";
@@ -502,6 +518,13 @@ public class SolrFilterDelegateTest {
         .thenReturn(Collections.singletonList("metadata_txt").stream());
     when(mockResolver.getSpecialIndexSuffix(AttributeFormat.STRING, Collections.emptyMap()))
         .thenReturn(SchemaFields.TOKENIZED);
+    when(mockResolver.getField(
+            "metadata_txt", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, true, Collections.emptyMap()))
+        .thenReturn("metadata_txt");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
 
     String searchPhrase = "abc 123*";
     String expectedQuery = "(" + TOKENIZED_METADATA_FIELD + ":(abc 123*))";
@@ -519,6 +542,13 @@ public class SolrFilterDelegateTest {
         .thenReturn(SchemaFields.TOKENIZED);
     when(mockResolver.getCaseSensitiveField("metadata_txt_tokenized", Collections.emptyMap()))
         .thenReturn("metadata_txt_tokenized_has_case");
+    when(mockResolver.getField(
+            "metadata_txt", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, true, Collections.emptyMap()))
+        .thenReturn("metadata_txt");
+    when(mockResolver.getField("metadata", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("metadata_txt_tokenized");
 
     String searchPhrase = "abc-123*";
     String expectedQuery =
@@ -688,6 +718,8 @@ public class SolrFilterDelegateTest {
   public void testPropertyIsInProximityTo() {
     when(mockResolver.getField("title", AttributeFormat.STRING, true, Collections.emptyMap()))
         .thenReturn("title_txt");
+    when(mockResolver.getField("title", AttributeFormat.STRING, false, Collections.emptyMap()))
+        .thenReturn("title_txt_tokenized");
     when(mockResolver.getSpecialIndexSuffix(AttributeFormat.STRING, Collections.emptyMap()))
         .thenReturn(SchemaFields.TOKENIZED);
 

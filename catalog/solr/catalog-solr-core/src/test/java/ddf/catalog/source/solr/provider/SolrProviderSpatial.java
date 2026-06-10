@@ -119,7 +119,7 @@ public class SolrProviderSpatial {
     // CREATE
     create(list, provider);
 
-    Filter filter = getFilterBuilder().attribute(Metacard.ID).is().like().text("*");
+    Filter filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("*");
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertEquals("Failed to find all records.", 3, sourceResponse.getResults().size());
 

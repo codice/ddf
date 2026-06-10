@@ -81,7 +81,7 @@ public class SolrProviderTestUtil {
 
     QueryImpl query;
     SourceResponse sourceResponse;
-    query = new QueryImpl(filterBuilder.attribute(Metacard.ID).is().like().text("*"));
+    query = new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text("*"));
     query.setPageSize(ALL_RESULTS);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -180,15 +180,15 @@ public class SolrProviderTestUtil {
     descriptors.add(
         new AttributeDescriptorImpl(Metacard.ID, true, true, true, false, BasicTypes.STRING_TYPE));
     descriptors.add(
-        new AttributeDescriptorImpl(doubleField, true, true, true, false, BasicTypes.DOUBLE_TYPE));
+        new AttributeDescriptorImpl(doubleField, true, true, false, false, BasicTypes.DOUBLE_TYPE));
     descriptors.add(
-        new AttributeDescriptorImpl(floatField, true, true, true, false, BasicTypes.FLOAT_TYPE));
+        new AttributeDescriptorImpl(floatField, true, true, false, false, BasicTypes.FLOAT_TYPE));
     descriptors.add(
-        new AttributeDescriptorImpl(intField, true, true, true, false, BasicTypes.INTEGER_TYPE));
+        new AttributeDescriptorImpl(intField, true, true, false, false, BasicTypes.INTEGER_TYPE));
     descriptors.add(
-        new AttributeDescriptorImpl(longField, true, true, true, false, BasicTypes.LONG_TYPE));
+        new AttributeDescriptorImpl(longField, true, true, false, false, BasicTypes.LONG_TYPE));
     descriptors.add(
-        new AttributeDescriptorImpl(shortField, true, true, true, false, BasicTypes.SHORT_TYPE));
+        new AttributeDescriptorImpl(shortField, true, true, false, false, BasicTypes.SHORT_TYPE));
     return descriptors;
   }
 

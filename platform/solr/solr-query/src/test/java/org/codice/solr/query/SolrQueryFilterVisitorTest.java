@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.util.NamedList;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.Or;
+import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,15 +130,14 @@ public class SolrQueryFilterVisitorTest {
   public void testUnsupportedQuery() throws Exception {
     Filter filter = ECQL.toFilter("property LIKE 'val*'");
     SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
-    assertThat(solrQuery.getQuery().trim(), equalTo("property_txt_tokenized:val*"));
+    assertThat(solrQuery.getQuery().trim(), equalTo("property_txt:val*"));
   }
 
   @Test
   public void testGetMappedPropertyNameCache() {
     SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
     SchemaField schema = new SchemaField("testField_int", "tint");
-    schema.setSuffix("_int");
-    when(mockResolver.getSchemaField("testField", true)).thenReturn(schema);
+    when(mockResolver.getSchemaField("testField")).thenReturn(schema);
     solrVisitor = new SolrQueryFilterVisitor("alerts", mockResolver);
 
     String propertyName = solrVisitor.getMappedPropertyName("testField");
@@ -145,7 +145,7 @@ public class SolrQueryFilterVisitorTest {
 
     propertyName = solrVisitor.getMappedPropertyName("testField");
     assertThat(propertyName, is("testField_int"));
-    verify(mockResolver, times(1)).getSchemaField("testField", true);
+    verify(mockResolver, times(1)).getSchemaField("testField");
   }
 
   @Test
@@ -153,7 +153,7 @@ public class SolrQueryFilterVisitorTest {
     SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
 
     // returning null simulates no entry in SOLR to query schema for "testField"
-    when(mockResolver.getSchemaField("testField2", true)).thenReturn(null);
+    when(mockResolver.getSchemaField("testField2")).thenReturn(null);
     when(mockResolver.getFieldSuffix(AttributeFormat.STRING)).thenReturn("_txt");
     solrVisitor = new SolrQueryFilterVisitor("alerts", mockResolver);
 
@@ -162,12 +162,46 @@ public class SolrQueryFilterVisitorTest {
 
     // simulates an entry in SOLR to query schema for "testField"
     SchemaField schema = new SchemaField("testField2_int", "tint");
-    schema.setSuffix("_int");
 
-    when(mockResolver.getSchemaField("testField2", true)).thenReturn(schema);
+    when(mockResolver.getSchemaField("testField2")).thenReturn(schema);
     propertyName = solrVisitor.getMappedPropertyName("testField2");
     assertThat(propertyName, is("testField2_int"));
 
-    verify(mockResolver, times(2)).getSchemaField("testField2", true);
+    verify(mockResolver, times(2)).getSchemaField("testField2");
+  }
+
+  @Test
+  public void testGetMappedPropertyName() {
+    SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
+    SchemaField schema = new SchemaField("metadata_txt", "string");
+    when(mockResolver.getSchemaField("metadata")).thenReturn(schema);
+    solrVisitor = new SolrQueryFilterVisitor("alert", mockResolver);
+    String propertyName = solrVisitor.getMappedPropertyName("metadata");
+    assertThat(propertyName, is("metadata_txt"));
+    verify(mockResolver, times(1)).getSchemaField("metadata");
+  }
+
+  @Test
+  public void testPropertyIsLikeWithSpecialSuffix() throws CQLException {
+    SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
+    SchemaField schema = new SchemaField("metadata2_txt", "string");
+    schema.setSpecialSuffix(SchemaFieldResolver.TOKENIZED);
+    when(mockResolver.getSchemaField("metadata2")).thenReturn(schema);
+    solrVisitor = new SolrQueryFilterVisitor("alert", mockResolver);
+    Filter filter = ECQL.toFilter("metadata2 LIKE 'val*'");
+    SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
+    assertThat(solrQuery.getQuery().trim(), equalTo("metadata2_txt_tokenized:val*"));
+  }
+
+  @Test
+  public void testPropertyIsLikeWithoutSpecialSuffix() throws CQLException {
+    SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
+    SchemaField schema = new SchemaField("metadata3_txt", "string");
+    when(mockResolver.getSchemaField("metadata3")).thenReturn(schema);
+    when(mockResolver.getFieldSuffix(AttributeFormat.STRING)).thenReturn("_txt");
+    solrVisitor = new SolrQueryFilterVisitor("alert", mockResolver);
+    Filter filter = ECQL.toFilter("metadata3 LIKE 'val*'");
+    SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
+    assertThat(solrQuery.getQuery().trim(), equalTo("metadata3_txt:val*"));
   }
 }

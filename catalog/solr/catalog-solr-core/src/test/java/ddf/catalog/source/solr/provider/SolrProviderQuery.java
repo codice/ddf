@@ -206,7 +206,7 @@ public class SolrProviderQuery {
 
     create(list, provider);
 
-    Filter txtFilter = getFilterBuilder().attribute("id").like().text("*");
+    Filter txtFilter = getFilterBuilder().attribute(Metacard.ANY_TEXT).like().text("*");
 
     QueryImpl query = new QueryImpl(txtFilter);
 

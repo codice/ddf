@@ -313,19 +313,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   private String wildcardSolrQuery(
       String searchPhrase, String propertyName, boolean isCaseSensitive, boolean isExact) {
     String solrQuery;
-    String tokenized = resolver.getSpecialIndexSuffix(AttributeFormat.STRING, enabledFeatures);
     if (Metacard.ANY_TEXT.equals(propertyName)) {
       solrQuery =
           resolver
               .anyTextFields()
               .map(
-                  field -> {
-                    if (!isExact) {
-                      return field + tokenized;
-                    } else {
-                      return field;
-                    }
-                  })
+                  field ->
+                      resolver.getField(
+                          field, AttributeFormat.STRING, isExact, Collections.emptyMap()))
               .map(
                   textField -> {
                     if (isCaseSensitive && !isExact) {
@@ -337,10 +332,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
               .map(field -> field + ":" + searchPhrase)
               .collect(Collectors.joining(" "));
     } else {
-      String field = getMappedPropertyName(propertyName, AttributeFormat.STRING, true);
-      if (!isExact) {
-        field += tokenized;
-      }
+      String field = getMappedPropertyName(propertyName, AttributeFormat.STRING, isExact);
       if (isCaseSensitive && !isExact) {
         field = resolver.getCaseSensitiveField(field, enabledFeatures);
       }

@@ -178,9 +178,6 @@ public class DynamicSchemaResolver {
       textSortCharacterLimit = 127;
     }
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
-    fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
-    fieldsCache.add(
-        Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
 
     fieldsCache.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
     fieldsCache.add(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
@@ -273,10 +270,10 @@ public class DynamicSchemaResolver {
           if (AttributeFormat.XML.equals(format)
               && solrInputDocument.getFieldValue(
                       formatIndexName + getSpecialIndexSuffix(AttributeFormat.STRING))
-                  == null) {
+                  == null
+              && ad.isTokenized()) {
             List<String> parsedTexts = parseTextFrom(attributeValues);
-
-            // parsedTexts => *_txt_tokenized
+            // parsedTexts => *_txt_tokenized - only if attribute is tokenized
             String specialStringIndexName =
                 ad.getName()
                     + getFieldSuffix(AttributeFormat.STRING)
@@ -294,12 +291,14 @@ public class DynamicSchemaResolver {
             solrInputDocument.addField(
                 ad.getName() + getFieldSuffix(AttributeFormat.STRING), truncatedValues);
 
-            // *_txt_tokenized
-            solrInputDocument.addField(
-                ad.getName()
-                    + getFieldSuffix(AttributeFormat.STRING)
-                    + getSpecialIndexSuffix(AttributeFormat.STRING),
-                attributeValues);
+            // *_txt_tokenized - only if attribute is tokenized
+            if (ad.isTokenized()) {
+              solrInputDocument.addField(
+                  ad.getName()
+                      + getFieldSuffix(AttributeFormat.STRING)
+                      + getSpecialIndexSuffix(AttributeFormat.STRING),
+                  attributeValues);
+            }
           } else if (AttributeFormat.OBJECT.equals(format)) {
             ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
             List<Serializable> byteArrays = new ArrayList<>();
@@ -594,13 +593,12 @@ public class DynamicSchemaResolver {
       Map<String, Serializable> enabledFeatures) {
 
     final String fieldSuffix = getFieldSuffix(format);
-    String fieldName =
-        propertyName
-            + fieldSuffix
-            + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format, enabledFeatures));
+    String baseName = propertyName + fieldSuffix;
+    String extendedName =
+        baseName + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format, enabledFeatures));
 
-    if (fieldsCache.contains(fieldName)) {
-      return fieldName;
+    if (fieldsCache.contains(extendedName)) {
+      return extendedName;
     }
 
     switch (format) {
@@ -613,13 +611,14 @@ public class DynamicSchemaResolver {
       default:
         break;
     }
-
+    // if we have the base name in the cache but not the extended name assume the extended doesn't
+    // exist otherwise fallback to the old convention
+    String bestGuess = fieldsCache.contains(baseName) ? baseName : extendedName;
     LOGGER.debug(
         "Could not find exact schema field name for [{}], attempting to search with [{}]",
         propertyName,
-        fieldName);
-
-    return fieldName;
+        bestGuess);
+    return bestGuess;
   }
 
   private String getFieldSuffix(AttributeFormat format) {
@@ -658,8 +657,11 @@ public class DynamicSchemaResolver {
         && mappedPropertyName.endsWith(SchemaFields.PHONETICS)) {
       return mappedPropertyName;
     }
-    // TODO We can check if this field really does exist
-    return mappedPropertyName + SchemaFields.HAS_CASE;
+    String potentialField = mappedPropertyName + SchemaFields.HAS_CASE;
+    if (fieldsCache.contains(potentialField)) {
+      return potentialField;
+    }
+    return fieldsCache.contains(mappedPropertyName) ? mappedPropertyName : potentialField;
   }
 
   private String getSpecialIndexSuffix(AttributeFormat format) {
@@ -705,6 +707,18 @@ public class DynamicSchemaResolver {
     AttributeFormat format = descriptor.getType().getAttributeFormat();
 
     fieldsCache.add(descriptor.getName() + schemaFields.getFieldSuffix(format));
+
+    if (format.equals(AttributeFormat.GEOMETRY)) {
+      fieldsCache.add(
+          descriptor.getName()
+              + schemaFields.getFieldSuffix(format)
+              + getSpecialIndexSuffix(format));
+      return;
+    }
+
+    if (!descriptor.isTokenized()) {
+      return;
+    }
 
     if (!getSpecialIndexSuffix(format).equals("")) {
       fieldsCache.add(
@@ -892,9 +906,7 @@ public class DynamicSchemaResolver {
               .collect(Collectors.toList());
     }
 
-    return fields.stream()
-        .map(field -> field + SchemaFields.TEXT_SUFFIX)
-        .collect(Collectors.toSet());
+    return new HashSet<>(fields);
   }
 
   private Set<String> getAnyGeoFields() {
