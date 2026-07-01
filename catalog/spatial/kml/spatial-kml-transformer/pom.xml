@@ -132,7 +132,11 @@
                             catalog-core-actions,
                             spatial-kml-util
                         </Embed-Dependency>
-                        <Import-Package>!org.abego.treelayout.*, *</Import-Package>
+                        <Import-Package>
+                            jakarta.servlet;resolution:=optional,
+                            !org.abego.treelayout.*,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

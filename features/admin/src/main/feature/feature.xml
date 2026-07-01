@@ -39,6 +39,7 @@
         <feature>pax-web-http-whiteboard</feature>
         <feature>resource-bundle-locator</feature>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
     </feature>
 

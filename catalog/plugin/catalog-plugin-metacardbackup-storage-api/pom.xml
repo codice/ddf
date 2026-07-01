@@ -31,10 +31,6 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>
-                            handlebars,
-                            antlr4-runtime
-                        </Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.catalog.plugin.metacard.backup.internal*
                         </Export-Package>

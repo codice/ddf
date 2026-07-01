@@ -87,6 +87,7 @@
                             commons-lang3
                         </Embed-Dependency>
                         <Import-Package>
+                            jakarta.servlet;resolution:=optional,
                             !org.abego.treelayout.*,
                             *
                         </Import-Package>

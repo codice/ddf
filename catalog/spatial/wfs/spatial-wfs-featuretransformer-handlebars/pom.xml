@@ -149,6 +149,7 @@
                             spatial-wfs-v1_0_0-schema-bindings
                         </Embed-Dependency>
                         <Import-Package>
+                            jakarta.servlet;resolution:=optional,
                             !org.abego.treelayout.*,
                             !com.sun.management,
                             !org.bouncycastle.crypto.*,

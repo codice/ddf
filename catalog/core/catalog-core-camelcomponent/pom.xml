@@ -154,6 +154,7 @@
                             org.apache.camel*; version="2.10.0",
                             org.osgi.framework; version="1.5.0",
                             org.slf4j*; version="1.6.0",
+                            jakarta.servlet;resolution:=optional,
                             !org.abego.treelayout.*,
                             sun.misc;resolution:=optional,
                             javax.cache;resolution:=optional,

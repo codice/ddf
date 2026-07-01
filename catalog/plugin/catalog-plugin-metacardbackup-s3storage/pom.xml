@@ -134,6 +134,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                         <Import-Package>
+                            jakarta.servlet;resolution:=optional,
                             !org.abego.treelayout.*,
                             *
                         </Import-Package>

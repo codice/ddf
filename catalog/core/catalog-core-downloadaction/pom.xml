@@ -78,6 +78,7 @@
                             antlr4-runtime
                         </Embed-Dependency>
                         <Import-Package>
+                            jakarta.servlet;resolution:=optional,
                             !org.abego.treelayout.*,
                             *
                         </Import-Package>

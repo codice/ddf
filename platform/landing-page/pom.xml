@@ -113,6 +113,7 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
+                            jakarta.servlet;resolution:=optional,
                             !org.abego.treelayout.*,
                             org.codice.ddf.branding;version="[2,3)",
                             *
