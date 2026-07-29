@@ -17,6 +17,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/specs/${karaf.version}/xml/features</repository>
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
@@ -40,6 +41,7 @@
         <feature>cxf-bindings-soap</feature>
         <feature>cxf-features-logging</feature>
         <feature>common-system</feature>
+        <feature>shiro-core</feature>
 
         <!-- NimbusDS -->
         <bundle>wrap:mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.jose.jwt.version}</bundle>
@@ -52,7 +54,6 @@
         <bundle>mvn:net.minidev/json-smart/${json-smart.version}</bundle>
 
         <!-- Miscellaneous -->
-        <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
         <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
 
@@ -311,6 +312,24 @@
             mvn:ddf.security.claims/security-claims-ldap/${project.version}/properties/attributeMap
         </configfile>
         <bundle>mvn:ddf.security.claims/security-claims-ldap/${project.version}</bundle>
+    </feature>
+
+    <feature name="shiro-core" version="${project.version}" description="Bundles required for Apache Shiro Core">
+        <!-- Shiro core bundles -->
+        <feature prerequisite="true">spifly</feature>
+        <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-annotation_1.3_spec/${geronimo-annotation.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-lang/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-cache/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-config-ogdl/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-crypto-core/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-crypto-cipher/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-crypto-hash/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-config-core/${apache.shiro.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.shiro/shiro-event/${apache.shiro.version}</bundle>
+        <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
     </feature>
 
     <feature name="security-all" version="${project.version}"

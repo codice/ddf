@@ -90,6 +90,7 @@
                                 <descriptor>mvn:ddf.features/apps/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/branding/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/security/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.shiro/shiro-features/${apache.shiro.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/solr/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.features/utilities/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</descriptor>
