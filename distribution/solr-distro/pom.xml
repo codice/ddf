@@ -76,6 +76,7 @@
                             <readTimeOut>60000</readTimeOut>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
+                            <!-- When this value changes, a new tarball must be deployed to https://repo.codice.org/repository/maven-public/ -->
                             <sha512>23915ba0c9eba81d9ed7dd46bf3dfa748a1cf12cfd1d2bc3c37e3022893b8d45a6d6dc078ee79e33c0367191c3e4f2d1df3c6f5705331ccfe13d6b1287812eb0</sha512>
                           <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
