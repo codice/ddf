@@ -100,7 +100,7 @@ public class CoreAttributes implements Core, MetacardType {
     descriptors.add(
         new AttributeDescriptorImpl(
             METADATA,
-            true /* indexed */,
+            false /* indexed */,
             true /* stored */,
             true /* tokenized */,
             false /* multivalued */,
