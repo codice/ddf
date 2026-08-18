@@ -34,6 +34,12 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
 
+    <New id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
+        <Set name="requestHeaderSize">
+            <Env name="JETTY_MAX_HTTP_REQUEST_HEADER_SIZE" default="8192"/>
+        </Set>
+    </New>
+
     <Call name="setSessionIdManager">
         <Arg>
             <New class="org.codice.ddf.security.session.AttributeSharingHashSessionIdManager">
@@ -105,8 +111,5 @@
             </Set>
         </New>
     </Set>
-
-
-
 
 </Configure>
