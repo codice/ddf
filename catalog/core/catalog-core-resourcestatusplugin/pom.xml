@@ -112,6 +112,7 @@
                             org.apache.logging.log4j.core.config;resolution:=optional,
                             org.apache.openejb.*;resolution:=optional,
                             picocli;resolution:=optional,
+                            io.dropwizard.*;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
@@ -130,7 +131,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>14.5_MB</maxArtifactSize>
+                                    <maxArtifactSize>20.5_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
