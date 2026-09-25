@@ -205,7 +205,7 @@
         <jai-imageio-core.version>1.4.0</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
-        <jackson.version>2.21.2</jackson.version>
+        <jackson.version>2.21.7</jackson.version>
         <jakarta.xml.bind.version>2.3.2</jakarta.xml.bind.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.mail.version>1.6.7</jakarta.mail.version>
@@ -285,7 +285,7 @@
         <quartz.version>2.5.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
-        <hazelcast.version>5.3.5</hazelcast.version>
+        <hazelcast.version>5.7.0</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_3</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
