@@ -123,7 +123,7 @@
         <spock.version>2.3-groovy-4.0</spock.version>
         <mockito.version>3.6.28</mockito.version>
         <pax.exam.version>4.14.0</pax.exam.version>
-        <pax.logging.version>2.3.4</pax.logging.version>
+        <pax.logging.version>2.3.3</pax.logging.version>
         <pax.url.version>2.7.1</pax.url.version>
         <pax.web.version>8.0.35</pax.web.version>
         <restito.version>1.1.2</restito.version>
