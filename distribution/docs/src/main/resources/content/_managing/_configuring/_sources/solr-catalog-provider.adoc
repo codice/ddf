@@ -57,7 +57,7 @@ Configuration shared between Solr Server instances is managed by Zookeeper.
 
 .SolrCloud Prerequisites
 
-* https://lucene.apache.org/solr/downloads.html[Solr ${solr.version}] {external-link}
+* https://solr.apache.org/downloads.html[Solr ${solr.version}] {external-link}
 * https://zookeeper.apache.org/releases.html#download[ZooKeeper ${solr.zookeeper.version}] {external-link}
 * JRE 8 or greater
 
@@ -67,7 +67,7 @@ A minimum of three Zookeeper nodes required.
 Three Zookeeper nodes are needed to form a quorum.
 A three Zookeeper ensemble allows for a single server to fail and the service to still be available.
 More Zookeeper nodes can be added to achieve greater fault tolerance. The total number of nodes must always be an odd number.
-See https://lucene.apache.org/solr/guide/${solr.docs.version}/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[
+See https://solr.apache.org/guide/solr/${solr.docs.version}/deployment-guide/zookeeper-ensemble.html[
 Setting Up an External Zoo Keeper Ensemble] for more information.
 ====
 
@@ -75,11 +75,11 @@ Setting Up an External Zoo Keeper Ensemble] for more information.
 
 Review and complete the following Zookeeper and Solr documentation:
 
-* https://lucene.apache.org/solr/guide/${solr.docs.version}/getting-started.html[Getting Started] {external-link}
+* https://solr.apache.org/guide/solr/${solr.docs.version}/getting-started/introduction.html[Getting Started] {external-link}
 * https://zookeeper.apache.org/doc/r${solr.zookeeper.version}/zookeeperStarted.html[ZooKeeper Getting Started Guide] {external-link}
-* https://lucene.apache.org/solr/guide/${solr.docs.version}/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[Setting Up an External Zookeeper Ensemble] {external-link}
-* https://lucene.apache.org/solr/guide/${solr.docs.version}/taking-solr-to-production.html[Taking Solr to Production] {external-link}
-* https://lucene.apache.org/solr/guide/${solr.docs.version}/securing-solr.html[Securing Solr] {external-link}
+* https://solr.apache.org/guide/solr/${solr.docs.version}/deployment-guide/zookeeper-ensemble.html[Setting Up an External Zookeeper Ensemble] {external-link}
+* https://solr.apache.org/guide/solr/${solr.docs.version}/deployment-guide/taking-solr-to-production.html[Taking Solr to Production] {external-link}
+* https://solr.apache.org/guide/solr/${solr.docs.version}/deployment-guide/securing-solr.html[Securing Solr] {external-link}
 
 [NOTE]
 ====
