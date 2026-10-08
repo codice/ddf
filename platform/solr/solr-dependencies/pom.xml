@@ -238,6 +238,7 @@
                             httpmime,
                             zookeeper,
                             zookeeper-jute,
+                            <!-- We may be able to remove netty-handler when we upgrade to zookeeper 3.9.7 or later. -->
                             netty-handler
                         </Embed-Dependency>
                         <Import-Package>
