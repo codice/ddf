@@ -128,15 +128,6 @@
 
     <suppress>
         <notes>
-            The CVE is for hazelcast, but is being reported against hazelcast-client-protocol,
-            which is a different project.
-        </notes>
-        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-client\-protocol@.*$</packageUrl>
-        <cve>CVE-2016-10750</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
             These CVEs are for Karaf but are being reported against Karaf Decanter
         </notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.karaf\.decanter.*/org\.apache\.karaf\.decanter.*@.*$</packageUrl>

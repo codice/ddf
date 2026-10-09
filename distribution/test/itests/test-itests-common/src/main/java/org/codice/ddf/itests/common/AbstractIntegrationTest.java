@@ -547,8 +547,6 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             "etc/org.apache.karaf.management.cfg", "rmiServerPort", RMI_SERVER_PORT.getPort()),
         installStartupFile(
-            getClass().getClassLoader().getResource("hazelcast.xml"), "/etc/hazelcast.xml"),
-        installStartupFile(
             getClass().getClassLoader().getResource("collection.properties"),
             "/etc/solr/configsets/default/collection.properties"),
         installStartupFile(
