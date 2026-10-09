@@ -15,8 +15,6 @@ package org.codice.ddf.catalog.content.monitor;
 
 import static ddf.catalog.Constants.CDM_LOGGER_NAME;
 
-import com.hazelcast.map.MapLoader;
-import com.hazelcast.map.MapStore;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -40,15 +38,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize and
- * persist Java objects stored in Hazelcast cache to disk.
+ * Serializes Java objects to disk, one file per key, under a named directory in DDF_HOME/data.
  *
  * <p>NOTE: The usage of object serialization/deserialization may trigger static analysis warnings.
  * This usage is acceptable as the read/write directory is not configurable and lives under
  * DDF_HOME.
  */
-public class FileSystemPersistenceProvider
-    implements MapLoader<String, Object>, MapStore<String, Object> {
+public class FileSystemPersistenceProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CDM_LOGGER_NAME);
 
@@ -74,8 +70,8 @@ public class FileSystemPersistenceProvider
   }
 
   /**
-   * Retrieve root directory of all persisted Hazelcast objects for this cache. The path is relative
-   * to containing bundle, i.e., DDF install directory.
+   * Retrieve root directory of all persisted objects. The path is relative to containing bundle,
+   * i.e., DDF install directory.
    *
    * @return the path to root directory where serialized objects will be persisted
    */
@@ -84,7 +80,7 @@ public class FileSystemPersistenceProvider
   }
 
   /**
-   * Path to where persisted Hazelcast objects will be stored to disk.
+   * Path to where persisted objects for this map will be stored to disk.
    *
    * @return
    */
@@ -92,7 +88,6 @@ public class FileSystemPersistenceProvider
     return Paths.get(getPersistencePath(), mapName).toString() + File.separator;
   }
 
-  @Override
   public void store(String key, Object value) {
     File dir = new File(getMapStorePath());
     if (!dir.exists() && !dir.mkdir()) {
@@ -108,14 +103,12 @@ public class FileSystemPersistenceProvider
     }
   }
 
-  @Override
   public void storeAll(Map<String, Object> keyValueMap) {
     for (Map.Entry<String, Object> entry : keyValueMap.entrySet()) {
       store(entry.getKey(), entry.getValue());
     }
   }
 
-  @Override
   public void delete(String key) {
     File file = new File(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
     if (file.exists()) {
@@ -125,18 +118,14 @@ public class FileSystemPersistenceProvider
     }
   }
 
-  @Override
   public void deleteAll(Collection<String> keys) {
     for (String key : keys) {
       delete(key);
     }
   }
 
-  @Override
   public Object load(String key) {
-    // Not implemented because the Hazelcast data grid is all in cache,
-    // so we will never have something persisted that is
-    // not in memory and want to avoid a performance hit on the file system
+    // Not implemented. Callers read from disk via loadFromPersistence or loadAll.
     return null;
   }
 
@@ -161,7 +150,6 @@ public class FileSystemPersistenceProvider
     return null;
   }
 
-  @Override
   public Map<String, Object> loadAll(Collection<String> keys) {
     Map<String, Object> values = new HashMap<String, Object>();
 
@@ -187,7 +175,6 @@ public class FileSystemPersistenceProvider
     return filter;
   }
 
-  @Override
   public Set<String> loadAllKeys() {
     Set<String> keys = new HashSet<String>();
 

@@ -285,7 +285,6 @@
         <quartz.version>2.5.2</quartz.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
-        <hazelcast.version>5.7.0</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix.bundles.jaxb.version>${jaxb.version}_3</servicemix.bundles.jaxb.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
