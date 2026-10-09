@@ -206,6 +206,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.138.Final</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -232,7 +237,9 @@
                             commons-io,
                             httpmime,
                             zookeeper,
-                            zookeeper-jute
+                            zookeeper-jute,
+                            <!-- We may be able to remove netty-handler when we upgrade to zookeeper 3.9.7 or later. -->
+                            netty-handler
                         </Embed-Dependency>
                         <Import-Package>
                             org.slf4j;version=${org.slf4j.version},
@@ -380,7 +387,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>44_MB</maxArtifactSize>
+                                    <maxArtifactSize>5_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

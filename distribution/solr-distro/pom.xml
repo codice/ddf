@@ -77,8 +77,8 @@
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
                             <!-- When this value changes, a new tarball must be deployed to https://repo.codice.org/repository/maven-public/ -->
-                            <sha512>23915ba0c9eba81d9ed7dd46bf3dfa748a1cf12cfd1d2bc3c37e3022893b8d45a6d6dc078ee79e33c0367191c3e4f2d1df3c6f5705331ccfe13d6b1287812eb0</sha512>
-                          <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
+                            <sha512>0cf320f15662b03844e2d3e983b2a50abab3e643d9aff53ed5a4481ef870776420c7bd8dfde377183d44304dcc589f6784ab020eb7c6675000f86fe32fff4057</sha512>
+                            <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>
                 </executions>

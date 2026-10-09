@@ -7,4 +7,4 @@
 
 == {title}
 
-Refer to https://lucene.apache.org/solr/guide/${solr.docs.version}/taking-solr-to-production.html[Taking Solr to Production] {external-link} in the Solr documentation for configuring Solr as a Windows or init.d service.
+Refer to https://solr.apache.org/guide/solr/${solr.docs.version}/deployment-guide/taking-solr-to-production.html[Taking Solr to Production] {external-link} in the Solr documentation for configuring Solr as a Windows or init.d service.
