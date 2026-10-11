@@ -48,9 +48,9 @@
                     <version>${fabric8.docker.plugin.version}</version>
                 </plugin>
                 <!--
-                Karaf only applies the Jackson bundleReplacements (etc/org.apache.karaf.features.xml)
-                at install time, so features-add-to-repository still stages the versions pinned by
-                Karaf, pax-web and CXF features. Those can never load but show up in CVE scans.
+                Karaf only applies bundleReplacements (etc/org.apache.karaf.features.xml) at install
+                time, so features-add-to-repository still stages the versions pinned by Karaf, pax-web,
+                CXF and Shiro features. Those can never load but show up in CVE scans.
                 Delete them from ${karaf.system.dir} before the zip is assembled, and fail if a
                 replacement target is missing. Modules that declare this plugin must set
                 karaf.system.dir and declare it before maven-assembly-plugin.
@@ -60,7 +60,7 @@
                     <version>3.0.0</version>
                     <executions>
                         <execution>
-                            <id>prune-replaced-jackson</id>
+                            <id>prune-replaced-bundles</id>
                             <phase>package</phase>
                             <goals>
                                 <goal>run</goal>
@@ -85,7 +85,19 @@
                                             <exclude name="datatype/jackson-datatype-jsr310/${jackson.version}/**"/>
                                         </fileset>
                                     </delete>
-                                    <fail message="A Jackson bundleReplacements target is missing from ${karaf.system.dir}; add it to the jackson-replacements feature in features/kernel">
+                                    <delete includeemptydirs="true">
+                                        <fileset dir="${project.basedir}/${karaf.system.dir}/org" erroronmissingdir="false">
+                                            <include name="bouncycastle/bcprov-jdk18on/*/**"/>
+                                            <include name="bouncycastle/bcpkix-jdk18on/*/**"/>
+                                            <include name="bouncycastle/bcutil-jdk18on/*/**"/>
+                                            <include name="apache/commons/commons-text/*/**"/>
+                                            <exclude name="bouncycastle/bcprov-jdk18on/${bouncy.version}/**"/>
+                                            <exclude name="bouncycastle/bcpkix-jdk18on/${bouncy.version}/**"/>
+                                            <exclude name="bouncycastle/bcutil-jdk18on/${bouncy.version}/**"/>
+                                            <exclude name="apache/commons/commons-text/${commons-text.version}/**"/>
+                                        </fileset>
+                                    </delete>
+                                    <fail message="A bundleReplacements target is missing from ${karaf.system.dir}; add it to the bundle-replacements feature in features/kernel">
                                         <condition>
                                             <not>
                                                 <and>
@@ -96,6 +108,10 @@
                                                     <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/jaxrs/jackson-jaxrs-base/${jackson.version}/jackson-jaxrs-base-${jackson.version}.jar"/>
                                                     <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/jaxrs/jackson-jaxrs-json-provider/${jackson.version}/jackson-jaxrs-json-provider-${jackson.version}.jar"/>
                                                     <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/${jackson.version}/jackson-datatype-jsr310-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcprov-jdk18on/${bouncy.version}/bcprov-jdk18on-${bouncy.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcpkix-jdk18on/${bouncy.version}/bcpkix-jdk18on-${bouncy.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcutil-jdk18on/${bouncy.version}/bcutil-jdk18on-${bouncy.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/apache/commons/commons-text/${commons-text.version}/commons-text-${commons-text.version}.jar"/>
                                                 </and>
                                             </not>
                                         </condition>

@@ -293,7 +293,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Runs prune-replaced-jackson from the parent; must stay before maven-assembly-plugin. -->
+            <!-- Runs prune-replaced-bundles from the parent; must stay before maven-assembly-plugin. -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
             </plugin>
