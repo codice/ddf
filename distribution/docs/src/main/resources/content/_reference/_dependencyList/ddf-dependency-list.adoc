@@ -32,7 +32,6 @@
 * `com.google.protobuf:protobuf-java:jar:3.12.4`
 * `com.googlecode.json-simple:json-simple:jar:1.1.1`
 * `com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:jar:20191001.1`
-* `com.hazelcast:hazelcast:jar:3.12.10`
 * `com.jhlabs:filters:jar:2.0.235-1`
 * `com.mchange:c3p0:jar:0.9.5.5`
 * `com.nimbusds:lang-tag:jar:1.4.4`
