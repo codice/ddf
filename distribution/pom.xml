@@ -53,11 +53,11 @@
                 CXF and Shiro features. Those can never load but show up in CVE scans.
                 Delete them from ${karaf.system.dir} before the zip is assembled, and fail if a
                 replacement target is missing. Modules that declare this plugin must set
-                karaf.system.dir and declare it before maven-assembly-plugin.
+                karaf.system.dir and declare the plugin before maven-assembly-plugin.
                 -->
                 <plugin>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.2.0</version>
                     <executions>
                         <execution>
                             <id>prune-replaced-bundles</id>
