@@ -22,7 +22,23 @@
 
     <artifactId>tika</artifactId>
     <packaging>bundle</packaging>
-    
+
+    <!-- Override parser transitives that Tika pins below their CVE fix versions. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.junrar</groupId>
+                <artifactId>junrar</artifactId>
+                <version>${junrar.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.tika</groupId>
