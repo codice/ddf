@@ -47,6 +47,80 @@
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>${fabric8.docker.plugin.version}</version>
                 </plugin>
+                <!--
+                Karaf only applies bundleReplacements (etc/org.apache.karaf.features.xml) at install
+                time, so features-add-to-repository still stages the versions pinned by Karaf, pax-web,
+                CXF and Shiro features. Those can never load but show up in CVE scans.
+                Delete them from ${karaf.system.dir} before the zip is assembled, and fail if a
+                replacement target is missing. Modules that declare this plugin must set
+                karaf.system.dir and declare the plugin before maven-assembly-plugin.
+                -->
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <executions>
+                        <execution>
+                            <id>prune-replaced-bundles</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <target>
+                                    <delete includeemptydirs="true">
+                                        <fileset dir="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson" erroronmissingdir="false">
+                                            <include name="core/jackson-annotations/*/**"/>
+                                            <include name="core/jackson-core/*/**"/>
+                                            <include name="core/jackson-databind/*/**"/>
+                                            <include name="dataformat/jackson-dataformat-yaml/*/**"/>
+                                            <include name="jaxrs/jackson-jaxrs-base/*/**"/>
+                                            <include name="jaxrs/jackson-jaxrs-json-provider/*/**"/>
+                                            <include name="datatype/jackson-datatype-jsr310/*/**"/>
+                                            <exclude name="core/jackson-annotations/${jackson.annotations.version}/**"/>
+                                            <exclude name="core/jackson-core/${jackson.version}/**"/>
+                                            <exclude name="core/jackson-databind/${jackson.version}/**"/>
+                                            <exclude name="dataformat/jackson-dataformat-yaml/${jackson.version}/**"/>
+                                            <exclude name="jaxrs/jackson-jaxrs-base/${jackson.version}/**"/>
+                                            <exclude name="jaxrs/jackson-jaxrs-json-provider/${jackson.version}/**"/>
+                                            <exclude name="datatype/jackson-datatype-jsr310/${jackson.version}/**"/>
+                                        </fileset>
+                                    </delete>
+                                    <delete includeemptydirs="true">
+                                        <fileset dir="${project.basedir}/${karaf.system.dir}/org" erroronmissingdir="false">
+                                            <include name="bouncycastle/bcprov-jdk18on/*/**"/>
+                                            <include name="bouncycastle/bcpkix-jdk18on/*/**"/>
+                                            <include name="bouncycastle/bcutil-jdk18on/*/**"/>
+                                            <include name="apache/commons/commons-text/*/**"/>
+                                            <exclude name="bouncycastle/bcprov-jdk18on/${bouncy.version}/**"/>
+                                            <exclude name="bouncycastle/bcpkix-jdk18on/${bouncy.version}/**"/>
+                                            <exclude name="bouncycastle/bcutil-jdk18on/${bouncy.version}/**"/>
+                                            <exclude name="apache/commons/commons-text/${commons-text.version}/**"/>
+                                        </fileset>
+                                    </delete>
+                                    <fail message="A bundleReplacements target is missing from ${karaf.system.dir}; add it to the bundle-replacements feature in features/kernel">
+                                        <condition>
+                                            <not>
+                                                <and>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/core/jackson-annotations/${jackson.annotations.version}/jackson-annotations-${jackson.annotations.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/core/jackson-core/${jackson.version}/jackson-core-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/core/jackson-databind/${jackson.version}/jackson-databind-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/${jackson.version}/jackson-dataformat-yaml-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/jaxrs/jackson-jaxrs-base/${jackson.version}/jackson-jaxrs-base-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/jaxrs/jackson-jaxrs-json-provider/${jackson.version}/jackson-jaxrs-json-provider-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/${jackson.version}/jackson-datatype-jsr310-${jackson.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcprov-jdk18on/${bouncy.version}/bcprov-jdk18on-${bouncy.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcpkix-jdk18on/${bouncy.version}/bcpkix-jdk18on-${bouncy.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcutil-jdk18on/${bouncy.version}/bcutil-jdk18on-${bouncy.version}.jar"/>
+                                                    <available file="${project.basedir}/${karaf.system.dir}/org/apache/commons/commons-text/${commons-text.version}/commons-text-${commons-text.version}.jar"/>
+                                                </and>
+                                            </not>
+                                        </condition>
+                                    </fail>
+                                </target>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>

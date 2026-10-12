@@ -26,6 +26,7 @@
     <properties>
         <distribution.file.name>ddf-catalog-${project.version}</distribution.file.name>
         <setup.folder>target/dependencies</setup.folder>
+        <karaf.system.dir>${setup.folder}/ddf-kernel-${project.version}/system</karaf.system.dir>
     </properties>
     <build>
         <resources>
@@ -131,7 +132,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

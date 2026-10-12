@@ -73,6 +73,25 @@
         <bundle originalUri="mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/[2,3)"
                 replacement="mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson.version}"
                 mode="maven"/>
+
+        <!--
+            Older BouncyCastle (pax-web keycloak-adapter-core pins 1.83, CXF pins 1.81) and
+            commons-text (Shiro shiro-core pins 1.8) converge on DDF's versions. The older
+            versions are not shipped (see prune-replaced-bundles in distribution/pom.xml).
+            BouncyCastle starts at 1.80 so Camel's 1.74 pins are left alone.
+        -->
+        <bundle originalUri="mvn:org.bouncycastle/bcprov-jdk18on/[1.80,2)"
+                replacement="mvn:org.bouncycastle/bcprov-jdk18on/${bouncy.version}"
+                mode="maven"/>
+        <bundle originalUri="mvn:org.bouncycastle/bcpkix-jdk18on/[1.80,2)"
+                replacement="mvn:org.bouncycastle/bcpkix-jdk18on/${bouncy.version}"
+                mode="maven"/>
+        <bundle originalUri="mvn:org.bouncycastle/bcutil-jdk18on/[1.80,2)"
+                replacement="mvn:org.bouncycastle/bcutil-jdk18on/${bouncy.version}"
+                mode="maven"/>
+        <bundle originalUri="mvn:org.apache.commons/commons-text/[1,2)"
+                replacement="mvn:org.apache.commons/commons-text/${commons-text.version}"
+                mode="maven"/>
     </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->

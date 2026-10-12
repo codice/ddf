@@ -91,6 +91,26 @@
         <bundle>mvn:dev.failsafe/failsafe/${dev.failsafe.version}</bundle>
     </feature>
 
+    <!--
+    Not meant to be installed. Stages the targets of the bundleReplacements in
+    etc/org.apache.karaf.features.xml into system/ so installs resolve them offline.
+    Keep in sync with that file.
+    -->
+    <feature name="bundle-replacements" version="${project.version}"
+             description="Staging only: targets of the bundleReplacements.">
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.annotations.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson.version}</bundle>
+        <bundle>mvn:org.bouncycastle/bcprov-jdk18on/${bouncy.version}</bundle>
+        <bundle>mvn:org.bouncycastle/bcpkix-jdk18on/${bouncy.version}</bundle>
+        <bundle>mvn:org.bouncycastle/bcutil-jdk18on/${bouncy.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
+    </feature>
+
     <feature name="kernel-all" version="${project.version}">
         <feature>kernel</feature>
         <feature>sync-installer</feature>
