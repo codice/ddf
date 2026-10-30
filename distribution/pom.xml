@@ -97,6 +97,12 @@
                                             <exclude name="apache/commons/commons-text/${commons-text.version}/**" />
                                         </fileset>
                                     </delete>
+                                    <delete includeemptydirs="true">
+                                        <fileset dir="${project.basedir}/${karaf.system.dir}/com/google/guava" erroronmissingdir="false">
+                                            <include name="failureaccess/*/**" />
+                                            <exclude name="failureaccess/${guava.failureaccess.version}/**" />
+                                        </fileset>
+                                    </delete>
                                     <fail message="A bundleReplacements target is missing from ${karaf.system.dir}; add it to the bundle-replacements feature in features/kernel">
                                         <condition>
                                             <not>
@@ -112,6 +118,7 @@
                                                     <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcpkix-jdk18on/${bouncy.version}/bcpkix-jdk18on-${bouncy.version}.jar" />
                                                     <available file="${project.basedir}/${karaf.system.dir}/org/bouncycastle/bcutil-jdk18on/${bouncy.version}/bcutil-jdk18on-${bouncy.version}.jar" />
                                                     <available file="${project.basedir}/${karaf.system.dir}/org/apache/commons/commons-text/${commons-text.version}/commons-text-${commons-text.version}.jar" />
+                                                    <available file="${project.basedir}/${karaf.system.dir}/com/google/guava/failureaccess/${guava.failureaccess.version}/failureaccess-${guava.failureaccess.version}.jar" />
                                                 </and>
                                             </not>
                                         </condition>

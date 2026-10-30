@@ -82,7 +82,7 @@
     </feature>
 
     <feature name="guava" version="${project.version}">
-        <bundle dependency="true">mvn:com.google.guava/failureaccess/1.0.1</bundle>
+        <bundle dependency="true">mvn:com.google.guava/failureaccess/${guava.failureaccess.version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
@@ -109,6 +109,7 @@
         <bundle>mvn:org.bouncycastle/bcpkix-jdk18on/${bouncy.version}</bundle>
         <bundle>mvn:org.bouncycastle/bcutil-jdk18on/${bouncy.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
+        <bundle>mvn:com.google.guava/failureaccess/${guava.failureaccess.version}</bundle>
     </feature>
 
     <feature name="kernel-all" version="${project.version}">

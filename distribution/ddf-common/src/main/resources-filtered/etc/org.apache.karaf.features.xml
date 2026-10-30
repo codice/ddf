@@ -92,6 +92,17 @@
         <bundle originalUri="mvn:org.apache.commons/commons-text/[1,2)"
                 replacement="mvn:org.apache.commons/commons-text/${commons-text.version}"
                 mode="maven"/>
+
+        <!--
+            CXF's wss4j, cxf-rs-security-oauth2-saml and cxf-rs-description-swagger2 features
+            pin guava's failureaccess to 1.0.1. DDF's guava version depends on failureaccess
+            1.0.3. Replace the 1.0.1 bundle with the 1.0.3 bundle because it's compatible with
+            the default OSGi import version range. The older version is not shipped (see
+            prune-replaced-bundles in distribution/pom.xml).
+        -->
+        <bundle originalUri="mvn:com.google.guava/failureaccess/[1,2)"
+                replacement="mvn:com.google.guava/failureaccess/${guava.failureaccess.version}"
+                mode="maven"/>
     </bundleReplacements>
 
     <!-- A list of feature replacements that allows changing external feature definitions -->
