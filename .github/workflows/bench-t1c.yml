@@ -1,0 +1,55 @@
+# TEMPORARY: paired benchmark for #7027. Do not merge.
+# Runs the full test build (same command as full-build) with and without -T 1C,
+# 3 samples each, all in parallel on the same commit.
+name: bench-t1c
+
+on:
+  pull_request:
+
+env:
+  MAVEN_OPTS: '-Xmx4G -Xms1G -XX:+ClassUnloadingWithConcurrentMark -Djava.security.egd=file:/dev/./urandom'
+  MAVEN_CLI_OPTS: '-B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
+
+jobs:
+  bench:
+    name: bench (${{ matrix.threads }}, sample ${{ matrix.sample }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        threads: ['serial', '1C']
+        sample: [1, 2, 3]
+    steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Configure Maven settings
+        run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
+
+      - name: Quick install (skip tests)
+        run: mvn install -T 1C $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
+
+      - name: Test build
+        run: |
+          nproc
+          T_OPT=""
+          if [ "${{ matrix.threads }}" = "1C" ]; then T_OPT="-T 1C"; fi
+          start=$(date +%s)
+          mvn clean install $T_OPT $MAVEN_CLI_OPTS -P !itests
+          end=$(date +%s)
+          echo "BENCH threads=${{ matrix.threads }} sample=${{ matrix.sample }} seconds=$((end - start))" | tee -a "$GITHUB_STEP_SUMMARY"
