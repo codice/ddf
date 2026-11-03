@@ -51,7 +51,7 @@ jobs:
         run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
 
       - name: Quick install (skip tests)
-        run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
+        run: mvn install -T 1C $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
 
       - name: Incremental build
         run: |
@@ -91,7 +91,7 @@ jobs:
 
       - name: Build itest dependencies
         run: |
-          mvn install $MAVEN_CLI_OPTS \
+          mvn install -T 1C $MAVEN_CLI_OPTS \
             -pl distribution/test/itests/test-itests-common,distribution/test/itests/test-itests-dependencies-app \
             -am \
             -DskipTests=true
@@ -103,10 +103,10 @@ jobs:
             -pl distribution/test/itests/test-itests-ddf-core \
             -nsu
 
-  # DDF Core integration tests (for PRs)
+  # DDF Core integration tests (for PRs). Runs in parallel with incremental-build:
+  # it does its own install, so it never used incremental-build's output.
   integration-tests:
-    needs: incremental-build
-    if: github.event_name == 'pull_request' && needs.incremental-build.result == 'success'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -131,7 +131,7 @@ jobs:
         run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
 
       - name: Quick install (skip tests)
-        run: mvn install $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
+        run: mvn install -T 1C $MAVEN_CLI_OPTS -DskipStatic=true -DskipTests=true
 
       - name: Run DDF Core integration tests
         run: |
@@ -260,7 +260,7 @@ jobs:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          mvn deploy $MAVEN_CLI_OPTS \
+          mvn deploy -T 1C $MAVEN_CLI_OPTS \
             -DskipStatic=true \
             -DskipTests=true \
             -DretryFailedDeploymentCount=10 \
