@@ -55,7 +55,7 @@ jobs:
 
       - name: Incremental build
         run: |
-          mvn clean install $MAVEN_CLI_OPTS \
+          mvn clean install -T 1C $MAVEN_CLI_OPTS \
             -P !itests \
             -Dgib.enabled=true \
             -Dgib.referenceBranch=refs/remotes/origin/${{ github.base_ref }}
@@ -87,7 +87,7 @@ jobs:
         run: mkdir -p ~/.m2 && cp .github/maven-settings.xml ~/.m2/settings.xml
 
       - name: Full build (excluding itests)
-        run: mvn clean install $MAVEN_CLI_OPTS -P !itests
+        run: mvn clean install -T 1C $MAVEN_CLI_OPTS -P !itests
 
       - name: Build itest dependencies
         run: |
