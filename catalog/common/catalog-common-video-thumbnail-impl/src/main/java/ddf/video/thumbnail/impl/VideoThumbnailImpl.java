@@ -77,23 +77,34 @@ public class VideoThumbnailImpl implements VideoThumbnail {
 
   private final String ffmpegPath;
 
+  private final String ffmpegCmd;
+
   private int maxFileSizeMB = DEFAULT_MAX_FILE_SIZE_MB;
 
   private final Semaphore limitFFmpegProcessesSemaphore;
 
-  public VideoThumbnailImpl(final BundleContext bundleContext) throws IOException {
-    final String bundledFFmpegBinaryPath = getBundledFFmpegBinaryPath();
-    final String ffmpegBinaryName = StringUtils.substringAfterLast(bundledFFmpegBinaryPath, "/");
-    final String ffmpegFolderPath =
-        FilenameUtils.concat(System.getProperty("ddf.home"), "bin_third_party/ffmpeg");
-    ffmpegPath = FilenameUtils.concat(ffmpegFolderPath, ffmpegBinaryName);
+  public VideoThumbnailImpl(final BundleContext bundleContext)
+      throws IOException, InterruptedException {
+    this(bundleContext, false);
+  }
 
-    try (final InputStream inputStream =
-        bundleContext.getBundle().getEntry(bundledFFmpegBinaryPath).openStream()) {
-      copyFFmpegBinary(inputStream);
+  public VideoThumbnailImpl(
+      final BundleContext bundleContext, final boolean preferPreInstalledBinaries)
+      throws IOException, InterruptedException {
+    if (preferPreInstalledBinaries && isFFmpegBinaryInstalled()) {
+      this.ffmpegPath = null;
+      this.ffmpegCmd = "ffmpeg";
+    } else {
+      final String bundledFFmpegBinaryPath = getBundledFFmpegBinaryPath();
+      final String ffmpegPath = bundledResourcePathToFilePath(bundledFFmpegBinaryPath);
+      try (final InputStream inputStream =
+          bundleContext.getBundle().getEntry(bundledFFmpegBinaryPath).openStream()) {
+        copyFFmpegBinary(ffmpegPath, inputStream);
+      }
+      this.ffmpegPath = ffmpegPath;
+      this.ffmpegCmd = ffmpegPath;
     }
-
-    limitFFmpegProcessesSemaphore = new Semaphore(MAX_FFMPEG_PROCESSES, true);
+    this.limitFFmpegProcessesSemaphore = new Semaphore(MAX_FFMPEG_PROCESSES, true);
   }
 
   public void setMaxFileSizeMB(int maxFileSizeMB) {
@@ -243,7 +254,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
 
   private byte[] createGifFromThumbnailFiles() throws IOException, InterruptedException {
     final DefaultExecuteResultHandler resultHandler =
-        executeFFmpeg(getFFmpegCreateAnimatedGifCommand(), DEV_NULL);
+        executeCommand(getFFmpegCreateAnimatedGifCommand(), DEV_NULL);
 
     resultHandler.waitFor();
 
@@ -254,7 +265,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     }
   }
 
-  private DefaultExecuteResultHandler executeFFmpeg(
+  private DefaultExecuteResultHandler executeCommand(
       final CommandLine command, final PumpStreamHandler streamHandler) throws IOException {
     final ExecuteWatchdog watchdog = new ExecuteWatchdog(TIMEOUT_SECONDS * 1000L);
     final Executor executor = new DefaultExecutor();
@@ -297,7 +308,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     final String loopFlag = "-loop";
     final String loopValue = "0";
 
-    return new CommandLine(ffmpegPath)
+    return new CommandLine(ffmpegCmd)
         .addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
         .addArgument(framerateFlag)
         .addArgument(framerate)
@@ -318,7 +329,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     final CommandLine command =
         getFFmpegCreateThumbnailCommand(
             videoFilePath, getThumbnailFilePath(), null, THUMBNAIL_COUNT);
-    final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, DEV_NULL);
+    final DefaultExecuteResultHandler resultHandler = executeCommand(command, DEV_NULL);
 
     resultHandler.waitFor();
 
@@ -340,7 +351,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     final String videoSyncVariableFrameRate = "vfr";
 
     final CommandLine command =
-        new CommandLine(ffmpegPath).addArgument(SUPPRESS_PRINTING_BANNER_FLAG);
+        new CommandLine(ffmpegCmd).addArgument(SUPPRESS_PRINTING_BANNER_FLAG);
 
     if (seek != null) {
       final String seekFlag = "-ss";
@@ -379,7 +390,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
       final CommandLine command =
           getFFmpegCreateThumbnailCommand(videoFilePath, thumbnailPath, seek, 1);
 
-      final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, DEV_NULL);
+      final DefaultExecuteResultHandler resultHandler = executeCommand(command, DEV_NULL);
       resultHandler.waitFor();
     }
 
@@ -396,7 +407,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
     final CommandLine command = getFFmpegInfoCommand(videoFilePath);
-    final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, streamHandler);
+    final DefaultExecuteResultHandler resultHandler = executeCommand(command, streamHandler);
     resultHandler.waitFor();
 
     return parseVideoDuration(outputStream.toString(StandardCharsets.UTF_8.name()));
@@ -421,7 +432,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
 
   private CommandLine getFFmpegInfoCommand(final String videoFilePath) {
     CommandLine commandLine =
-        new CommandLine(ffmpegPath)
+        new CommandLine(ffmpegCmd)
             .addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
             .addArgument(INPUT_FILE_FLAG)
             .addArgument(videoFilePath, DONT_HANDLE_QUOTING);
@@ -447,20 +458,40 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     }
   }
 
-  private void copyFFmpegBinary(final InputStream inputStream) throws IOException {
-    final File ffmpegBinary = new File(ffmpegPath);
+  private boolean isFFmpegBinaryInstalled() throws IOException, InterruptedException {
+    if (!(SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_LINUX)) {
+      LOGGER.info("ffmpeg installation detection is only available for Mac or Linux");
+      return false;
+    }
+    final CommandLine cmd = new CommandLine("which").addArgument("ffmpeg");
+    final DefaultExecuteResultHandler handler = executeCommand(cmd, DEV_NULL);
+    handler.waitFor();
+    final boolean isInstalled = (handler.getExitValue() == 0);
+    LOGGER.info("Detected ffmpeg installation: {}", isInstalled);
+    return isInstalled;
+  }
 
+  private static void copyFFmpegBinary(final String path, final InputStream inputStream)
+      throws IOException {
+    final File ffmpegBinary = new File(path);
     if (!ffmpegBinary.exists()) {
       FileUtils.copyInputStreamToFile(inputStream, ffmpegBinary);
       if (!ffmpegBinary.setExecutable(true)) {
         LOGGER.warn(
             "Couldn't make FFmpeg binary at {} executable. It must be executable by its owner for the plugin to work.",
-            ffmpegPath);
+            path);
       }
     }
   }
 
-  private String getBundledFFmpegBinaryPath() {
+  private static String bundledResourcePathToFilePath(final String bundledResourcePath) {
+    final String ffmpegBinaryName = StringUtils.substringAfterLast(bundledResourcePath, "/");
+    final String ffmpegFolderPath =
+        FilenameUtils.concat(System.getProperty("ddf.home"), "bin_third_party/ffmpeg");
+    return FilenameUtils.concat(ffmpegFolderPath, ffmpegBinaryName);
+  }
+
+  private static String getBundledFFmpegBinaryPath() {
     if (SystemUtils.IS_OS_LINUX) {
       return "linux/ffmpeg-4.3.1";
     } else if (SystemUtils.IS_OS_MAC) {

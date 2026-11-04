@@ -69,12 +69,13 @@ public class VideoThumbnailImplTest {
   }
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() throws IOException, InterruptedException {
     System.setProperty("ddf.home", SystemUtils.USER_DIR);
 
     binaryPath = FilenameUtils.concat(System.getProperty("ddf.home"), "bin_third_party");
 
-    videoThumbnailImpl = new VideoThumbnailImpl(Objects.requireNonNull(createMockBundleContext()));
+    videoThumbnailImpl =
+        new VideoThumbnailImpl(Objects.requireNonNull(createMockBundleContext()), true);
   }
 
   @After
