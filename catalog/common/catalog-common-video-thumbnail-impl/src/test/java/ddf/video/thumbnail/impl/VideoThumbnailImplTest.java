@@ -29,6 +29,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.commons.io.FileUtils;
@@ -50,6 +51,8 @@ public class VideoThumbnailImplTest {
 
   private static final long BYTES_PER_MEGABYTE = 1024L * 1024L;
 
+  private static final Set<String> SUPPORTED_ARCHS = Set.of("x86_64", "amd64");
+
   private String binaryPath;
 
   private VideoThumbnailImpl videoThumbnailImpl;
@@ -65,6 +68,14 @@ public class VideoThumbnailImplTest {
 
   @BeforeClass
   public static void setUpClass() {
+    // note: bundled ffmpeg binaries were only compiled for specific architectures, run the
+    // following to see:
+    //   file target/test-classes/osx/ffmpeg-4.3.1
+    //   file target/test-classes/linux/ffmpeg-4.3.1
+    //   file target/test-classes/windows/ffmpeg-4.3.1.exe
+    Assume.assumeTrue(
+        "Skip unit tests on unsupported CPU architectures.",
+        SUPPORTED_ARCHS.contains(System.getProperty("os.arch")));
     Assume.assumeFalse("Skip unit tests on Windows. See DDF-3503.", SystemUtils.IS_OS_WINDOWS);
   }
 
