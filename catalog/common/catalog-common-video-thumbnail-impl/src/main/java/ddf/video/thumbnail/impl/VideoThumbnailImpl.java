@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -29,6 +30,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,6 +93,18 @@ public class VideoThumbnailImpl implements VideoThumbnail {
   public VideoThumbnailImpl(
       final BundleContext bundleContext, final boolean preferPreInstalledBinaries)
       throws IOException, InterruptedException {
+    final String pomResourcePath =
+        "/META-INF/maven/ddf.catalog.common/video-thumbnail-impl/pom.xml";
+    final String pomResourcePathTest = "/pom.xml";
+    final URL pomResource = this.getClass().getResource(pomResourcePathTest);
+    LOGGER.warn("OS Arch: {}", System.getProperty("os.arch"));
+    LOGGER.warn("Pom Resource: {}", pomResource);
+    if (pomResource != null) {
+      try (final InputStream pomData = pomResource.openStream()) {
+        final String ffmpegVersion = findBundledFFmpegVersion(pomData).orElse("NOT_FOUND");
+        LOGGER.warn("Found ffmpeg version in pom: {}", ffmpegVersion);
+      }
+    }
     if (preferPreInstalledBinaries && isFFmpegBinaryInstalled()) {
       this.ffmpegPath = null;
       this.ffmpegCmd = "ffmpeg";
@@ -265,43 +279,6 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     }
   }
 
-  private DefaultExecuteResultHandler executeCommand(
-      final CommandLine command, final PumpStreamHandler streamHandler) throws IOException {
-    final ExecuteWatchdog watchdog = new ExecuteWatchdog(TIMEOUT_SECONDS * 1000L);
-    final Executor executor = new DefaultExecutor();
-    final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-
-    if (streamHandler != null) {
-      executor.setStreamHandler(streamHandler);
-    }
-    executor.setWatchdog(watchdog);
-    executeWithPrivilege(command, executor, resultHandler);
-    return resultHandler;
-  }
-
-  private void executeWithPrivilege(
-      CommandLine command, Executor executor, DefaultExecuteResultHandler resultHandler)
-      throws IOException {
-    try {
-      AccessController.doPrivileged(
-          (PrivilegedExceptionAction<Void>)
-              () -> {
-                executor.execute(command, resultHandler);
-                return null;
-              });
-    } catch (PrivilegedActionException e) {
-      String msg = "Video thumbnail plugin failed to execute ffmepg";
-      LOGGER.info(msg);
-      LOGGER.debug(msg, e);
-      Throwable cause = e.getCause();
-      // org.apache.commons.exe.Executor's execute() method's signature includes a throws clause
-      // for ExecuteException and IOException. ExecuteException is a subclass of IOException.
-      if (cause instanceof IOException) {
-        throw (IOException) cause;
-      }
-    }
-  }
-
   private CommandLine getFFmpegCreateAnimatedGifCommand() {
     final String framerateFlag = "-framerate";
     final String framerate = "1";
@@ -440,6 +417,43 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     return commandLine;
   }
 
+  private static DefaultExecuteResultHandler executeCommand(
+      final CommandLine command, final PumpStreamHandler streamHandler) throws IOException {
+    final ExecuteWatchdog watchdog = new ExecuteWatchdog(TIMEOUT_SECONDS * 1000L);
+    final Executor executor = new DefaultExecutor();
+    final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+
+    if (streamHandler != null) {
+      executor.setStreamHandler(streamHandler);
+    }
+    executor.setWatchdog(watchdog);
+    executeWithPrivilege(command, executor, resultHandler);
+    return resultHandler;
+  }
+
+  private static void executeWithPrivilege(
+      CommandLine command, Executor executor, DefaultExecuteResultHandler resultHandler)
+      throws IOException {
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                executor.execute(command, resultHandler);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      String msg = "Video thumbnail plugin failed to execute ffmepg";
+      LOGGER.info(msg);
+      LOGGER.debug(msg, e);
+      Throwable cause = e.getCause();
+      // org.apache.commons.exe.Executor's execute() method's signature includes a throws clause
+      // for ExecuteException and IOException. ExecuteException is a subclass of IOException.
+      if (cause instanceof IOException) {
+        throw (IOException) cause;
+      }
+    }
+  }
+
   /**
    * Deletes the directory that holds the FFmpeg binary.
    *
@@ -458,7 +472,7 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     }
   }
 
-  private boolean isFFmpegBinaryInstalled() throws IOException, InterruptedException {
+  private static boolean isFFmpegBinaryInstalled() throws IOException, InterruptedException {
     if (!(SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_LINUX)) {
       LOGGER.info("ffmpeg installation detection is only available for Mac or Linux");
       return false;
@@ -469,6 +483,16 @@ public class VideoThumbnailImpl implements VideoThumbnail {
     final boolean isInstalled = (handler.getExitValue() == 0);
     LOGGER.info("Detected ffmpeg installation: {}", isInstalled);
     return isInstalled;
+  }
+
+  // todo: this works, but just need to add the `ffmpeg -version` counterpart
+  private static Optional<String> findBundledFFmpegVersion(final InputStream pomData) {
+    final String versionRegex =
+        "<properties>[\\s\\S]*<ffmpeg\\.version>(\\p{Graph}+)</ffmpeg\\.version>[\\s\\S]*</properties>";
+    final Pattern pattern = Pattern.compile(versionRegex);
+    try (Scanner scanner = new Scanner(pomData, "UTF-8")) {
+      return scanner.findAll(pattern).map((matchResult -> matchResult.group(1))).findFirst();
+    }
   }
 
   private static void copyFFmpegBinary(final String path, final InputStream inputStream)

@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
+            <version>${org.slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -104,6 +104,13 @@
                             <resources>
                                 <resource>
                                     <directory>${ffmpeg.unpackDirectory}</directory>
+                                </resource>
+                                <!-- Ensure ffmpeg version is available on test classpath -->
+                                <resource>
+                                    <directory>${project.basedir}</directory>
+                                    <includes>
+                                        <include>pom.xml</include>
+                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>
