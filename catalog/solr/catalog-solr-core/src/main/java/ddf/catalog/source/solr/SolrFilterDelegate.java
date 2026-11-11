@@ -41,7 +41,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.geotools.api.filter.sort.SortBy;
 import org.joda.time.DateTime;
 import org.locationtech.jts.geom.Envelope;

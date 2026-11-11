@@ -186,13 +186,12 @@ public abstract class SolrCommandTest {
     System.setProperty("zookeeper.4lw.commands.whitelist", "*");
     miniSolrCloud =
         new MiniSolrCloudCluster.Builder(1, getBaseDirPath())
-            .withJettyConfig(jetty -> jetty.setContext("/solr"))
             .addConfig(
                 DEFAULT_CONFIGSET,
                 Paths.get(
                     BackupCommandTest.class.getClassLoader().getResource("configset").getPath()))
             .build();
-    miniSolrCloud.getSolrClient().connect();
+    miniSolrCloud.getSolrClient().getClusterStateProvider().getLiveNodes();
     System.setProperty("solr.cloud.shardCount", "1");
     System.setProperty("solr.cloud.replicationFactor", "1");
     System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
@@ -220,7 +219,6 @@ public abstract class SolrCommandTest {
     List<String> collections =
         CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
     assertThat(collections.size(), is(1));
-    miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
   }
 
   protected static void createDefaultMiniSolrCloudCluster() throws Exception {
@@ -232,8 +230,8 @@ public abstract class SolrCommandTest {
   protected static void addDocument(String uniqueId) throws Exception {
     SolrInputDocument doc = new SolrInputDocument();
     doc.setField("id", uniqueId);
-    miniSolrCloud.getSolrClient().add(doc);
-    miniSolrCloud.getSolrClient().commit();
+    miniSolrCloud.getSolrClient(DEFAULT_CORE_NAME).add(doc);
+    miniSolrCloud.getSolrClient(DEFAULT_CORE_NAME).commit();
   }
 
   protected BackupCommand getBackupCommand(

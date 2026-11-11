@@ -13,7 +13,7 @@
  */
 package ddf.catalog.solr.offlinegazetteer
 
-import org.apache.solr.client.solrj.SolrQuery
+import org.apache.solr.client.solrj.request.SolrQuery
 import org.apache.solr.client.solrj.SolrRequest
 import org.apache.solr.client.solrj.SolrRequest.METHOD
 import org.apache.solr.client.solrj.SolrServerException

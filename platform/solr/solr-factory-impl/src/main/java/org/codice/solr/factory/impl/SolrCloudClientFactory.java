@@ -92,8 +92,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   @VisibleForTesting
   SolrClient createSolrCloudClient(String zookeeperHosts, String collection) {
     try {
-      CloudSolrClient client = newCloudSolrClient(zookeeperHosts);
-      client.setDefaultCollection(collection);
+      CloudSolrClient client = newCloudSolrClient(zookeeperHosts, collection);
 
       Failsafe.with(
               ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_A_COLLECTION_IS_CREATED
@@ -120,7 +119,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
   private boolean createCollectionIfMissing(String collection, CloudSolrClient client)
       throws SolrServerException, IOException, SolrFactoryException {
-    client.connect();
+    client.getClusterStateProvider().getLiveNodes();
 
     if (!isAliasCollection(collection, client)) {
       uploadCoreConfiguration(collection, client);
@@ -132,10 +131,16 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   }
 
   @VisibleForTesting
-  CloudSolrClient newCloudSolrClient(String zookeeperHosts) {
+  CloudSolrClient newCloudSolrClient(String zookeeperHosts, String collection) {
+    // note: see
+    // https://solr.apache.org/guide/solr/latest/upgrade-notes/major-changes-in-solr-10.html#solrj-2
+    // "Deprecate CloudSolrClient’s ZooKeeper Hosts constructor. Users are encouraged to supply
+    //  Solr URLs instead of communicating with ZooKeeper. It’s not likely to be removed before Solr
+    // 11."
     return new CloudSolrClient.Builder(
             Arrays.asList(zookeeperHosts.split(",")),
             Optional.ofNullable(System.getProperty("solr.cloud.zookeeper.chroot")))
+        .withDefaultCollection(collection)
         .build();
   }
 

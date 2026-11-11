@@ -112,10 +112,7 @@ public class SolrProviderRealTimeQueryTest {
     System.setProperty("zookeeper.4lw.commands.whitelist", "*");
     System.setProperty("solr.allowPaths", "*");
 
-    miniSolrCloud =
-        new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath())
-            .withJettyConfig(jetty -> jetty.setContext("/solr"))
-            .build();
+    miniSolrCloud = new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath()).build();
 
     System.setProperty("solr.cloud.shardCount", "1");
     System.setProperty("solr.cloud.replicationFactor", "1");
