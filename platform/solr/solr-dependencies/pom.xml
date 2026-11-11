@@ -38,97 +38,7 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>http2-client</artifactId>
-                    <groupId>org.eclipse.jetty.http2</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>http2-common</artifactId>
-                    <groupId>org.eclipse.jetty.http2</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>http2-hpack</artifactId>
-                    <groupId>org.eclipse.jetty.http2</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>http2-http-client-transport</artifactId>
-                    <groupId>org.eclipse.jetty.http2</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-alpn-client</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-alpn-java-client</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-client</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-http</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-io</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jetty-util</artifactId>
-                    <groupId>org.eclipse.jetty</groupId>
-                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <artifactId>http2-client</artifactId>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>http2-common</artifactId>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>http2-hpack</artifactId>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>http2-http-client-transport</artifactId>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>jetty-alpn-client</artifactId>
-            <groupId>org.eclipse.jetty</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>jetty-alpn-java-client</artifactId>
-            <groupId>org.eclipse.jetty</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>jetty-client</artifactId>
-            <groupId>org.eclipse.jetty</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>jetty-http</artifactId>
-            <groupId>org.eclipse.jetty</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>jetty-io</artifactId>
-            <groupId>org.eclipse.jetty</groupId>
-            <version>${solr.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <artifactId>jetty-util</artifactId>
-            <groupId>org.eclipse.jetty</groupId>
-            <version>${solr.jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -145,20 +55,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <!-- SolrJ 10 uses the JDK HTTP client; logging is supplied by Pax Logging at runtime. -->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${solr.httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>${solr.httpcore.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>${solr.httpmime.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${solr.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
@@ -209,7 +110,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.138.Final</version>
+            <version>${solr.netty.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -220,156 +121,58 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=1.8))"</Require-Capability>
+                        <Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version&gt;=17))"</Require-Capability>
                         <Export-Package>
                             <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj.*;version=${solr.version},
-                            org.apache.solr.client.api.util.*;version=${solr.version},
+                            org.apache.solr.client.api.*;version=${solr.version},
+                            org.apache.curator.*;version=5.9.0,
+                            io.swagger.v3.oas.annotations.*;version=2.2.54,
+                            org.apache.yetus.audience;version=0.12.0,
                             org.apache.solr.common.*;version=${solr.version},
                             org.apache.zookeeper.*;version=${solr.zookeeper.version},
-                            com.fasterxml.jackson.*;version=${jackson.version}
+                            org.noggit;version=${solr.version}
                         </Export-Package>
+                        <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>
                             solr-api,
                             solr-solrj,
                             solr-solrj-zookeeper,
                             commons-io,
-                            httpmime,
                             zookeeper,
                             zookeeper-jute,
-                            <!-- We may be able to remove netty-handler when we upgrade to zookeeper 3.9.7 or later. -->
-                            netty-handler
+                            curator-client,
+                            curator-framework,
+                            semver4j,
+                            swagger-annotations-jakarta,
+                            audience-annotations
                         </Embed-Dependency>
                         <Import-Package>
-                            org.slf4j;version=${org.slf4j.version},
-                            javax.annotation,
-                            javax.crypto,
-                            javax.crypto.spec,
-                            javax.imageio,
-                            javax.imageio.metadata,
-                            javax.imageio.spi,
-                            javax.imageio.stream,
-                            javax.mail.internet,
-                            javax.management,
-                            javax.management.openmbean,
-                            javax.management.remote,
-                            javax.naming,
-                            javax.naming.directory,
-                            javax.net,
-                            javax.net.ssl,
-                            javax.script,
-                            javax.security.auth,
-                            javax.security.auth.callback,
-                            javax.security.auth.kerberos,
-                            javax.security.auth.login,
-                            javax.security.auth.spi,
-                            javax.security.auth.x500,
-                            javax.security.sasl,
-                            javax.servlet;version="[3.1,4)",
-                            javax.servlet.descriptor;version="[3.1,4)",
-                            javax.servlet.http;version="[3.1,4)",
-                            javax.sql,
-                            javax.swing,
-                            javax.swing.table,
-                            javax.swing.tree,
-                            javax.xml.bind;version="[2.2,3)",
-                            javax.xml.datatype,
-                            javax.xml.namespace,
-                            javax.xml.parsers,
-                            javax.xml.stream,
-                            javax.xml.stream.events,
-                            javax.xml.stream.util,
-                            javax.xml.transform,
-                            javax.xml.transform.dom,
-                            javax.xml.transform.sax,
-                            javax.xml.transform.stream,
-                            javax.xml.xpath,
-
-                            <!--jetty-->
-                            org.eclipse.jetty.client;resolution:=optional,
-                            org.eclipse.jetty.client.api;resolution:=optional,
-                            org.eclipse.jetty.client.http;resolution:=optional,
-                            org.eclipse.jetty.client.util;resolution:=optional,
-                            org.eclipse.jetty.http;resolution:=optional,
-                            org.eclipse.jetty.http2.client;resolution:=optional,
-                            org.eclipse.jetty.http2.client.http;resolution:=optional,
-                            org.eclipse.jetty.io;resolution:=optional,
-                            org.eclipse.jetty.io.*;resolution:=optional,
-                            org.eclipse.jetty.util;resolution:=optional,
-                            org.eclipse.jetty.util.*;resolution:=optional,
-
-                            <!--
-                                There are ddf dependencies using both this solr-dependencies and httpclient/httpcore.
-                                These packages are imported so that only one instance of the classes are being shared at runtime to avoid a class collision.
-                            -->
-
-                            <!--httpclient-->
-                            org.apache.http.auth;version=${solr.httpclient.version},
-                            org.apache.http.auth.params;version=${solr.httpclient.version},
-                            org.apache.http.cookie;version=${solr.httpclient.version},
-                            org.apache.http.cookie.params;version=${solr.httpclient.version},
-                            org.apache.http.conn;version=${solr.httpclient.version},
-                            org.apache.http.conn.params;version=${solr.httpclient.version},
-                            org.apache.http.conn.routing;version=${solr.httpclient.version},
-                            org.apache.http.conn.scheme;version=${solr.httpclient.version},
-                            org.apache.http.conn.socket;version=${solr.httpclient.version},
-                            org.apache.http.conn.ssl;version=${solr.httpclient.version},
-                            org.apache.http.conn.util;version=${solr.httpclient.version},
-                            org.apache.http.client;version=${solr.httpclient.version},
-                            org.apache.http.client.cache;version=${solr.httpclient.version},
-                            org.apache.http.client.config;version=${solr.httpclient.version},
-                            org.apache.http.client.entity;version=${solr.httpclient.version},
-                            org.apache.http.client.fluent;version=${solr.httpclient.version},
-                            org.apache.http.client.methods;version=${solr.httpclient.version},
-                            org.apache.http.client.params;version=${solr.httpclient.version},
-                            org.apache.http.client.protocol;version=${solr.httpclient.version},
-                            org.apache.http.client.utils;version=${solr.httpclient.version},
-                            org.apache.http.entity.mime;version=${solr.httpclient.version},
-                            org.apache.http.entity.mime.content;version=${solr.httpclient.version},
-                            org.apache.http.impl.auth;version=${solr.httpclient.version},
-                            org.apache.http.impl.cookie;version=${solr.httpclient.version},
-                            org.apache.http.impl.conn;version=${solr.httpclient.version},
-                            org.apache.http.impl.conn.tsccm;version=${solr.httpclient.version},
-                            org.apache.http.impl.execchain;version=${solr.httpclient.version},
-                            org.apache.http.impl.client;version=${solr.httpclient.version},
-                            org.apache.http.impl.client.cache;version=${solr.httpclient.version},
-                            org.apache.http.impl.client.cache.ehcache;version=${solr.httpclient.version},
-                            org.apache.http.impl.client.cache.memcached;version=${solr.httpclient.version},
-                            org.apache.http.osgi.services;version=${solr.httpclient.version},
-
-                            <!--httpcore-->
-                            org.apache.http;version=${solr.httpcore.version},
-                            org.apache.http.annotation;version=${solr.httpcore.version},
-                            org.apache.http.concurrent;version=${solr.httpcore.version},
-                            org.apache.http.config;version=${solr.httpcore.version},
-                            org.apache.http.entity;version=${solr.httpcore.version},
-                            org.apache.http.impl;version=${solr.httpcore.version},
-                            org.apache.http.impl.bootstrap;version=${solr.httpcore.version},
-                            org.apache.http.impl.entity;version=${solr.httpcore.version},
-                            org.apache.http.impl.io;version=${solr.httpcore.version},
-                            org.apache.http.impl.nio;version=${solr.httpcore.version},
-                            org.apache.http.impl.nio.bootstrap;version=${solr.httpcore.version},
-                            org.apache.http.impl.nio.codecs;version=${solr.httpcore.version},
-                            org.apache.http.impl.nio.pool;version=${solr.httpcore.version},
-                            org.apache.http.impl.nio.reactor;version=${solr.httpcore.version},
-                            org.apache.http.impl.nio.ssl;version=${solr.httpcore.version},
-                            org.apache.http.impl.pool;version=${solr.httpcore.version},
-                            org.apache.http.io;version=${solr.httpcore.version},
-                            org.apache.http.message;version=${solr.httpcore.version},
-                            org.apache.http.nio;version=${solr.httpcore.version},
-                            org.apache.http.nio.entity;version=${solr.httpcore.version},
-                            org.apache.http.nio.params;version=${solr.httpcore.version},
-                            org.apache.http.nio.pool;version=${solr.httpcore.version},
-                            org.apache.http.nio.protocol;version=${solr.httpcore.version},
-                            org.apache.http.nio.reactor;version=${solr.httpcore.version},
-                            org.apache.http.nio.reactor.ssl;version=${solr.httpcore.version},
-                            org.apache.http.nio.util;version=${solr.httpcore.version},
-                            org.apache.http.params;version=${solr.httpcore.version},
-                            org.apache.http.pool;version=${solr.httpcore.version},
-                            org.apache.http.protocol;version=${solr.httpcore.version},
-                            org.apache.http.ssl;version=${solr.httpcore.version},
-                            org.apache.http.util;version=${solr.httpcore.version}
+                            org.slf4j.*;version="[2.0,3)",
+                            <!-- Optional Jetty transport, ZooKeeper server/CLI, and annotation-only dependencies. -->
+                            org.apache.solr.client.solrj.jetty;resolution:=optional,
+                            org.eclipse.jetty.*;resolution:=optional,
+                            javax.servlet.*;resolution:=optional,
+                            javax.annotation;resolution:=optional,
+                            javax.annotation.meta;resolution:=optional,
+                            <!-- Shaded Guava platform integrations and annotation/doclet metadata are not client requirements. -->
+                            android.os;resolution:=optional,
+                            com.sun.javadoc;resolution:=optional,
+                            com.sun.tools.doclets.standard;resolution:=optional,
+                            org.apache.curator.shaded.com.google.appengine.*;resolution:=optional,
+                            org.apache.curator.shaded.com.google.apphosting.*;resolution:=optional,
+                            org.apache.curator.shaded.com.google.errorprone.*;resolution:=optional,
+                            org.checkerframework.*;resolution:=optional,
+                            org.jspecify.annotations;resolution:=optional,
+                            org.apache.commons.cli;resolution:=optional,
+                            org.jline.*;resolution:=optional,
+                            org.xerial.snappy;resolution:=optional,
+                            org.apache.log4j.jmx;resolution:=optional,
+                            net.jcip.annotations;resolution:=optional,
+                            io.netty.channel.epoll;resolution:=optional,
+                            <!-- Discover new SolrJ 10 requirements rather than silently omitting them. -->
+                            *
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -387,7 +190,8 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>5_MB</maxArtifactSize>
+                                    <!-- SolrJ 10's required Curator client includes shaded Guava; keep it isolated from DDF's Guava. -->
+                                    <maxArtifactSize>8_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
