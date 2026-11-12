@@ -477,7 +477,8 @@ Thumbs.db
 |[[_solr_server_url]]Solr server URL
 |solr.http.url
 |String
-|URL for a HTTP Solr server (required for HTTP Solr)
+|Optional HTTP node URL (including `/solr`) for REST-based relevancy configuration.
+Catalog discovery uses `solr.cloud.zookeeper`; an empty URL disables the optional REST client.
 |-
 |Yes
 

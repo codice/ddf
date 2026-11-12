@@ -18,10 +18,10 @@
     <OCD name="Catalog Solr Relevancy Ranking"
          id="ddf.catalog.source.solr.rest.SolrRest">
 
-        <AD description="Base URL for Solr Endpoints"
+        <AD description="Base URL for Solr Endpoints. Leave empty to disable REST-based relevancy configuration when only ZooKeeper discovery is configured."
             name="Solr Base URL"
             id="solrBaseUrl"
-            type="String" default="${solr.http.protocol}://${org.codice.ddf.system.hostname}:${solr.http.port}/solr"/>
+            type="String" default="${solr.http.url}"/>
 
         <AD description="This parameter controls how quickly an increase in term frequency results in term-frequency saturation. The default value is 1.2. Lower values result in quicker saturation, and higher values in slower saturation."
             name="k1" id="k1"
