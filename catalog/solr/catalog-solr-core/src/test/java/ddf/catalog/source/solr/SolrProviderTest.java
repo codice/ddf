@@ -16,6 +16,7 @@ package ddf.catalog.source.solr;
 import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIVE_MEGABYTES;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
+import static org.mockito.Mockito.mock;
 
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.source.solr.provider.SolrProviderContentTypes;
@@ -28,6 +29,7 @@ import ddf.catalog.source.solr.provider.SolrProviderSource;
 import ddf.catalog.source.solr.provider.SolrProviderSpatial;
 import ddf.catalog.source.solr.provider.SolrProviderTemporal;
 import ddf.catalog.source.solr.provider.SolrProviderUpdate;
+import ddf.security.encryption.EncryptionService;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import java.nio.file.Path;
@@ -115,10 +117,7 @@ public class SolrProviderTest {
     System.setProperty("zookeeper.4lw.commands.whitelist", "*");
     System.setProperty("solr.allowPaths", "*");
 
-    miniSolrCloud =
-        new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath())
-            .withJettyConfig(jetty -> jetty.setContext("/solr"))
-            .build();
+    miniSolrCloud = new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath()).build();
 
     System.setProperty("solr.cloud.shardCount", "1");
     System.setProperty("solr.cloud.replicationFactor", "1");
@@ -127,7 +126,8 @@ public class SolrProviderTest {
     System.setProperty("metadata.size.limit", Integer.toString(FIVE_MEGABYTES));
     System.setProperty("solr.query.sort.caseInsensitive", "true");
 
-    SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
+    SolrCloudClientFactory solrClientFactory =
+        new SolrCloudClientFactory(mock(EncryptionService.class));
     solrClient = solrClientFactory.newClient(COLLECTION);
 
     DynamicSchemaResolver dynamicSchemaResolver = new DynamicSchemaResolver();

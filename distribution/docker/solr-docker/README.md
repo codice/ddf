@@ -13,7 +13,14 @@ Cores should be pre-created when using solr in standalone mode, as the solr clie
 When using in cloud or distributed mode the `CORES` option should not be used. In this mode the solr client will automatically create cores that are missing.
 
 To create one or more cores simply add this environment variable to the run command: `docker container run -d -p 8994:8983 -e CORES="catalog metacard_cache" codice/ddf-solr:<ddf-version>`.
-This example command will start a solr server with three cores already created: `catalog` and `metacard_cache`
+This example starts Solr in user-managed (standalone) mode with two cores: `catalog` and `metacard_cache`.
+Solr 10 otherwise defaults to SolrCloud mode. The DDF entrypoint selects user-managed mode when
+`CORES` is supplied with the default foreground command; do not combine `CORES` with `ZK_HOST`.
+
+Core configuration comes from `/seed` and cores are stored under `/var/solr/data` on the Solr data
+volume. `CONFIG_SRC` and `CORE_DEST` can override these paths. Existing cores are not overwritten
+when the container restarts. When overriding the command with `solr start`, explicitly pass
+`--user-managed` as well as the foreground option.
 
 When providing multiple core names in the `CORES` environment variable must be separated by spaces.
 

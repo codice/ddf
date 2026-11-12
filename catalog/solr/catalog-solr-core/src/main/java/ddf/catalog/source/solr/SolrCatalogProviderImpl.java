@@ -61,9 +61,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
@@ -88,7 +88,9 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
-  static final int MAX_BOOLEAN_CLAUSES = 1024;
+  // Solr adds a version constraint to delete-by-query. Lucene 10 flattens that constraint
+  // with the identifier clauses, so reserve one of the default 1024 clauses for it.
+  static final int MAX_BOOLEAN_CLAUSES = 1023;
 
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 

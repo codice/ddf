@@ -20,6 +20,7 @@ import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBui
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.queryAndVerifyCount;
 import static junit.framework.TestCase.assertTrue;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import ddf.catalog.data.Metacard;
@@ -32,6 +33,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.solr.provider.Library;
 import ddf.catalog.source.solr.provider.MockMetacard;
+import ddf.security.encryption.EncryptionService;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import java.nio.file.Path;
@@ -112,10 +114,7 @@ public class SolrProviderRealTimeQueryTest {
     System.setProperty("zookeeper.4lw.commands.whitelist", "*");
     System.setProperty("solr.allowPaths", "*");
 
-    miniSolrCloud =
-        new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath())
-            .withJettyConfig(jetty -> jetty.setContext("/solr"))
-            .build();
+    miniSolrCloud = new MiniSolrCloudCluster.Builder(1, baseDir.getRoot().toPath()).build();
 
     System.setProperty("solr.cloud.shardCount", "1");
     System.setProperty("solr.cloud.replicationFactor", "1");
@@ -128,7 +127,8 @@ public class SolrProviderRealTimeQueryTest {
     System.setProperty("solr.commit.nrt.metacardTypes", COMMIT_NRT_TYPE);
     System.setProperty("solr.commit.nrt.commitWithinMs", "1");
 
-    SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
+    SolrCloudClientFactory solrClientFactory =
+        new SolrCloudClientFactory(mock(EncryptionService.class));
     solrClient = solrClientFactory.newClient("catalog");
 
     DynamicSchemaResolver dynamicSchemaResolver = new DynamicSchemaResolver();

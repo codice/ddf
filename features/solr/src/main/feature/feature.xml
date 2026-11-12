@@ -19,20 +19,17 @@
     <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
 
     <feature name="solr-dependencies" version="${project.version}" >
-        <feature>pax-web-jetty-extras</feature>
-        <bundle>mvn:org.eclipse.jetty/jetty-client/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty/jetty-alpn-client/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty/jetty-alpn-java-client/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty/jetty-http/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty/jetty-io/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty/jetty-util/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-hpack/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-common/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-client/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.eclipse.jetty.http2/http2-http-client-transport/${solr.jetty.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${solr.httpcore.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${solr.httpclient.version}</bundle>
-        <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
+        <!-- SolrJ uses the JDK HTTP transport, independently of DDF's web-server Jetty. -->
+        <feature>jackson</feature>
+        <bundle>mvn:jakarta.ws.rs/jakarta.ws.rs-api/4.0.0</bundle>
+        <bundle>mvn:io.dropwizard.metrics/metrics-core/${dropwizard.version}</bundle>
+        <bundle>mvn:io.netty/netty-common/${solr.netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/${solr.netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-resolver/${solr.netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-transport/${solr.netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-transport-native-unix-common/${solr.netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-codec/${solr.netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-handler/${solr.netty.version}</bundle>
         <bundle>mvn:ddf.platform.solr/solr-dependencies/${project.version}</bundle>
     </feature>
 

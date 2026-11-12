@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.common.util.NamedList;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.Or;

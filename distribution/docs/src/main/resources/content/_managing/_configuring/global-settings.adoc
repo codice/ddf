@@ -477,7 +477,8 @@ Thumbs.db
 |[[_solr_server_url]]Solr server URL
 |solr.http.url
 |String
-|URL for a HTTP Solr server (required for HTTP Solr)
+|Optional HTTP node URL (including `/solr`) for REST-based relevancy configuration.
+Catalog discovery uses `solr.cloud.zookeeper`; an empty URL disables the optional REST client.
 |-
 |Yes
 
@@ -491,25 +492,24 @@ Thumbs.db
 |[[_solr_password]]Encrypted Solr server password
 |solr.password
 |String
-|The password used for basic authentication to Solr. This property is only used if the
-`solr.client` property is `HttpSolrClient` and the `solrBasicAuth` property is `true`.
-|admin
+|The password used for basic authentication to Solr when `solr.useBasicAuth` is `true`.
+Supports encrypted values wrapped in `ENC(...)`; plaintext is accepted for test fixtures.
+Configure a distinct password for production; it must not equal the username.
+|password
 |Yes
 
 |[[_solr_username]]Solr server username
 |solr.username
 |String
-|The username for basic authentication to Solr. This property is only used if the
-`solr.client` property is `HttpSolrClient` and the `solrBasicAuth` property is `true`.
+|The username for basic authentication to Solr when `solr.useBasicAuth` is `true`.
 |admin
 |Yes
 
 |[[_solr_usebasicauth]]Use basic authentication for Solr server
 |solr.useBasicAuth
 |Boolean
-|If true, the HTTP Solr Client sends a username and password when sending requests to Solr server.
-This property is only used if the `solr.client` property is `HttpSolrClient`.
-|true
+|If true, SolrJ clients send the configured username and decrypted password to Solr.
+|false
 |Yes
 
 |===

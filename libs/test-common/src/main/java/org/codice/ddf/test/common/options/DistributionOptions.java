@@ -69,7 +69,16 @@ public class DistributionOptions extends BasicOptions {
               .unpackDirectory(UNPACK_DIRECTORY)
               .useDeployFolder(false);
     }
-    return new DefaultCompositeOption(distroOption, mavenRepos());
+    DefaultCompositeOption options = new DefaultCompositeOption(distroOption, mavenRepos());
+    String localRepository = System.getProperty("maven.repo.local");
+    if (localRepository != null) {
+      options.add(
+          editConfigurationFilePut(
+              "etc/org.ops4j.pax.url.mvn.cfg",
+              "org.ops4j.pax.url.mvn.localRepository",
+              localRepository));
+    }
+    return options;
   }
 
   public static Option kernelDistributionOption() {

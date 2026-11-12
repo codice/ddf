@@ -103,7 +103,7 @@
             </activation>
             <properties>
                 <solr.script.file>solr</solr.script.file>
-                <solr.force>-force</solr.force>
+                <solr.force>--force</solr.force>
             </properties>
             <build>
                 <plugins>
@@ -172,6 +172,10 @@
                 <configuration>
                     <skip>${skipTests}</skip>
                     <longModulepath>false</longModulepath>
+                    <environmentVariables>
+                        <SOLR_AUTH_TYPE>basic</SOLR_AUTH_TYPE>
+                        <SOLR_AUTHENTICATION_OPTS>-Dbasicauth=admin:password</SOLR_AUTHENTICATION_OPTS>
+                    </environmentVariables>
                 </configuration>
                 <executions>
                     <execution>
@@ -186,7 +190,7 @@
                             </executable>
                             <arguments>
                                 <argument>stop</argument>
-                                <argument>-p</argument>
+                                <argument>--port</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
                             <!-- Maven waits for completion and treats both "stopped" (0) and "already stopped/not running" (1) as acceptable. -->
@@ -208,15 +212,28 @@
                             </executable>
                             <arguments>
                                 <argument>start</argument>
-                                <argument>-c</argument>
-                                <argument>-p</argument>
+                                <argument>--port</argument>
                                 <argument>${solr.port}</argument>
-                                <argument>-m</argument>
+                                <argument>--memory</argument>
                                 <argument>512m</argument>
                                 <argument>${solr.force}</argument>
                             </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>secure-solr</id>
+                        <phase>pre-integration-test</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <executable>${solr.script.dir}${solr.script.file}</executable>
+                            <arguments>
+                                <argument>zk</argument>
+                                <argument>cp</argument>
+                                <argument>file:${project.build.directory}/solr/server/solr/security.json</argument>
+                                <argument>zk:/security.json</argument>
+                                <argument>--zk-host</argument>
+                                <argument>localhost:${zookeeper.port}</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -231,7 +248,7 @@
                             </executable>
                             <arguments>
                                 <argument>stop</argument>
-                                <argument>-p</argument>
+                                <argument>--port</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
                             <!-- Maven waits for completion and treats both "stopped" (0) and "already stopped/not running" (1) as acceptable. -->

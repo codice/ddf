@@ -20,6 +20,12 @@ ENV APP_NAME=/ddf
 ENV APP_LOG=$APP_HOME/data/log/$APP_NAME.log
 ENV INSTALL_FEATURES=profile-standard
 
+# The pinned base checks resolved bundles before installing profiles. Keep fragment names
+# untruncated so its exclusions match, including the two Pax Web compatibility fragments.
+RUN grep -q 'echo "lna"' "$ENTRYPOINT_HOME/global_env.sh" && \
+    sed -i 's/echo "lna"/echo "bundle:list -t 0 --no-ellipsis"/' "$ENTRYPOINT_HOME/global_env.sh"
+ENV READINESS_EXCLUSIONS="Apache Karaf :: Features :: Extension, Hosts|DDF :: Platform :: OSGi :: Conditions, Hosts|Apache Karaf :: Shell :: Console, Hosts|DDF :: Platform :: PaxWeb :: Jetty Config, Hosts|JLine JANSI Terminal, Hosts|Apache Aries Blueprint Core Compatiblity Fragment Bundle, Hosts|camel-caffeine-lrucache, Hosts|OPS4J Pax Web - EL 2.2 compatibility, Hosts|OPS4J Pax Web - Servlet API 3.1 compatibility, Hosts"
+
 COPY --from=prep /prep/ddf $APP_HOME
 
 VOLUME $APP_HOME/data $APP_HOME/deploy $APP_HOME/etc

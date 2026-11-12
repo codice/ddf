@@ -76,8 +76,8 @@
                             <readTimeOut>60000</readTimeOut>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <!-- When this value changes, a new tarball must be deployed to https://repo.codice.org/repository/maven-public/ -->
-                            <sha512>0cf320f15662b03844e2d3e983b2a50abab3e643d9aff53ed5a4481ef870776420c7bd8dfde377183d44304dcc589f6784ab020eb7c6675000f86fe32fff4057</sha512>
+                            <!-- Match the Apache SHA-512 for the tarball selected by solr.version. -->
+                            <sha512>1e0cac2a3f5d415fbf67fdb5efe62944fbf88f009aaa41113862e63dc1e9264d3ad5bdf532eb185b18687ca93becc807600ceec957c5a890c3026c0ba8d951d8</sha512>
                             <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>

@@ -12,6 +12,8 @@ RUN unzip /jars/solr-schema-${project.version}.jar -d /prep
 
 # Final Image Stage
 FROM solr:${solr.version}
+ENV CONFIG_SRC=/seed \
+    CORE_DEST=/var/solr/data
 # Copy solr libs
 COPY maven/jts-core-${jts.spatial4j.version}.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 
