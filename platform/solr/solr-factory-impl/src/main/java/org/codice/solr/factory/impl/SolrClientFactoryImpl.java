@@ -16,6 +16,7 @@ package org.codice.solr.factory.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import org.apache.solr.client.solrj.SolrClient;
@@ -34,7 +35,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
   private String clientType;
   private SolrClientFactory factory;
 
-  public SolrClientFactoryImpl() {
+  public SolrClientFactoryImpl(EncryptionService encryptionService) {
     this.clientType =
         AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> System.getProperty("solr.client", "CloudSolrClient"));
@@ -43,7 +44,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
       LOGGER.warn("Unknown solr.client system property set. Using Solr Cloud client instead.");
     }
 
-    factory = new SolrCloudClientFactory();
+    factory = new SolrCloudClientFactory(encryptionService);
   }
 
   @Override

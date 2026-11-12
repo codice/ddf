@@ -30,9 +30,10 @@ In short:
 ## Solr
 Solr runs in its own OS process separate from PAX-EXAM and the application. Things to know include:
 
-* The default port for Solr is hardcoded to `9994`. This value can be changed if needed in the test-itest-ddf pom under the solr.port property.
-* The Solr administration UI is available at `http://localhost:9994/solr`. Use the default 
-username (`admin`)and default password (`admin`)to log into the Solr administration UI.
+* The default Solr port is `9784`, configurable through `solr.port` in each test module's POM.
+* The Solr administration UI is available at `http://localhost:9784/solr`. The test-only
+credentials are `admin` / `password`; DDF's separate login remains unchanged.
+* Startup publishes the packaged security configuration to ZooKeeper before tests begin.
 * The Maven exec-maven-plugin executes the Solr start command before the itests begin. The plugin also executes the Solr stop command when the itests have terminated.
 * The files for the Solr instance are located inside of the `test-itest-ddf/target/solr` folder and **not** in the exam folder. There is not a per exam-folder copy of Solr. Therefore it is not
  recommended to run itests concurrently because the tests may corrupt each other's data.

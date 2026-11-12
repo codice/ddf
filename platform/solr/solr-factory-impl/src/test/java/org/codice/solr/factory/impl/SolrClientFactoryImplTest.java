@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
-import org.apache.solr.client.solrj.SolrClient;
+import ddf.security.encryption.EncryptionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,18 +26,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SolrClientFactoryImplTest {
 
-  @Mock private SolrClient mockClient;
+  @Mock private EncryptionService encryptionService;
 
   @Test(expected = IllegalArgumentException.class)
   public void newClientWithNullCoreName() {
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl();
+    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(encryptionService);
     factory.newClient(null);
   }
 
   @Test
   public void newCloudSolrClient() {
     System.setProperty("solr.client", "CloudSolrClient");
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl();
+    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(encryptionService);
 
     assertThat(factory.getFactory(), is(instanceOf(SolrCloudClientFactory.class)));
   }
@@ -45,7 +45,7 @@ public class SolrClientFactoryImplTest {
   @Test
   public void newClientWithUnknownClientType() {
     System.setProperty("solr.client", "Unknown");
-    SolrClientFactoryImpl factory = new SolrClientFactoryImpl();
+    SolrClientFactoryImpl factory = new SolrClientFactoryImpl(encryptionService);
 
     assertThat(factory.getFactory(), is(instanceOf(SolrCloudClientFactory.class)));
   }

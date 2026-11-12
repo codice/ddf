@@ -31,8 +31,8 @@ services:
     ports:
       - "8994:8994"
     environment:
-      - SOLR_HOST=solr1
-      - SOLR_PORT=8994
+      - SOLR_HOST_ADVERTISE=solr1
+      - SOLR_PORT_LISTEN=8994
       - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:
@@ -52,8 +52,8 @@ services:
     ports:
       - "8995:8995"
     environment:
-      - SOLR_HOST=solr2
-      - SOLR_PORT=8995
+      - SOLR_HOST_ADVERTISE=solr2
+      - SOLR_PORT_LISTEN=8995
       - SOLR_OPTS=-Djute.maxbuffer=2097152
       - ZK_HOST=zoo:2181
     volumes:

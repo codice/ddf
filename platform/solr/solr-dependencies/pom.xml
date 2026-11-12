@@ -160,6 +160,8 @@
                             android.os;resolution:=optional,
                             com.sun.javadoc;resolution:=optional,
                             com.sun.tools.doclets.standard;resolution:=optional,
+                            <!-- ZooKeeper's server-only OSMXBean reflectively probes this optional JDK extension. -->
+                            com.sun.management;resolution:=optional,
                             org.apache.curator.shaded.com.google.appengine.*;resolution:=optional,
                             org.apache.curator.shaded.com.google.apphosting.*;resolution:=optional,
                             org.apache.curator.shaded.com.google.errorprone.*;resolution:=optional,

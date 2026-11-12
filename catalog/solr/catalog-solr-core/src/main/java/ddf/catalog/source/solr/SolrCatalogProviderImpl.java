@@ -88,7 +88,9 @@ public class SolrCatalogProviderImpl extends MaskableImpl implements CatalogProv
 
   private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
-  static final int MAX_BOOLEAN_CLAUSES = 1024;
+  // Solr adds a version constraint to delete-by-query. Lucene 10 flattens that constraint
+  // with the identifier clauses, so reserve one of the default 1024 clauses for it.
+  static final int MAX_BOOLEAN_CLAUSES = 1023;
 
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
