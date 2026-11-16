@@ -252,7 +252,10 @@
     </feature>
 
     <feature name="catalog-plugin-oauth" version="${project.version}"
-             description="Catalog OAuth Plugin">
+              description="Catalog OAuth Plugin">
+        <!-- OAuth still uses HttpClient 4; SolrJ's JDK transport no longer provisions it. -->
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-oauth/${project.version}</bundle>
     </feature>
 
