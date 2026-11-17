@@ -11,6 +11,8 @@ It is an implementation of both the `PostCreateStoragePlugin` and `PostUpdateSto
 
 This plugin uses a custom 32-bit LGPL build of https://ffmpeg.org/[FFmpeg] (a video processing program) to generate thumbnails. When this plugin is installed, it places the FFmpeg executable appropriate for the current operating system in `${home_directory}/bin_third_party/ffmpeg`. When invoked, this plugin runs the FFmpeg binary in a separate process to generate the thumbnail. The `${home_directory}/bin_third_party/ffmpeg` directory is deleted when the plugin is uninstalled.
 
+To use a different FFmpeg binary, set *FFmpeg binary path* in the plugin configuration. This plugin runs that binary instead of the bundled one and doesn't delete it when uninstalled. When the security manager is enabled, a binary outside `${home_directory}/bin_third_party/ffmpeg` also needs a `java.io.FilePermission` grant with `execute` in `${home_directory}/security/configurations.policy`.
+
 [NOTE]
 ====
 Prebuilt FFmpeg binaries are provided for Linux, Mac, and Windows only.

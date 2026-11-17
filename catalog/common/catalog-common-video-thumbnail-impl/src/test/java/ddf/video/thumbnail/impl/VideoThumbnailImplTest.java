@@ -14,7 +14,7 @@
 package ddf.video.thumbnail.impl;
 
 import static ddf.video.thumbnail.impl.VideoThumbnailImpl.DEFAULT_MAX_FILE_SIZE_MB;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -22,16 +22,24 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -98,10 +106,7 @@ public class VideoThumbnailImplTest {
     }
   }
 
-  /**
-   * Tests processing short.mp4. This file is short enough that FFmpeg will only generate one
-   * thumbnail for it even if we request more than one.
-   */
+  /** Tests processing short.mp4. */
   @Test
   public void testProcessShortVideo() throws Exception {
     // given
@@ -110,15 +115,12 @@ public class VideoThumbnailImplTest {
     // when
     Optional<byte[]> optionalBytes = videoThumbnailImpl.videoThumbnail(file, VIDEO_MP4);
 
+    // then
     assertThat(optionalBytes.isPresent(), is(true));
-    verifyThumbnailIsPng(optionalBytes.get());
+    verifyThumbnailFormat(optionalBytes.get(), "gif");
   }
 
-  /**
-   * Tests processing medium.mp4. This file is short enough that the plugin won't try to grab
-   * thumbnails from different portions of the video but is long enough that the resulting thumbnail
-   * will be a GIF.
-   */
+  /** Tests processing medium.mp4. */
   @Test
   public void testProcessMediumVideo() throws Exception {
     // given
@@ -129,13 +131,10 @@ public class VideoThumbnailImplTest {
 
     // then
     assertThat(optionalBytes.isPresent(), is(true));
-    verifyThumbnailIsGif(optionalBytes.get());
+    verifyThumbnailFormat(optionalBytes.get(), "gif");
   }
 
-  /**
-   * Tests processing long.mp4. This file is long enough that the plugin will try to grab thumbnails
-   * from different portions of the video.
-   */
+  /** Tests processing long.mp4. */
   @Test
   public void testProcessLongVideo() throws Exception {
     // given
@@ -146,7 +145,47 @@ public class VideoThumbnailImplTest {
 
     // then
     assertThat(optionalBytes.isPresent(), is(true));
-    verifyThumbnailIsGif(optionalBytes.get());
+    verifyThumbnailFormat(optionalBytes.get(), "gif");
+  }
+
+  @Test
+  public void testProcessVideoWithoutDuration() throws Exception {
+    // given
+    final File file = getResource("/no-duration.h264");
+
+    // when
+    Optional<byte[]> optionalBytes = videoThumbnailImpl.videoThumbnail(file, VIDEO_MP4);
+
+    // then
+    assertThat(optionalBytes.isPresent(), is(true));
+    verifyThumbnailFormat(optionalBytes.get(), "png");
+  }
+
+  @Test
+  public void testGifFramesComeFromEachThirdOfVideo() throws Exception {
+    // given
+    final File file = getResource("/scenes-tiny-10s.mp4");
+
+    // when
+    Optional<byte[]> optionalBytes = videoThumbnailImpl.videoThumbnail(file, VIDEO_MP4);
+
+    // then
+    assertThat(optionalBytes.isPresent(), is(true));
+    final ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
+    try (ImageInputStream input =
+        ImageIO.createImageInputStream(new ByteArrayInputStream(optionalBytes.get()))) {
+      reader.setInput(input);
+      final int lastFrame = reader.getNumImages(true) - 1;
+      final List<String> middleColors = new ArrayList<>();
+      for (int i = 1; i < lastFrame; i++) {
+        middleColors.add(centerColor(reader.read(i)));
+      }
+      assertThat(centerColor(reader.read(0)), is("red"));
+      assertThat(middleColors, hasItem("green"));
+      assertThat(centerColor(reader.read(lastFrame)), is("blue"));
+    } finally {
+      reader.dispose();
+    }
   }
 
   @Test
@@ -222,7 +261,7 @@ public class VideoThumbnailImplTest {
 
     // then
     assertThat(optionalBytes.isPresent(), is(true));
-    verifyThumbnailIsGif(optionalBytes.get());
+    verifyThumbnailFormat(optionalBytes.get(), "gif");
   }
 
   /** create mock methods */
@@ -255,42 +294,23 @@ public class VideoThumbnailImplTest {
     return mockBundleContext;
   }
 
-  private void verifyThumbnailIsGif(byte[] thumbnail) {
-    assertThat("The thumbnail should not be null", thumbnail, notNullValue());
-
-    assertThat(
-        "The thumbnail should have the right GIF header bytes", thumbnail[0], is((byte) 0x47));
-    assertThat(
-        "The thumbnail should have the right GIF header bytes", thumbnail[1], is((byte) 0x49));
-    assertThat(
-        "The thumbnail should have the right GIF header bytes", thumbnail[2], is((byte) 0x46));
-    assertThat(
-        "The thumbnail should have the right GIF header bytes", thumbnail[3], is((byte) 0x38));
-    assertThat(
-        "The thumbnail should have the right GIF header bytes", thumbnail[4], is((byte) 0x39));
-    assertThat(
-        "The thumbnail should have the right GIF header bytes", thumbnail[5], is((byte) 0x61));
+  private void verifyThumbnailFormat(byte[] thumbnail, String format) throws IOException {
+    try (ImageInputStream input =
+        ImageIO.createImageInputStream(new ByteArrayInputStream(thumbnail))) {
+      assertThat(ImageIO.getImageReaders(input).next().getFormatName(), is(format));
+    }
   }
 
-  private void verifyThumbnailIsPng(byte[] thumbnail) {
-    assertThat("The thumbnail should not be null", thumbnail, notNullValue());
-
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[0], is((byte) 0x89));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[1], is((byte) 0x50));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[2], is((byte) 0x4E));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[3], is((byte) 0x47));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[4], is((byte) 0x0D));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[5], is((byte) 0x0A));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[6], is((byte) 0x1A));
-    assertThat(
-        "The thumbnail should have the right PNG header bytes", thumbnail[7], is((byte) 0x0A));
+  private String centerColor(BufferedImage frame) {
+    final Color pixel = new Color(frame.getRGB(frame.getWidth() / 2, frame.getHeight() / 2));
+    if (pixel.getRed() > pixel.getGreen() && pixel.getRed() > pixel.getBlue()) {
+      return "red";
+    } else if (pixel.getGreen() > pixel.getRed() && pixel.getGreen() > pixel.getBlue()) {
+      return "green";
+    } else if (pixel.getBlue() > pixel.getRed() && pixel.getBlue() > pixel.getGreen()) {
+      return "blue";
+    }
+    return pixel.toString();
   }
 
   private File getResource(String resource) throws URISyntaxException {
