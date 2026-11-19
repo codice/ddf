@@ -22,4 +22,11 @@
 |120
 |false
 
+|FFmpeg binary path
+|ffmpegPath
+|String
+|Path to an FFmpeg binary to use instead of the bundled one. Leave empty to use the bundled binary.
+|
+|false
+
 |===

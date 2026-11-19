@@ -19,6 +19,9 @@
         <AD description="Maximum video file size in Megabytes for which to create a thumbnail. Default is 120 Megabytes. Processing large videos may affect system performance."
             name="Maximum video file size to process (Megabytes)" id="maxFileSizeMB"
             type="Long" default="120"/>
+        <AD description="Path to an FFmpeg binary to use instead of the bundled one. Leave empty to use the bundled binary."
+            name="FFmpeg binary path" id="ffmpegPath"
+            type="String" required="false" default=""/>
     </OCD>
 
     <Designate pid="ddf.video.thumbnail.impl.VideoThumbnailImpl">

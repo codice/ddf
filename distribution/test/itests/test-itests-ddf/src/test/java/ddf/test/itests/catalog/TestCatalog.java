@@ -1570,15 +1570,25 @@ public class TestCatalog extends AbstractIntegrationTest {
   @Test
   public void testVideoThumbnail() throws Exception {
 
-    try (InputStream inputStream = IOUtils.toInputStream(getFileContent("sample.mp4"))) {
+    final String id;
+    try (InputStream inputStream = getFileContentAsStream(SAMPLE_MP4)) {
       final byte[] fileBytes = IOUtils.toByteArray(inputStream);
 
-      given()
-          .multiPart("file", SAMPLE_MP4, fileBytes, "video/mp4")
-          .post(REST_PATH.getUrl())
-          .then()
-          .statusCode(201);
+      id =
+          given()
+              .multiPart("file", SAMPLE_MP4, fileBytes, "video/mp4")
+              .expect()
+              .statusCode(201)
+              .when()
+              .post(REST_PATH.getUrl())
+              .getHeader("id");
     }
+
+    getMetacardValidatableResponse(id)
+        .assertThat()
+        .body(hasXPath("/metacard/base64Binary[@name='thumbnail']"));
+
+    delete(id);
   }
 
   @Test
