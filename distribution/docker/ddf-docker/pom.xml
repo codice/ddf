@@ -26,7 +26,9 @@
 
     <properties>
         <!-- JDK 21 base; pinned by digest for reproducibility. Bump in lockstep with codice/docker-ddf-base releases. -->
-        <docker.ddf.base.version>4.0@sha256:005cfb947b79fa15695c099707b268b4e267f0138eb2fb1d65b374ec8b31d84e</docker.ddf.base.version>
+        <!-- Did you update docker-ddf-base, push the image, and are now wondering where the digest SHA is?
+             Run `docker buildx imagetools inspect codice/ddf-base:4.0` and look for the `Digest:` field -->
+        <docker.ddf.base.version>4.0@sha256:f376bf6fd2992d3516b3a39dbbd451e84a77043679a03147a28aa3464f8ae06a</docker.ddf.base.version>
     </properties>
 
     <dependencies>
