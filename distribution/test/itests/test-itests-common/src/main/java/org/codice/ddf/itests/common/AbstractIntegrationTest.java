@@ -784,7 +784,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "CloudSolrClient"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.useBasicAuth", "true"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.username", "admin"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.password", "admin"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.password", "password"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "127.0.0.1:10784"));
   }

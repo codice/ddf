@@ -25,6 +25,11 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-schema</artifactId>
             <version>${project.version}</version>

@@ -14,6 +14,7 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.encryption.EncryptionService;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeException;
 import dev.failsafe.RetryPolicy;
@@ -36,6 +37,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.request.ConfigSetAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
@@ -73,6 +75,13 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   private static final ScheduledExecutorService SCHEDULED_EXECUTOR =
       SolrCloudClientFactory.createExecutor();
 
+  private final EncryptionService encryptionService;
+
+  public SolrCloudClientFactory(EncryptionService encryptionService) {
+    Validate.notNull(encryptionService, "Encryption service is required");
+    this.encryptionService = encryptionService;
+  }
+
   @Override
   public SolrClient newClient(String collection) {
     Validate.notNull(collection, "invalid null Solr core name");
@@ -92,8 +101,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   @VisibleForTesting
   SolrClient createSolrCloudClient(String zookeeperHosts, String collection) {
     try {
-      CloudSolrClient client = newCloudSolrClient(zookeeperHosts);
-      client.setDefaultCollection(collection);
+      CloudSolrClient client = newCloudSolrClient(zookeeperHosts, collection);
 
       Failsafe.with(
               ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_A_COLLECTION_IS_CREATED
@@ -120,7 +128,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
   private boolean createCollectionIfMissing(String collection, CloudSolrClient client)
       throws SolrServerException, IOException, SolrFactoryException {
-    client.connect();
+    client.getClusterStateProvider().getLiveNodes();
 
     if (!isAliasCollection(collection, client)) {
       uploadCoreConfiguration(collection, client);
@@ -132,10 +140,23 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   }
 
   @VisibleForTesting
-  CloudSolrClient newCloudSolrClient(String zookeeperHosts) {
+  CloudSolrClient newCloudSolrClient(String zookeeperHosts, String collection) {
+    // note: see
+    // https://solr.apache.org/guide/solr/latest/upgrade-notes/major-changes-in-solr-10.html#solrj-2
+    // "Deprecate CloudSolrClient’s ZooKeeper Hosts constructor. Users are encouraged to supply
+    //  Solr URLs instead of communicating with ZooKeeper. It’s not likely to be removed before Solr
+    // 11."
+    HttpJdkSolrClient.Builder httpBuilder = new HttpJdkSolrClient.Builder();
+    if (Boolean.getBoolean("solr.useBasicAuth")) {
+      httpBuilder.withBasicAuthCredentials(
+          System.getProperty("solr.username"),
+          encryptionService.decryptValue(System.getProperty("solr.password")));
+    }
     return new CloudSolrClient.Builder(
             Arrays.asList(zookeeperHosts.split(",")),
             Optional.ofNullable(System.getProperty("solr.cloud.zookeeper.chroot")))
+        .withDefaultCollection(collection)
+        .withHttpClientBuilder(httpBuilder)
         .build();
   }
 
@@ -227,7 +248,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
           configPath);
       new ConfigSetAdminRequest.Upload()
           .setUploadStream(
-              new ContentStreamBase.ByteArrayStream(configSets.createZip(collection), collection))
+              new ContentStreamBase.ByteArrayStream(
+                  configSets.createZip(collection), collection, "application/octet-stream"))
           .setConfigSetName(collection)
           .process(client, collection);
     } catch (IOException | SolrServerException e) {

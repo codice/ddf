@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import ddf.security.audit.SecurityLogger;
@@ -57,6 +58,16 @@ public class SolrRestTest {
 
     when(clientBuilderFactory.getClientBuilder()).thenReturn(clientBuilder);
     solrRest = new SolrRest(clientBuilderFactory, encryptionService);
+  }
+
+  @Test
+  public void testNoHttpNodeConfigured() throws Exception {
+    ClientBuilderFactory factory = mock(ClientBuilderFactory.class);
+    EncryptionService encryption = mock(EncryptionService.class);
+    SolrRest client = new SolrRest(factory, encryption);
+    client.setSolrBaseUrl("");
+    client.init();
+    verifyNoInteractions(factory);
   }
 
   @Test

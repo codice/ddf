@@ -3,7 +3,7 @@
     "blockUnknown": true,
     "class": "solr.BasicAuthPlugin",
     "credentials": {
-      "admin": "EjjOS/zyQ1KQQdSXFb/rFm7w6MItU5pmdthM35ZiJaA= ZZI7d4jf/8hz5oZz7ljBE6+uv1wqncj+VudX3arbib4="
+      "admin": "fCok7ynSIcjwA5s3v9TIgl/F3OsksD+sazOky2azCbw= D5TEya+/xzACdrvpj96pFYxbYexOWOzqXTRbnqVX5CI="
     }
   },
   "authorization": {

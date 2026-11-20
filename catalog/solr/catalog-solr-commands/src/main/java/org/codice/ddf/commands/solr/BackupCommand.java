@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.commands.solr;
 
-import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +21,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -39,7 +37,6 @@ public class BackupCommand extends SolrCommands {
   private static final String SEE_COMMAND_USAGE_MESSAGE =
       "Invalid Argument(s). Please see command usage for details.";
   private static final String BACKUP_FAILURE_MSG = "Backup failed.";
-  @Reference private EncryptionService encryptionService;
 
   @Option(
       name = "-d",

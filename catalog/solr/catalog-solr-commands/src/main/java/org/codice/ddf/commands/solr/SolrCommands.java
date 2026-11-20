@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.solr;
 
+import ddf.security.encryption.EncryptionService;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
@@ -53,6 +55,7 @@ public abstract class SolrCommands extends CommandSupport {
   protected static final String NAMESPACE = "solr";
 
   @Reference protected ConfigurationAdmin configurationAdmin;
+  @Reference protected EncryptionService encryptionService;
 
   protected static final String DEFAULT_CORE_NAME = "catalog";
 
@@ -118,11 +121,17 @@ public abstract class SolrCommands extends CommandSupport {
     if (StringUtils.isNotBlank(zkHosts)) {
       String[] zkHostArr = zkHosts.split(",");
       List<String> zkHostsList = Arrays.asList(zkHostArr);
-      SolrClient client = new CloudSolrClient.Builder(zkHostsList, Optional.empty()).build();
+      SolrClient client =
+          new CloudSolrClient.Builder(zkHostsList, Optional.empty())
+              .withHttpClientBuilder(solrHttpClientBuilder())
+              .build();
       LOGGER.debug("Created solr client: {}", client);
       return client;
     } else if (StringUtils.isNotBlank(solrUrl)) {
-      SolrClient client = new CloudSolrClient.Builder(Collections.singletonList(solrUrl)).build();
+      SolrClient client =
+          new CloudSolrClient.Builder(Collections.singletonList(solrUrl))
+              .withHttpClientBuilder(solrHttpClientBuilder())
+              .build();
       LOGGER.debug("Created solr client: {}", client);
       return client;
     } else {
@@ -138,6 +147,16 @@ public abstract class SolrCommands extends CommandSupport {
       LOGGER.debug("Closing solr client");
       client.close();
     }
+  }
+
+  private HttpJdkSolrClient.Builder solrHttpClientBuilder() {
+    HttpJdkSolrClient.Builder builder = new HttpJdkSolrClient.Builder();
+    if (Boolean.getBoolean("solr.useBasicAuth")) {
+      builder.withBasicAuthCredentials(
+          System.getProperty("solr.username"),
+          encryptionService.decryptValue(System.getProperty("solr.password")));
+    }
+    return builder;
   }
 
   protected boolean isSystemConfiguredWithSolrCloud() {
