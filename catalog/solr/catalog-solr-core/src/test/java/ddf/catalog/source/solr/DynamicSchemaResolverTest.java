@@ -33,10 +33,12 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.source.solr.json.MetacardTypeMapperFactory;
 import java.io.IOException;
 import java.io.Serializable;
@@ -48,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Before;
 import org.junit.Test;
@@ -234,6 +237,35 @@ public class DynamicSchemaResolverTest {
         resolver.fieldsCache.size(), equalTo(INITIAL_FIELDS_CACHE_COUNT + additionalFields.size()));
     assertThat(resolver.fieldsCache, hasItem(someExtraField));
     assertThat(resolver.fieldsCache, hasItem(anotherExtraField));
+  }
+
+  @Test
+  public void testCachedMetacardTypeResolvedWithoutTypeObject() throws Exception {
+    MetacardType type =
+        new MetacardTypeImpl(
+            "cached.type",
+            Collections.singleton(
+                new AttributeDescriptorImpl(
+                    "title", true, true, true, false, BasicTypes.STRING_TYPE)));
+    byte[] bytes = METACARD_TYPE_MAPPER.writeValueAsBytes(type);
+    assertThat(dynamicSchemaResolver.isMetacardTypeCached("cached.type#1"), is(false));
+
+    dynamicSchemaResolver.cacheMetacardType("cached.type#1", bytes);
+
+    assertThat(dynamicSchemaResolver.isMetacardTypeCached("cached.type#1"), is(true));
+    SolrDocument doc = new SolrDocument();
+    doc.addField(SchemaFields.METACARD_TYPE_FIELD_NAME, "cached.type#1");
+    MetacardType resolved = dynamicSchemaResolver.getMetacardType(doc);
+    assertThat(resolved.getName(), is("cached.type"));
+    assertThat(resolved.getAttributeDescriptor("title"), notNullValue());
+  }
+
+  @Test(expected = MetacardCreationException.class)
+  public void testUncachedMetacardTypeWithoutTypeObjectThrows() throws Exception {
+    SolrDocument doc = new SolrDocument();
+    doc.addField(SchemaFields.METACARD_TYPE_FIELD_NAME, "uncached.type#1");
+
+    dynamicSchemaResolver.getMetacardType(doc);
   }
 
   private MetacardType deserializeMetacardType(byte[] serializedMetacardType) throws IOException {

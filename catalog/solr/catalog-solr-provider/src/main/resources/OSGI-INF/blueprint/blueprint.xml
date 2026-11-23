@@ -49,4 +49,12 @@
 
 	<service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
 
+	<!-- Registers the metacard.partial attribute and rejects creates/updates of partial metacards
+	     returned by queries that used includedFields/excludedFields -->
+	<bean id="partialMetacardIngestPlugin" class="ddf.catalog.source.solr.PartialMetacardIngestPlugin"
+		  init-method="init" destroy-method="destroy">
+		<argument ref="attributeRegistry"/>
+	</bean>
+	<service ref="partialMetacardIngestPlugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
+
 </blueprint>

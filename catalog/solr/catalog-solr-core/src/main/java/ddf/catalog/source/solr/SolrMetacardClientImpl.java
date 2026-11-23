@@ -23,18 +23,24 @@ import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.FacetAttributeResult;
@@ -58,11 +64,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -82,6 +90,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
@@ -132,6 +141,39 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String SKIP_REALTIME_GET = "skipRealtimeGet";
 
+  public static final String INCLUDED_FIELDS = "includedFields";
+
+  public static final String EXCLUDED_FIELDS = "excludedFields";
+
+  /**
+   * Request property some endpoints (e.g. ddf-jsonrpc) use to carry caller-supplied properties as a
+   * nested map instead of as top-level request properties.
+   */
+  static final String UNCHECKED_PROPERTIES = "unchecked-properties";
+
+  static final String SOLR_QUERY_FIELDLIST_ENABLED = "solr.query.fieldList.enabled";
+
+  static final String SOLR_QUERY_FIELDLIST_REQUIRED_FIELDS = "solr.query.fieldList.requiredFields";
+
+  /**
+   * Boolean attribute set to {@code true} on metacards returned from a query whose Solr field list
+   * was restricted with {@link #INCLUDED_FIELDS} or {@link #EXCLUDED_FIELDS}, i.e. metacards that
+   * may be missing attributes.
+   */
+  public static final String PARTIAL_RESULT_ATTRIBUTE = "metacard.partial";
+
+  /** Descriptor for {@link #PARTIAL_RESULT_ATTRIBUTE}. */
+  public static final AttributeDescriptor PARTIAL_RESULT_DESCRIPTOR =
+      new AttributeDescriptorImpl(
+          PARTIAL_RESULT_ATTRIBUTE, false, false, false, false, BasicTypes.BOOLEAN_TYPE);
+
+  /**
+   * Metacard types extended with {@link #PARTIAL_RESULT_DESCRIPTOR}, keyed by the original type
+   * instance (identity) so each type is extended once instead of per result.
+   */
+  private final Cache<MetacardType, MetacardType> partialMetacardTypes =
+      CacheBuilder.newBuilder().weakKeys().maximumSize(4096).build();
+
   private final SolrClient client;
 
   private final SolrFilterDelegateFactory filterDelegateFactory;
@@ -142,6 +184,12 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
+
+  private static final Supplier<Boolean> FIELDLIST_RESTRICTION_ENABLED =
+      () -> Boolean.valueOf(accessProperty(SOLR_QUERY_FIELDLIST_ENABLED, "false"));
+
+  private final Set<String> configuredRequiredFields =
+      Sets.newHashSet(accessProperty(SOLR_QUERY_FIELDLIST_REQUIRED_FIELDS, "").split("\\s*,\\s*"));
 
   private static final String SOLR_COMMIT_NRT_METACARDTYPES = "solr.commit.nrt.metacardTypes";
 
@@ -263,7 +311,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       LOGGER.trace("Handled spellcheck for {}", traceSource);
       metrics.put(SQCMB + "spellcheckHandling" + QM_ELAPSED, System.nanoTime() - start);
       if (docs != null) {
-        addDocsToResults(docs, results);
+        addDocsToResults(docs, results, isFieldListRestricted(request));
         totalHits = docs.getNumFound();
       }
 
@@ -513,15 +561,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return bestCollation;
   }
 
-  private void addDocsToResults(SolrDocumentList docs, List<Result> results)
+  private void addDocsToResults(SolrDocumentList docs, List<Result> results, boolean partialResults)
       throws UnsupportedQueryException {
+    ensureMetacardTypesCached(docs);
     for (SolrDocument doc : docs) {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
       }
       ResultImpl tmpResult;
       try {
-        tmpResult = createResult(doc);
+        tmpResult = createResult(doc, partialResults);
       } catch (MetacardCreationException e) {
         throw new UnsupportedQueryException("Could not create result metacard(s).", e);
       }
@@ -570,7 +619,60 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return createMetacards(solrDocs);
   }
 
+  /**
+   * Makes sure the metacard type of every document can be resolved. Documents from queries with a
+   * restricted field list do not carry the (large) serialized metacard type object, so for each
+   * type key that is neither cached nor present on a document, the object is fetched from one
+   * document of that type and cached. This costs one small lookup per distinct type per resolver
+   * lifetime; documents whose type is cached or that carry the object need no extra request.
+   */
+  private void ensureMetacardTypesCached(Collection<SolrDocument> docs)
+      throws UnsupportedQueryException {
+    Map<String, String> missingTypeKeyToId = new HashMap<>();
+    for (SolrDocument doc : docs) {
+      Object typeKey = doc.getFirstValue(SchemaFields.METACARD_TYPE_FIELD_NAME);
+      Object id = doc.getFirstValue(Metacard.ID + SchemaFields.TEXT_SUFFIX);
+      if (typeKey == null
+          || id == null
+          || doc.getFirstValue(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME) != null
+          || missingTypeKeyToId.containsKey(typeKey.toString())
+          || resolver.isMetacardTypeCached(typeKey.toString())) {
+        continue;
+      }
+      missingTypeKeyToId.put(typeKey.toString(), id.toString());
+    }
+    if (missingTypeKeyToId.isEmpty()) {
+      return;
+    }
+
+    LOGGER.debug("Fetching uncached metacard types {}", missingTypeKeyToId.keySet());
+    ModifiableSolrParams params = new ModifiableSolrParams();
+    params.set(
+        CommonParams.FL,
+        Metacard.ID + SchemaFields.TEXT_SUFFIX,
+        SchemaFields.METACARD_TYPE_FIELD_NAME,
+        SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+    List<List<String>> partitions =
+        Lists.partition(new ArrayList<>(missingTypeKeyToId.values()), GET_BY_ID_LIMIT);
+    for (List<String> partition : partitions) {
+      try {
+        for (SolrDocument typeDoc : client.getById(partition, params)) {
+          Object typeKey = typeDoc.getFirstValue(SchemaFields.METACARD_TYPE_FIELD_NAME);
+          Object bytes = typeDoc.getFirstValue(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+          if (typeKey != null && bytes instanceof byte[]) {
+            resolver.cacheMetacardType(typeKey.toString(), (byte[]) bytes);
+          }
+        }
+      } catch (SolrServerException | SolrException | IOException e) {
+        throw new UnsupportedQueryException(ERR_UNSUPPORTED_QUERY_MSG, e);
+      } catch (MetacardCreationException e) {
+        throw new UnsupportedQueryException("Could not load metacard type(s).", e);
+      }
+    }
+  }
+
   private List<Metacard> createMetacards(List<SolrDocument> docs) throws UnsupportedQueryException {
+    ensureMetacardTypesCached(docs);
     List<Metacard> results = new ArrayList<>(docs.size());
     for (SolrDocument doc : docs) {
       try {
@@ -767,11 +869,266 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     setSortProperty(request, query, filterDelegate);
 
+    applyFieldListRestriction(request, query);
+
     if (queryTimeAllowedMs > 0) {
       query.setTimeAllowed(queryTimeAllowedMs);
     }
 
     return query;
+  }
+
+  private void applyFieldListRestriction(QueryRequest request, SolrQuery query)
+      throws UnsupportedQueryException {
+    if (!FIELDLIST_RESTRICTION_ENABLED.get()) {
+      return;
+    }
+
+    List<String> includedFields =
+        toFieldList(getFieldListProperty(request, INCLUDED_FIELDS), INCLUDED_FIELDS);
+    List<String> excludedFields =
+        toFieldList(getFieldListProperty(request, EXCLUDED_FIELDS), EXCLUDED_FIELDS);
+
+    if (includedFields.isEmpty() && excludedFields.isEmpty()) {
+      return;
+    }
+    if (!includedFields.isEmpty() && !excludedFields.isEmpty()) {
+      throw new UnsupportedQueryException(
+          "Only one of "
+              + INCLUDED_FIELDS
+              + " or "
+              + EXCLUDED_FIELDS
+              + " may be specified on a query request.");
+    }
+
+    Set<String> requiredFields = new LinkedHashSet<>();
+    requiredFields.addAll(getStoredFields(Metacard.ID));
+    requiredFields.addAll(getStoredFields(Metacard.TITLE));
+    // the serialized metacard type object is large, so only its cache key is requested; types
+    // missing from the resolver cache are fetched separately (see ensureMetacardTypesCached)
+    requiredFields.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
+    for (String configuredField : configuredRequiredFields) {
+      String attribute = configuredField == null ? "" : configuredField.trim();
+      if (attribute.isEmpty()) {
+        continue;
+      }
+      if (isWildcard(attribute)) {
+        requiredFields.addAll(expandWildcard(attribute));
+      } else {
+        List<String> storedFields = getStoredFields(attribute);
+        if (storedFields.isEmpty()) {
+          requiredFields.add(attribute);
+        } else {
+          requiredFields.addAll(storedFields);
+        }
+      }
+    }
+
+    // preserve sort-driven entries (e.g. score or _distance_:geodist()) since setFields replaces
+    // the whole field list
+    Set<String> sortFields = new LinkedHashSet<>();
+    String existingFields = query.getFields();
+    if (existingFields != null && !existingFields.isEmpty()) {
+      for (String field : existingFields.split(",")) {
+        if (!"*".equals(field)) {
+          sortFields.add(field);
+        }
+      }
+    }
+
+    if (!includedFields.isEmpty()) {
+      Set<String> fields = new LinkedHashSet<>(requiredFields);
+      for (String attribute : includedFields) {
+        if (isWildcard(attribute)) {
+          fields.add(attribute);
+          continue;
+        }
+        List<String> storedFields = getStoredFields(attribute);
+        if (storedFields.isEmpty()) {
+          LOGGER.warn(
+              "No indexed Solr field found for attribute [{}], omitting from field list.",
+              attribute);
+          continue;
+        }
+        fields.addAll(storedFields);
+      }
+      fields.addAll(sortFields);
+      query.setFields(fields.toArray(new String[0]));
+    } else {
+      // Solr's fl parameter has no exclusion syntax, so build an explicit inclusion list of every
+      // known attribute field except the excluded ones. Only base attribute fields (attribute name
+      // plus format suffix) are requested; derived index-only variants (_tokenized, _phonetics,
+      // _sort, ...) are never mapped to metacard attributes and would only add per-document cost.
+      Set<String> excludedSolrFields = new LinkedHashSet<>();
+      for (String attribute : excludedFields) {
+        if (isWildcard(attribute)) {
+          excludedSolrFields.addAll(expandWildcard(attribute));
+        } else {
+          excludedSolrFields.addAll(getStoredFields(attribute));
+        }
+      }
+      excludedSolrFields.removeAll(requiredFields);
+
+      Set<String> fields = new LinkedHashSet<>(requiredFields);
+      Set<String> fieldNames = resolver.getFieldNames();
+      if (fieldNames != null) {
+        for (String fieldName : fieldNames) {
+          if (!SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME.equals(fieldName)
+              && isAttributeField(fieldName)
+              && !isExcludedField(fieldName, excludedSolrFields)) {
+            fields.add(fieldName);
+          }
+        }
+      }
+      fields.addAll(sortFields);
+      query.setFields(fields.toArray(new String[0]));
+    }
+  }
+
+  /**
+   * @return true if the Solr field is a base attribute field (attribute name plus format suffix,
+   *     e.g. {@code title_txt}) rather than a derived index-only field (e.g. {@code
+   *     title_txt_tokenized})
+   */
+  private boolean isAttributeField(String fieldName) {
+    return getStoredFields(resolver.resolveFieldName(fieldName)).contains(fieldName);
+  }
+
+  /**
+   * @return true if the Solr field is one of the excluded fields or a field derived from one (e.g.
+   *     {@code title_txt_sort} or {@code title_txt_tokenized} for {@code title_txt})
+   */
+  private static boolean isExcludedField(String fieldName, Set<String> excludedSolrFields) {
+    if (excludedSolrFields.contains(fieldName)) {
+      return true;
+    }
+    for (String excluded : excludedSolrFields) {
+      if (fieldName.startsWith(excluded + "_")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<String> getStoredFields(String attributeName) {
+    List<String> storedFields = resolver.getAnonymousField(attributeName);
+    return storedFields == null ? Collections.emptyList() : storedFields;
+  }
+
+  private static boolean isWildcard(String field) {
+    return field.indexOf('*') >= 0;
+  }
+
+  private static String globToRegex(String glob) {
+    String[] parts = glob.split("\\*", -1);
+    StringBuilder regex = new StringBuilder();
+    for (int i = 0; i < parts.length; i++) {
+      if (i > 0) {
+        regex.append(".*");
+      }
+      if (!parts[i].isEmpty()) {
+        regex.append(Pattern.quote(parts[i]));
+      }
+    }
+    return regex.toString();
+  }
+
+  /**
+   * @return the known base attribute fields matching the glob; derived index-only fields are
+   *     omitted since they never map to metacard attributes
+   */
+  private Set<String> expandWildcard(String glob) {
+    String regex = globToRegex(glob);
+    Set<String> matches = new LinkedHashSet<>();
+    Set<String> fieldNames = resolver.getFieldNames();
+    if (fieldNames != null) {
+      for (String fieldName : fieldNames) {
+        if (fieldName.matches(regex) && isAttributeField(fieldName)) {
+          matches.add(fieldName);
+        }
+      }
+    }
+    return matches;
+  }
+
+  /**
+   * Looks up a field list property on the request, preferring a top-level property and falling back
+   * to the nested {@value #UNCHECKED_PROPERTIES} map.
+   */
+  private static Serializable getFieldListProperty(QueryRequest request, String propertyKey) {
+    Serializable value = request.getPropertyValue(propertyKey);
+    if (value != null) {
+      return value;
+    }
+    Serializable unchecked = request.getPropertyValue(UNCHECKED_PROPERTIES);
+    if (unchecked instanceof Map) {
+      Object nested = ((Map<?, ?>) unchecked).get(propertyKey);
+      if (nested instanceof Serializable) {
+        return (Serializable) nested;
+      }
+    }
+    return null;
+  }
+
+  private static List<String> toFieldList(Serializable value, String propertyKey) {
+    List<String> fields = new ArrayList<>();
+    if (value == null) {
+      return fields;
+    }
+
+    Collection<?> values;
+    if (value instanceof Collection) {
+      values = (Collection<?>) value;
+    } else if (value instanceof Object[]) {
+      values = Arrays.asList((Object[]) value);
+    } else {
+      // endpoints pass caller-supplied request parameters through as Strings, so an unrecognized
+      // type must not fail the query
+      LOGGER.warn(
+          "Ignoring query request property {} with unsupported type {}",
+          propertyKey,
+          value.getClass().getName());
+      return fields;
+    }
+
+    for (Object item : values) {
+      if (item instanceof String && !((String) item).trim().isEmpty()) {
+        fields.add(((String) item).trim());
+      }
+    }
+    return fields;
+  }
+
+  /**
+   * @return true if the request's {@link #INCLUDED_FIELDS} or {@link #EXCLUDED_FIELDS} property
+   *     restricts the Solr field list, i.e. the returned metacards may be partial
+   */
+  private boolean isFieldListRestricted(QueryRequest request) {
+    if (!FIELDLIST_RESTRICTION_ENABLED.get()) {
+      return false;
+    }
+    return !toFieldList(getFieldListProperty(request, INCLUDED_FIELDS), INCLUDED_FIELDS).isEmpty()
+        || !toFieldList(getFieldListProperty(request, EXCLUDED_FIELDS), EXCLUDED_FIELDS).isEmpty();
+  }
+
+  /**
+   * Marks a metacard as a partial result by setting {@link #PARTIAL_RESULT_ATTRIBUTE} to true. The
+   * attribute is added to (a cached extension of) the metacard's type so that transformers, which
+   * serialize the attributes described by the type, include it.
+   */
+  private void markPartial(MetacardImpl metacard) {
+    MetacardType type = metacard.getMetacardType();
+    if (type.getAttributeDescriptor(PARTIAL_RESULT_ATTRIBUTE) == null) {
+      MetacardType partialType = partialMetacardTypes.getIfPresent(type);
+      if (partialType == null) {
+        partialType =
+            new MetacardTypeImpl(
+                type.getName(), type, Collections.singleton(PARTIAL_RESULT_DESCRIPTOR));
+        partialMetacardTypes.put(type, partialType);
+      }
+      metacard.setType(partialType);
+    }
+    metacard.setAttribute(PARTIAL_RESULT_ATTRIBUTE, true);
   }
 
   private boolean queryingForAllRecords(QueryRequest request) {
@@ -867,8 +1224,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return resolver.getSortKey(sortProperty);
   }
 
-  private ResultImpl createResult(SolrDocument doc) throws MetacardCreationException {
-    ResultImpl result = new ResultImpl(createMetacard(doc));
+  private ResultImpl createResult(SolrDocument doc, boolean partialResult)
+      throws MetacardCreationException {
+    MetacardImpl metacard = createMetacard(doc);
+    if (partialResult) {
+      markPartial(metacard);
+    }
+    ResultImpl result = new ResultImpl(metacard);
 
     if (doc.get(RELEVANCE_SORT_FIELD) != null) {
       result.setRelevanceScore(((Float) (doc.get(RELEVANCE_SORT_FIELD))).doubleValue());

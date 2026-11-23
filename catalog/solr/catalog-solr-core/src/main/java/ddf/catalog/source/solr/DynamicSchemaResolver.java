@@ -575,6 +575,11 @@ public class DynamicSchemaResolver {
     return list;
   }
 
+  /** @return a snapshot of all Solr field names known to this resolver */
+  Set<String> getFieldNames() {
+    return new HashSet<>(fieldsCache);
+  }
+
   /**
    * Attempts to find the fieldName for the given propertyName value.
    *
@@ -625,8 +630,13 @@ public class DynamicSchemaResolver {
     return schemaFields.getFieldSuffix(format);
   }
 
-  @SuppressWarnings(
-      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
+  /**
+   * Returns the metacard type for a Solr document. The type is looked up in the cache by the
+   * document's {@link SchemaFields#METACARD_TYPE_FIELD_NAME} value and, on a miss, deserialized
+   * from the document's {@link SchemaFields#METACARD_TYPE_OBJECT_FIELD_NAME} field. Queries that
+   * restrict the Solr field list do not return the object field, so callers must make sure the type
+   * is cached (see {@link #cacheMetacardType(String, byte[])}) before converting such documents.
+   */
   public MetacardType getMetacardType(SolrDocument doc) throws MetacardCreationException {
     String mTypeFieldName = doc.getFirstValue(SchemaFields.METACARD_TYPE_FIELD_NAME).toString();
 
@@ -637,18 +647,40 @@ public class DynamicSchemaResolver {
     }
 
     byte[] bytes = (byte[]) doc.getFirstValue(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+    if (bytes == null) {
+      throw new MetacardCreationException(
+          "Metacard type " + mTypeFieldName + " is not cached and was not returned by Solr");
+    }
+    return cacheMetacardType(mTypeFieldName, bytes);
+  }
+
+  /** @return true if the metacard type stored under the given type key is already cached */
+  boolean isMetacardTypeCached(String typeKey) {
+    return metacardTypesCache.getIfPresent(typeKey) != null;
+  }
+
+  /**
+   * Deserializes a metacard type read from {@link SchemaFields#METACARD_TYPE_OBJECT_FIELD_NAME} and
+   * caches it under its type key (the {@link SchemaFields#METACARD_TYPE_FIELD_NAME} value).
+   *
+   * @return the deserialized metacard type
+   */
+  @SuppressWarnings(
+      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
+  MetacardType cacheMetacardType(String typeKey, byte[] bytes) throws MetacardCreationException {
+    MetacardType metacardType;
     try {
-      cachedMetacardType = METACARD_TYPE_MAPPER.readValue(bytes, MetacardType.class);
+      metacardType = METACARD_TYPE_MAPPER.readValue(bytes, MetacardType.class);
     } catch (IOException e) {
       LOGGER.info("IO exception loading cached metacard type", e);
       throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
     }
 
-    metacardTypeNameToSerialCache.put(mTypeFieldName, bytes);
-    metacardTypesCache.put(mTypeFieldName, cachedMetacardType);
-    addToFieldsCache(cachedMetacardType.getAttributeDescriptors());
+    metacardTypeNameToSerialCache.put(typeKey, bytes);
+    metacardTypesCache.put(typeKey, metacardType);
+    addToFieldsCache(metacardType.getAttributeDescriptors());
 
-    return cachedMetacardType;
+    return metacardType;
   }
 
   String getCaseSensitiveField(
