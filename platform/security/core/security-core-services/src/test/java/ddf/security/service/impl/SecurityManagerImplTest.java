@@ -95,4 +95,46 @@ public class SecurityManagerImplTest {
     Subject subject = manager.getSubject(authToken);
     assertNotNull(subject);
   }
+
+  /** Realms bound through the blueprint reference-listener are used for authentication. */
+  @Test
+  public void testAuthTokenWithBoundRealm() throws SecurityServiceException {
+    AuthenticationToken authToken = mock(AuthenticationToken.class);
+    Realm realm = authenticatingRealm(authToken);
+
+    SecurityManagerImpl manager = new SecurityManagerImpl(mock(SecurityLogger.class));
+    manager.addRealm(realm);
+    manager.addRealm(realm); // duplicate bind is ignored
+
+    assertNotNull(manager.getSubject(authToken));
+  }
+
+  /** Once the last realm is unbound, authentication fails again. */
+  @Test
+  public void testAuthTokenAfterLastRealmUnbound() throws SecurityServiceException {
+    AuthenticationToken authToken = mock(AuthenticationToken.class);
+    Realm realm = authenticatingRealm(authToken);
+    SecurityManagerImpl manager = new SecurityManagerImpl(mock(SecurityLogger.class));
+    manager.addRealm(realm);
+    assertNotNull(manager.getSubject(authToken));
+
+    manager.removeRealm(realm);
+
+    thrown.expect(org.apache.shiro.authc.AuthenticationException.class);
+    manager.getSubject(authToken);
+  }
+
+  private static Realm authenticatingRealm(AuthenticationToken authToken) {
+    SimplePrincipalCollection principals = new SimplePrincipalCollection();
+    principals.add(new SecurityToken(), REALM_NAME);
+    when(authToken.getCredentials()).thenReturn("testUser");
+    AuthenticationInfo info = mock(AuthenticationInfo.class);
+    when(info.getPrincipals()).thenReturn(principals);
+
+    Realm realm = mock(Realm.class);
+    when(realm.getAuthenticationInfo(authToken)).thenReturn(info);
+    when(realm.supports(authToken)).thenReturn(Boolean.TRUE);
+    when(realm.getName()).thenReturn(REALM_NAME);
+    return realm;
+  }
 }

@@ -13,6 +13,9 @@
  */
 package ddf.catalog.impl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -47,7 +50,9 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
@@ -59,6 +64,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.codice.ddf.catalog.sourcepoller.SourcePoller;
 import org.codice.ddf.catalog.sourcepoller.SourceStatus;
@@ -72,6 +78,7 @@ import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.AdditionalAnswers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +86,8 @@ public class CatalogFrameworkQueryTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkQueryTest.class);
 
   private CatalogFrameworkImpl framework;
+
+  private FrameworkProperties props;
 
   @Before
   public void initFramework() {
@@ -91,7 +100,7 @@ public class CatalogFrameworkQueryTest {
         .thenReturn(Optional.of(SourceStatus.AVAILABLE));
 
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<>();
-    FrameworkProperties props = new FrameworkProperties();
+    props = new FrameworkProperties();
     props.setCatalogProviders(Collections.singletonList(provider));
     props.setPostIngest(postIngestPlugins);
     props.setFederationStrategy(new MockFederationStrategy());
@@ -158,6 +167,37 @@ public class CatalogFrameworkQueryTest {
             sourceOperations,
             transformOperations);
     sourceOperations.bind(provider);
+  }
+
+  @Test
+  public void testQueryMetricsRecordedUnderPhaseSpecificKeys() throws Exception {
+    AccessPlugin accessPlugin = mock(AccessPlugin.class, AdditionalAnswers.returnsFirstArg());
+    PreAuthorizationPlugin preAuthPlugin =
+        mock(PreAuthorizationPlugin.class, AdditionalAnswers.returnsFirstArg());
+    props.setAccessPlugins(Collections.singletonList(accessPlugin));
+    props.setPreAuthorizationPlugins(Collections.singletonList(preAuthPlugin));
+
+    FilterFactory filterFactory = new FilterFactoryImpl();
+    QueryRequest queryReq =
+        new QueryRequestImpl(
+            new QueryImpl(filterFactory.like(filterFactory.property(Metacard.ANY_TEXT), "*")),
+            false);
+
+    QueryResponse response = framework.query(queryReq);
+
+    Set<String> keys = response.getRequest().getProperties().keySet();
+    String accessName = accessPlugin.getClass().getSimpleName();
+    String preAuthName = preAuthPlugin.getClass().getSimpleName();
+    // pre-query access plugins are no longer recorded under the post-query prefix
+    assertThat(
+        keys, hasItem(QueryOperations.QM_PREQUERYACCESS + accessName + QueryOperations.QM_ELAPSED));
+    assertThat(
+        keys, not(hasItem(QueryOperations.QM_POSTQUERY + accessName + QueryOperations.QM_ELAPSED)));
+    // pre-authorization plugins keep separate pre- and post-query entries
+    assertThat(
+        keys, hasItem(QueryOperations.QM_PREAUTH + preAuthName + QueryOperations.QM_ELAPSED));
+    assertThat(
+        keys, hasItem(QueryOperations.QM_POSTAUTH + preAuthName + QueryOperations.QM_ELAPSED));
   }
 
   @Test
