@@ -18,6 +18,7 @@ import static ddf.catalog.Constants.QUERY_LOGGER_NAME;
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
+import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -102,6 +103,9 @@ public class QueryOperations extends DescribableImpl {
   public static final String QM_PREQUERY = QMB + "prequery.";
   public static final String QM_PREQUERYACCESS = QMB + "prequeryaccess.";
   public static final String QM_PREAUTH = QMB + "preauthorization.";
+  /** Post-query pass of {@link ddf.catalog.plugin.PreAuthorizationPlugin}s. */
+  public static final String QM_POSTAUTH = QMB + "postauthorization.";
+
   public static final String QM_RESPONSE_POLICY = QMB + "response-policy.";
   public static final String QM_REQUEST_POLICYMAP = QMB + "request-policymap.";
   public static final String QM_RESPONSE_POLICYMAP = QMB + "response-policymap.";
@@ -597,7 +601,7 @@ public class QueryOperations extends DescribableImpl {
         long start = System.nanoTime();
         queryReq = plugin.processPreQuery(queryReq);
         long elapsedTime = System.nanoTime() - start;
-        putMetricsDuration(queryReq, getMetric(QM_POSTQUERY, plugin, QM_ELAPSED), elapsedTime);
+        putMetricsDuration(queryReq, getMetric(QM_PREQUERYACCESS, plugin, QM_ELAPSED), elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException(QUERY_FAILURE_MSG, e);
       }
@@ -627,7 +631,7 @@ public class QueryOperations extends DescribableImpl {
         long start = System.nanoTime();
         queryResponse = plugin.processPostQuery(queryResponse);
         long elapsedTime = System.nanoTime() - start;
-        putMetricsDuration(queryResponse, getMetric(QM_PREAUTH, plugin, QM_ELAPSED), elapsedTime);
+        putMetricsDuration(queryResponse, getMetric(QM_POSTAUTH, plugin, QM_ELAPSED), elapsedTime);
       } catch (StopProcessingException e) {
         throw new FederationException(QUERY_FAILURE_MSG, e);
       }
@@ -739,14 +743,17 @@ public class QueryOperations extends DescribableImpl {
 
   private QueryResponse injectAttributes(QueryResponse response) {
     long start = System.nanoTime();
+    // Snapshot the injectors once per response: the framework's list is a live blueprint
+    // reference-list whose iterator() cost grows with every iterator created since the last GC,
+    // so iterating it once per result is very expensive for large result sets.
+    List<AttributeInjector> injectors =
+        new ArrayList<>(frameworkProperties.getAttributeInjectors());
     List<Result> results =
         response.getResults().stream()
             .map(
                 result -> {
                   Metacard original = result.getMetacard();
-                  Metacard metacard =
-                      opsMetacardSupport.applyInjectors(
-                          original, frameworkProperties.getAttributeInjectors());
+                  Metacard metacard = opsMetacardSupport.applyInjectors(original, injectors);
                   ResultImpl newResult = new ResultImpl(metacard);
                   newResult.setDistanceInMeters(result.getDistanceInMeters());
                   newResult.setRelevanceScore(result.getRelevanceScore());

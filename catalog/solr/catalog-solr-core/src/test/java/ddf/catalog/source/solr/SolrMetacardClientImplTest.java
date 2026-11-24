@@ -16,12 +16,16 @@ package ddf.catalog.source.solr;
 import static ddf.catalog.Constants.QUERY_HIGHLIGHT_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,11 +74,14 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortOrder;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -357,6 +364,427 @@ public class SolrMetacardClientImplTest {
     verifyHighlight(descriptionHighlights.get(), new HighlightImpl(44, 50, 0));
   }
 
+  @Test
+  public void testQueryWithoutFieldRestrictionsKeepsDefaultFieldList() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(realQuery.getFields(), is(nullValue()));
+  }
+
+  @Test
+  public void testIncludedFieldsRestrictsFieldList() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(
+            SolrMetacardClientImpl.INCLUDED_FIELDS,
+            new ArrayList<>(Arrays.asList("title", "custom")));
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder(
+            "id_txt", "title_txt", "custom_txt", SchemaFields.METACARD_TYPE_FIELD_NAME));
+  }
+
+  @Test
+  public void testIncludedFieldsPreservesRelevanceScore() throws Exception {
+    QueryImpl query =
+        new QueryImpl(
+            builder.attribute("anyText").is().like().text("normal"),
+            1,
+            1,
+            new SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING),
+            false,
+            1000);
+    QueryRequest request = new QueryRequestImpl(query);
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder("id_txt", "title_txt", "score", SchemaFields.METACARD_TYPE_FIELD_NAME));
+  }
+
+  @Test
+  public void testExcludedFieldsRemovesFromFieldList() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(
+            SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("author", "id")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields();
+
+    clientImpl.query(request);
+
+    // author and its derived fields are removed; id is required so it cannot be excluded
+    assertThat(fieldList(realQuery), containsInAnyOrder(knownFieldsExcept("author_txt")));
+  }
+
+  @Test
+  public void testExcludedThumbnailRemovesBinaryField() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("thumbnail")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    when(dynamicSchemaResolver.getAnonymousField("thumbnail"))
+        .thenReturn(Collections.singletonList("thumbnail_bin"));
+    mockKnownFields();
+
+    clientImpl.query(request);
+
+    assertThat(fieldList(realQuery), containsInAnyOrder(knownFieldsExcept("thumbnail_bin")));
+  }
+
+  @Test
+  public void testExcludedFieldsPreservesRelevanceScore() throws Exception {
+    QueryImpl query =
+        new QueryImpl(
+            builder.attribute("anyText").is().like().text("normal"),
+            1,
+            1,
+            new SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING),
+            false,
+            1000);
+    QueryRequest request = new QueryRequestImpl(query);
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("author")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields();
+
+    clientImpl.query(request);
+
+    List<String> expected = new ArrayList<>(Arrays.asList(knownFieldsExcept("author_txt")));
+    expected.add("score");
+    assertThat(fieldList(realQuery), containsInAnyOrder(expected.toArray(new String[0])));
+  }
+
+  @Test
+  public void testIncludedFieldsWildcardPassesThrough() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("custom.*")));
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder(
+            "id_txt", "title_txt", "custom.*", SchemaFields.METACARD_TYPE_FIELD_NAME));
+  }
+
+  @Test
+  public void testExcludedFieldsWildcardIsExpanded() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("ext.xyz.*")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields("ext.xyz.a_txt", "ext.xyz.a_txt_sort", "ext.other_txt");
+
+    clientImpl.query(request);
+
+    List<String> expected = new ArrayList<>(Arrays.asList(knownFieldsExcept()));
+    expected.add("ext.other_txt");
+    assertThat(fieldList(realQuery), containsInAnyOrder(expected.toArray(new String[0])));
+  }
+
+  @Test
+  public void testExcludedFieldsWildcardCollidingWithRequiredIsExpanded() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("*_txt")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields();
+
+    clientImpl.query(request);
+
+    // *_txt matches id_txt, title_txt and author_txt, but the required id and title are kept
+    assertThat(fieldList(realQuery), containsInAnyOrder(knownFieldsExcept("author_txt")));
+  }
+
+  @Test
+  public void testFieldListRestrictionDisabledByFeatureFlag() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    System.setProperty(SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_ENABLED, "false");
+
+    clientImpl.query(request);
+
+    assertThat(realQuery.getFields(), is(nullValue()));
+  }
+
+  @Test
+  public void testConfiguredRequiredFieldsCannotBeExcluded() throws Exception {
+    System.setProperty(
+        SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_REQUIRED_FIELDS, "owner, metadata.*");
+    clientImpl =
+        new TestSolrMetacardClientImpl(
+            client, catalogFilterAdapter, solrFilterDelegateFactory, dynamicSchemaResolver);
+
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(
+            SolrMetacardClientImpl.EXCLUDED_FIELDS,
+            new ArrayList<>(Arrays.asList("author", "owner", "metadata.*")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields("owner_txt", "metadata.foo_txt");
+
+    clientImpl.query(request);
+
+    // author_txt excluded; owner_txt and metadata.* are required so they cannot be excluded
+    List<String> expected = new ArrayList<>(Arrays.asList(knownFieldsExcept("author_txt")));
+    expected.add("owner_txt");
+    expected.add("metadata.foo_txt");
+    assertThat(fieldList(realQuery), containsInAnyOrder(expected.toArray(new String[0])));
+
+    System.setProperty(SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_REQUIRED_FIELDS, "");
+  }
+
+  @Test
+  public void testConfiguredRequiredWildcardOnlyAddsBaseFields() throws Exception {
+    System.setProperty(SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_REQUIRED_FIELDS, "security.*");
+    clientImpl =
+        new TestSolrMetacardClientImpl(
+            client, catalogFilterAdapter, solrFilterDelegateFactory, dynamicSchemaResolver);
+
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields(
+        "security.access-groups_txt",
+        "security.access-groups_txt_tokenized",
+        "security.access-groups_txt_phonetics");
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder(
+            "id_txt",
+            "title_txt",
+            "security.access-groups_txt",
+            SchemaFields.METACARD_TYPE_FIELD_NAME));
+
+    System.setProperty(SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_REQUIRED_FIELDS, "");
+  }
+
+  @Test
+  public void testEmptyFieldListPropertyIsIgnored() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request.getProperties().put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<String>());
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(realQuery.getFields(), is(nullValue()));
+  }
+
+  @Test(expected = UnsupportedQueryException.class)
+  public void testBothFieldListPropertiesThrows() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("author")));
+    prepareRealQuery(request);
+
+    clientImpl.query(request);
+  }
+
+  @Test
+  public void testInvalidFieldListPropertyTypeIsIgnored() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request.getProperties().put(SolrMetacardClientImpl.INCLUDED_FIELDS, "title");
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(realQuery.getFields(), is(nullValue()));
+  }
+
+  @Test
+  public void testObjectArrayFieldListIsAccepted() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new Object[] {"title", "custom"});
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder(
+            "id_txt", "title_txt", "custom_txt", SchemaFields.METACARD_TYPE_FIELD_NAME));
+  }
+
+  @Test
+  public void testIncludedFieldsReadFromUncheckedProperties() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    HashMap<String, Serializable> unchecked = new HashMap<>();
+    unchecked.put(
+        SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title", "custom")));
+    request.getProperties().put(SolrMetacardClientImpl.UNCHECKED_PROPERTIES, unchecked);
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder(
+            "id_txt", "title_txt", "custom_txt", SchemaFields.METACARD_TYPE_FIELD_NAME));
+  }
+
+  @Test
+  public void testExcludedFieldsReadFromUncheckedProperties() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    HashMap<String, Serializable> unchecked = new HashMap<>();
+    unchecked.put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("author")));
+    request.getProperties().put(SolrMetacardClientImpl.UNCHECKED_PROPERTIES, unchecked);
+    SolrQuery realQuery = prepareRealQuery(request);
+    mockKnownFields();
+
+    clientImpl.query(request);
+
+    assertThat(fieldList(realQuery), containsInAnyOrder(knownFieldsExcept("author_txt")));
+  }
+
+  @Test
+  public void testTopLevelFieldListTakesPrecedenceOverUncheckedProperties() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    HashMap<String, Serializable> unchecked = new HashMap<>();
+    unchecked.put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("custom")));
+    request.getProperties().put(SolrMetacardClientImpl.UNCHECKED_PROPERTIES, unchecked);
+    SolrQuery realQuery = prepareRealQuery(request);
+
+    clientImpl.query(request);
+
+    assertThat(
+        fieldList(realQuery),
+        containsInAnyOrder("id_txt", "title_txt", SchemaFields.METACARD_TYPE_FIELD_NAME));
+  }
+
+  @Test(expected = UnsupportedQueryException.class)
+  public void testBothFieldListPropertiesInUncheckedPropertiesThrows() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    HashMap<String, Serializable> unchecked = new HashMap<>();
+    unchecked.put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    unchecked.put(SolrMetacardClientImpl.EXCLUDED_FIELDS, new ArrayList<>(Arrays.asList("author")));
+    request.getProperties().put(SolrMetacardClientImpl.UNCHECKED_PROPERTIES, unchecked);
+    prepareRealQuery(request);
+
+    clientImpl.query(request);
+  }
+
+  private static final List<String> KNOWN_FIELDS =
+      Arrays.asList(
+          "id_txt",
+          "id_txt_sort",
+          "title_txt",
+          "title_txt_sort",
+          "title_txt_tokenized",
+          "author_txt",
+          "author_txt_sort",
+          "author_txt_tokenized",
+          "thumbnail_bin",
+          "metadata_xml",
+          SchemaFields.METACARD_TYPE_FIELD_NAME,
+          SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+
+  /**
+   * Fields expected in an exclusion field list: the base attribute fields among {@link
+   * #KNOWN_FIELDS}. Derived index-only fields and the serialized metacard type object are omitted.
+   */
+  private static final List<String> BASE_FIELDS =
+      Arrays.asList(
+          "id_txt",
+          "title_txt",
+          "author_txt",
+          "thumbnail_bin",
+          "metadata_xml",
+          SchemaFields.METACARD_TYPE_FIELD_NAME);
+
+  private void mockKnownFields(String... extraFields) {
+    Set<String> fields = new HashSet<>(KNOWN_FIELDS);
+    fields.addAll(Arrays.asList(extraFields));
+    when(dynamicSchemaResolver.getFieldNames()).thenReturn(fields);
+    when(dynamicSchemaResolver.getAnonymousField("thumbnail"))
+        .thenReturn(Collections.singletonList("thumbnail_bin"));
+    when(dynamicSchemaResolver.getAnonymousField("metadata"))
+        .thenReturn(Collections.singletonList("metadata_xml"));
+    when(dynamicSchemaResolver.resolveFieldName(anyString()))
+        .thenAnswer(
+            invocation -> {
+              String field = invocation.getArgument(0, String.class);
+              int index = field.lastIndexOf('_');
+              return index == -1 ? field : field.substring(0, index);
+            });
+  }
+
+  /** @return the base attribute fields expected in an exclusion field list, minus the given ones */
+  private static String[] knownFieldsExcept(String... excluded) {
+    List<String> excludedList = Arrays.asList(excluded);
+    return BASE_FIELDS.stream()
+        .filter(field -> !excludedList.contains(field))
+        .toArray(String[]::new);
+  }
+
+  private static List<String> fieldList(SolrQuery query) {
+    String fields = query.getFields();
+    return fields == null ? Collections.emptyList() : Arrays.asList(fields.split(","));
+  }
+
+  private SolrQuery prepareRealQuery(QueryRequest request) throws Exception {
+    System.setProperty(SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_ENABLED, "true");
+    SolrQuery realQuery = new SolrQuery();
+    when(solrFilterDelegateFactory.newInstance(dynamicSchemaResolver, request.getProperties()))
+        .thenReturn(mock(SolrFilterDelegate.class));
+    when(catalogFilterAdapter.adapt(any(), any()))
+        .thenAnswer(
+            invocation -> {
+              if (invocation.getArguments()[1] instanceof RealTimeGetDelegate) {
+                return false;
+              }
+              return realQuery;
+            });
+    when(client.query(realQuery, SolrRequest.METHOD.POST)).thenReturn(queryResponse);
+    when(queryResponse.getResults()).thenReturn(new SolrDocumentList());
+    when(dynamicSchemaResolver.getAnonymousField(anyString()))
+        .thenAnswer(
+            invocation ->
+                Collections.singletonList(invocation.getArgument(0, String.class) + "_txt"));
+    when(dynamicSchemaResolver.getSortKey(anyString()))
+        .thenAnswer(invocation -> invocation.getArgument(0, String.class));
+    return realQuery;
+  }
+
   private void verifyHighlight(List<Highlight> results, Highlight mustContain) {
     boolean found = false;
     for (Highlight highlight : results) {
@@ -368,6 +796,159 @@ public class SolrMetacardClientImplTest {
       }
     }
     assertThat(found, is(true));
+  }
+
+  @Test
+  public void testUncachedMetacardTypesFetchedOncePerType() throws Exception {
+    SolrDocumentList results =
+        resultDocs(typeDoc("1", "a#1", null), typeDoc("2", "a#1", null), typeDoc("3", "b#2", null));
+    QueryRequest request = prepareTypeResolutionQuery(results);
+    byte[] aBytes = new byte[] {1};
+    byte[] bBytes = new byte[] {2};
+    SolrDocumentList typeDocs =
+        resultDocs(typeDoc("1", "a#1", aBytes), typeDoc("3", "b#2", bBytes));
+    when(client.getById(anyCollection(), any(SolrParams.class))).thenReturn(typeDocs);
+
+    clientImpl.query(request);
+
+    ArgumentCaptor<Collection<String>> ids = ArgumentCaptor.forClass(Collection.class);
+    ArgumentCaptor<SolrParams> params = ArgumentCaptor.forClass(SolrParams.class);
+    verify(client, times(1)).getById(ids.capture(), params.capture());
+    assertThat(ids.getValue(), containsInAnyOrder("1", "3"));
+    assertThat(
+        Arrays.asList(params.getValue().getParams(CommonParams.FL)),
+        hasItem(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME));
+    verify(dynamicSchemaResolver).cacheMetacardType("a#1", aBytes);
+    verify(dynamicSchemaResolver).cacheMetacardType("b#2", bBytes);
+  }
+
+  @Test
+  public void testCachedMetacardTypeNotFetched() throws Exception {
+    QueryRequest request = prepareTypeResolutionQuery(resultDocs(typeDoc("1", "a#1", null)));
+    when(dynamicSchemaResolver.isMetacardTypeCached("a#1")).thenReturn(true);
+
+    clientImpl.query(request);
+
+    verify(client, never()).getById(anyCollection(), any(SolrParams.class));
+  }
+
+  @Test
+  public void testMetacardTypeReturnedWithDocNotFetched() throws Exception {
+    QueryRequest request =
+        prepareTypeResolutionQuery(resultDocs(typeDoc("1", "a#1", new byte[] {1})));
+
+    clientImpl.query(request);
+
+    verify(client, never()).getById(anyCollection(), any(SolrParams.class));
+  }
+
+  @Test(expected = UnsupportedQueryException.class)
+  public void testUnresolvableMetacardTypeFailsQuery() throws Exception {
+    QueryRequest request = prepareTypeResolutionQuery(resultDocs(typeDoc("1", "a#1", null)));
+    when(client.getById(anyCollection(), any(SolrParams.class))).thenReturn(new SolrDocumentList());
+    when(dynamicSchemaResolver.getMetacardType(any()))
+        .thenThrow(new MetacardCreationException("not cached"));
+
+    clientImpl.query(request);
+  }
+
+  @Test
+  public void testFieldListRestrictedResultsMarkedPartial() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    prepareRealQuery(request);
+    MetacardType type = prepareResultDocs(typeDoc("1", "a#1", null), typeDoc("2", "a#1", null));
+    when(dynamicSchemaResolver.isMetacardTypeCached("a#1")).thenReturn(true);
+
+    SourceResponse response = clientImpl.query(request);
+
+    assertThat(response.getResults().size(), is(2));
+    MetacardType firstType = response.getResults().get(0).getMetacard().getMetacardType();
+    for (Result result : response.getResults()) {
+      Metacard metacard = result.getMetacard();
+      assertThat(
+          metacard.getAttribute(SolrMetacardClientImpl.PARTIAL_RESULT_ATTRIBUTE).getValue(),
+          is(true));
+      assertThat(
+          metacard
+              .getMetacardType()
+              .getAttributeDescriptor(SolrMetacardClientImpl.PARTIAL_RESULT_ATTRIBUTE),
+          notNullValue());
+      assertThat(metacard.getMetacardType().getName(), is(type.getName()));
+      // the extended type is built once and shared by results of the same type
+      assertThat(metacard.getMetacardType() == firstType, is(true));
+    }
+  }
+
+  @Test
+  public void testUnrestrictedResultsNotMarkedPartial() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    prepareRealQuery(request);
+    MetacardType type = prepareResultDocs(typeDoc("1", "a#1", new byte[] {1}));
+
+    SourceResponse response = clientImpl.query(request);
+
+    Metacard metacard = response.getResults().get(0).getMetacard();
+    assertThat(metacard.getAttribute(SolrMetacardClientImpl.PARTIAL_RESULT_ATTRIBUTE), nullValue());
+    assertThat(metacard.getMetacardType() == type, is(true));
+  }
+
+  @Test
+  public void testResultsNotMarkedPartialWhenFeatureDisabled() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request
+        .getProperties()
+        .put(SolrMetacardClientImpl.INCLUDED_FIELDS, new ArrayList<>(Arrays.asList("title")));
+    prepareRealQuery(request);
+    System.setProperty(SolrMetacardClientImpl.SOLR_QUERY_FIELDLIST_ENABLED, "false");
+    prepareResultDocs(typeDoc("1", "a#1", new byte[] {1}));
+
+    SourceResponse response = clientImpl.query(request);
+
+    Metacard metacard = response.getResults().get(0).getMetacard();
+    assertThat(metacard.getAttribute(SolrMetacardClientImpl.PARTIAL_RESULT_ATTRIBUTE), nullValue());
+  }
+
+  /** Makes the mocked Solr query return the given docs, all resolved to one metacard type. */
+  private MetacardType prepareResultDocs(SolrDocument... docs) throws Exception {
+    when(queryResponse.getResults()).thenReturn(resultDocs(docs));
+    MetacardType type =
+        new MetacardTypeImpl(
+            DDF_METACARD_TYPE,
+            Collections.singleton(
+                new AttributeDescriptorImpl(
+                    Metacard.TITLE, true, true, false, false, BasicTypes.STRING_TYPE)));
+    when(dynamicSchemaResolver.getMetacardType(any())).thenReturn(type);
+    when(dynamicSchemaResolver.isPrivateField(anyString())).thenReturn(true);
+    return type;
+  }
+
+  private QueryRequest prepareTypeResolutionQuery(SolrDocumentList results) throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    when(queryResponse.getResults()).thenReturn(results);
+    when(dynamicSchemaResolver.getMetacardType(any()))
+        .thenReturn(new MetacardTypeImpl(DDF_METACARD_TYPE, new HashSet<>()));
+    when(dynamicSchemaResolver.isPrivateField(anyString())).thenReturn(true);
+    return request;
+  }
+
+  private static SolrDocument typeDoc(String id, String typeKey, byte[] typeBytes) {
+    SolrDocument doc = new SolrDocument();
+    doc.addField(Metacard.ID + SchemaFields.TEXT_SUFFIX, id);
+    doc.addField(SchemaFields.METACARD_TYPE_FIELD_NAME, typeKey);
+    if (typeBytes != null) {
+      doc.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, typeBytes);
+    }
+    return doc;
+  }
+
+  private static SolrDocumentList resultDocs(SolrDocument... docs) {
+    SolrDocumentList list = new SolrDocumentList();
+    list.addAll(Arrays.asList(docs));
+    list.setNumFound(docs.length);
+    return list;
   }
 
   private void mockDynamicSchemsolverCalls(

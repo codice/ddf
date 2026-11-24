@@ -449,6 +449,27 @@ Thumbs.db
 |CloudSolrClient
 |Yes
 
+|[[_solr_fieldlist_enabled]]Allow query field list restriction
+|solr.query.fieldList.enabled
+|Boolean
+|If true, queries may restrict the attributes returned from Solr with the `includedFields` or
+`excludedFields` query request properties (a list of attribute names, `*` wildcards allowed; only one
+of the two may be given). Restricting the returned fields reduces query time and response size for
+large result sets. Metacards returned from such queries are partial and are marked with
+`metacard.partial=true`; creates and updates of partial metacards are rejected.
+|false
+|No
+
+|[[_solr_fieldlist_required_fields]]Attributes always returned when restricting fields
+|solr.query.fieldList.requiredFields
+|String
+|Comma-separated list of attributes (`*` wildcards allowed) that are always returned, and cannot be
+excluded, when a query restricts the returned fields. The metacard id, title and type are always
+returned. Include the security and validation attributes so post-query security and validity
+policy plugins can evaluate the results.
+|security.*,validation-errors,validation-warnings,metacard-tags,metacard.owner
+|No
+
 6+^h|SolrCloud Properties
 
 |Zookeeper Nodes

@@ -19,9 +19,12 @@ import ddf.security.audit.SecurityLogger;
 import ddf.security.impl.SubjectImpl;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -44,6 +47,14 @@ public class SecurityManagerImpl implements SecurityManager {
 
   private SecurityLogger securityLogger;
 
+  /**
+   * The realms handed to Shiro, which keeps and iterates this collection on every authentication
+   * and permission check. A {@link CopyOnWriteArrayList} makes that iteration cheap and lock-free;
+   * passing the live blueprint reference-list instead made every permission check create an
+   * iterator on it, whose cost grows with every iterator created since the last GC.
+   */
+  private final CopyOnWriteArrayList<Realm> realms = new CopyOnWriteArrayList<>();
+
   /** Creates a new security manager with the collection of given realms. */
   public SecurityManagerImpl(SecurityLogger securityLogger) {
     this.securityLogger = securityLogger;
@@ -54,11 +65,48 @@ public class SecurityManagerImpl implements SecurityManager {
         .setAuthenticationStrategy(new AllSuccessfulStrategy());
   }
 
-  /** @param realms The realms used for the backing authZ and authN operations. */
-  public void setRealms(Collection<Realm> realms) {
-    // update the default manager with current realm list
+  /**
+   * Replaces the realms used for the backing authZ and authN operations.
+   *
+   * @param realms The realms used for the backing authZ and authN operations.
+   */
+  public synchronized void setRealms(Collection<Realm> realms) {
+    List<Realm> current = new ArrayList<>(realms);
+    this.realms.retainAll(current);
+    this.realms.addAllAbsent(current);
+    updateManager();
+  }
+
+  /**
+   * Blueprint reference-listener bind method: a realm service became available.
+   *
+   * @param realm the realm to add
+   */
+  public synchronized void addRealm(Realm realm) {
+    if (realm != null && realms.addIfAbsent(realm)) {
+      updateManager();
+    }
+  }
+
+  /**
+   * Blueprint reference-listener unbind method: a realm service went away.
+   *
+   * @param realm the realm to remove
+   */
+  public synchronized void removeRealm(Realm realm) {
+    if (realm != null && realms.remove(realm)) {
+      updateManager();
+    }
+  }
+
+  private void updateManager() {
     LOGGER.debug("Updating manager with {} realms.", realms.size());
-    internalManager.setRealms(realms);
+    // Shiro rejects an empty realm collection; when the last realm goes away it keeps a reference
+    // to this (now empty) list, so authN/authZ fail until a realm is bound again.
+    if (!realms.isEmpty()) {
+      // re-set so Shiro re-applies its cache manager, event bus and permission resolvers
+      internalManager.setRealms(realms);
+    }
   }
 
   @Override

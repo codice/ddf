@@ -62,14 +62,19 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
+    <!-- Realms are tracked through bind/unbind into a plain copy-on-write list that is handed to
+         Shiro. Shiro iterates its realms on every permission check, and iterating the live
+         reference-list there was a significant per-result cost for large query responses. -->
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
-                    ext:proxy-method="greedy"/>
+                    ext:proxy-method="greedy">
+        <reference-listener bind-method="addRealm" unbind-method="removeRealm"
+                            ref="securityManagerImpl"/>
+    </reference-list>
 
     <bean id="securityManagerImpl" class="ddf.security.service.impl.SecurityManagerImpl">
         <cm:managed-properties persistent-id="ddf.security.service.SecurityManager"
                                update-strategy="container-managed"/>
         <argument ref="securityLogger"/>
-        <property name="realms" ref="realmList"/>
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
